@@ -102,6 +102,13 @@ rcMeshLoaderObj::~rcMeshLoaderObj()
 		SharedData::getSingleton().iSceneMgr->destroySceneNode(m_entNames[i]);
 		SharedData::getSingleton().iSceneMgr->destroyEntity(m_entNames[i]);
 	}
+	
+	for (EntityList::iterator i = mHouseList.begin(); i != mHouseList.end(); ++i)
+	{
+		(*i)->detachFromParent();
+		SharedData::getSingleton().iSceneMgr->destroyEntity((*i));
+	}
+	mHouseList.resize(0);
 	SharedData::getSingleton().mNavNodeList.resize(0);
 
 	if (mTerrainPaging)
