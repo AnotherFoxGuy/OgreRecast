@@ -1,0 +1,7 @@
+# use glob syntax.
+syntax: glob
+
+.svn
+_UpgradeReport_Files
+debug
+obj

@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout >
+    <Window Type="DefaultWindow" Name="Root" >
+        <Property Name="InheritsAlpha" Value="False" />
+        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+        <Window Type="TaharezLook/FrameWindow" Name="Root/FrameWindow" >
+            <Property Name="TitlebarFont" Value="Commonwealth-10" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="TitlebarEnabled" Value="True" />
+            <Property Name="UnifiedAreaRect" Value="{{0.00952756,0},{0.0104167,0},{0.51085,0},{0.585417,0}}" />
+            <Window Type="TaharezLook/Menubar" Name="Root/FrameWindow/Menubar" >
+                <Property Name="ItemSpacing" Value="10" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0,0},{0.09,0},{0.997727,0},{0.191014,0}}" />
+                <Window Type="TaharezLook/MenuItem" Name="Root/FrameWindow/Menubar/File" >
+                    <Property Name="Text" Value="File" />
+                    <Property Name="Tooltip" Value="Yes, primary menuitems can have a tooltip" />
+                    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{0,7},{0,0},{0,30},{0,21}}" />
+                    <Property Name="VerticalAlignment" Value="Centre" />
+                    <Window Type="TaharezLook/PopupMenu" Name="Root/FrameWindow/Menubar/File/AutoPopup" >
+                        <Property Name="Visible" Value="False" />
+                        <Property Name="FadeInTime" Value="0" />
+                        <Property Name="FadeOutTime" Value="0" />
+                        <Property Name="ItemSpacing" Value="2" />
+                        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                        <Property Name="ClippedByParent" Value="False" />
+                        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{0,42},{0,119.174}}" />
+                        <Property Name="AutoResizeEnabled" Value="True" />
+                        <Window Type="TaharezLook/MenuItem" Name="Root/FrameWindow/Menubar/File/New" >
+                            <Property Name="Text" Value="New" />
+                            <Property Name="Tooltip" Value="Creates a new document." />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0,2},{0,2},{0,39},{0,23}}" />
+                        </Window>
+                        <Window Type="TaharezLook/MenuItem" Name="Root/FrameWindow/Menubar/File/Open" >
+                            <Property Name="Text" Value="Open..." />
+                            <Property Name="Tooltip" Value="Opens an existing document." />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0,2},{0,25},{0,39},{0,46}}" />
+                        </Window>
+                        <Window Type="TaharezLook/MenuItem" Name="Root/FrameWindow/Menubar/File/Close" >
+                            <Property Name="Text" Value="Close" />
+                            <Property Name="Tooltip" Value="Closes the active document." />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0,2},{0,48},{0,39},{0,69}}" />
+                        </Window>
+                        <Window Type="TaharezLook/MenuItem" Name="Root/FrameWindow/Menubar/File/Save" >
+                            <Property Name="Text" Value="Save" />
+                            <Property Name="Tooltip" Value="Saves the active document." />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0,2},{0,71},{0,39},{0,92}}" />
+                        </Window>
+                        <Window Type="TaharezLook/MenuItem" Name="Root/FrameWindow/Menubar/File/Exit" >
+                            <Property Name="Text" Value="Exit" />
+                            <Property Name="Tooltip" Value="Quits the application; prompts you to save documents." />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0,2},{0,94},{0,39},{0,115}}" />
+                        </Window>
+                    </Window>
+                </Window>
+                <Window Type="TaharezLook/MenuItem" Name="Root/FrameWindow/Menubar/Edit" >
+                    <Property Name="Text" Value="Edit" />
+                    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{0,40},{0,0},{0,64},{0,21}}" />
+                    <Property Name="VerticalAlignment" Value="Centre" />
+                    <Window Type="TaharezLook/PopupMenu" Name="Root/FrameWindow/Menubar/Edit/AutoPopup" >
+                        <Property Name="Visible" Value="False" />
+                        <Property Name="FadeInTime" Value="0" />
+                        <Property Name="FadeOutTime" Value="0" />
+                        <Property Name="ItemSpacing" Value="2" />
+                        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                        <Property Name="ClippedByParent" Value="False" />
+                        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{0,65},{0,118.661}}" />
+                        <Property Name="AutoResizeEnabled" Value="True" />
+                        <Window Type="TaharezLook/MenuItem" Name="Root/FrameWindow/Menubar/Edit/Cut" >
+                            <Property Name="Text" Value="Cut" />
+                            <Property Name="Tooltip" Value="Cuts the selection and puts it on the Clipboard." />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0,2},{0,2},{0,62},{0,23}}" />
+                        </Window>
+                        <Window Type="TaharezLook/MenuItem" Name="Root/FrameWindow/Menubar/Edit/Copy" >
+                            <Property Name="Text" Value="Copy" />
+                            <Property Name="Tooltip" Value="Copies the selection and puts it on the Clipboard." />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0,2},{0,25},{0,62},{0,46}}" />
+                        </Window>
+                        <Window Type="TaharezLook/MenuItem" Name="Root/FrameWindow/Menubar/Edit/Paste" >
+                            <Property Name="Text" Value="Paste" />
+                            <Property Name="Tooltip" Value="Inserts the Clipboard contents." />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0,2},{0,48},{0,62},{0,69}}" />
+                        </Window>
+                        <Window Type="TaharezLook/MenuItem" Name="Root/FrameWindow/Menubar/Edit/Delete" >
+                            <Property Name="Text" Value="Delete" />
+                            <Property Name="Tooltip" Value="Erases the selection." />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0,2},{0,71},{0,62},{0,92}}" />
+                        </Window>
+                        <Window Type="TaharezLook/MenuItem" Name="Root/FrameWindow/Menubar/Edit/SubMenu" >
+                            <Property Name="Text" Value="SubMenu" />
+                            <Property Name="Tooltip" Value="This menuitem has a submenu" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0,2},{0,94},{0,62},{0,115}}" />
+                            <Window Type="TaharezLook/PopupMenu" Name="Root/FrameWindow/Menubar/Edit/SubMenu/AutoPopup" >
+                                <Property Name="Visible" Value="False" />
+                                <Property Name="FadeInTime" Value="0" />
+                                <Property Name="FadeOutTime" Value="0" />
+                                <Property Name="ItemSpacing" Value="2" />
+                                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                <Property Name="ClippedByParent" Value="False" />
+                                <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{0,43},{0,49.5221}}" />
+                                <Property Name="AutoResizeEnabled" Value="True" />
+                                <Window Type="TaharezLook/MenuItem" Name="Root/FrameWindow/Menubar/Edit/SubMenu/Item1" >
+                                    <Property Name="Text" Value="Item 1" />
+                                    <Property Name="Tooltip" Value="This is sub-menu #1" />
+                                    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                    <Property Name="UnifiedAreaRect" Value="{{0,2},{0,2},{0,40},{0,23}}" />
+                                </Window>
+                                <Window Type="TaharezLook/MenuItem" Name="Root/FrameWindow/Menubar/Edit/SubMenu/Item2" >
+                                    <Property Name="Text" Value="Item 2" />
+                                    <Property Name="Tooltip" Value="This is sub-menu #2" />
+                                    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                    <Property Name="UnifiedAreaRect" Value="{{0,2},{0,25},{0,40},{0,46}}" />
+                                </Window>
+                            </Window>
+                        </Window>
+                    </Window>
+                </Window>
+                <Window Type="TaharezLook/MenuItem" Name="Root/FrameWindow/Menubar/Help" >
+                    <Property Name="Text" Value="Help" />
+                    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{0,74},{0,0},{0,100},{0,21}}" />
+                    <Property Name="VerticalAlignment" Value="Centre" />
+                    <Window Type="TaharezLook/PopupMenu" Name="Root/FrameWindow/Menubar/Help/AutoPopup" >
+                        <Property Name="Visible" Value="False" />
+                        <Property Name="FadeInTime" Value="0" />
+                        <Property Name="FadeOutTime" Value="0" />
+                        <Property Name="ItemSpacing" Value="2" />
+                        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                        <Property Name="ClippedByParent" Value="False" />
+                        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{0,64},{0,49.1331}}" />
+                        <Property Name="AutoResizeEnabled" Value="True" />
+                        <Window Type="TaharezLook/MenuItem" Name="Root/FrameWindow/Menubar/Help/Contents" >
+                            <Property Name="Text" Value="Contents..." />
+                            <Property Name="Tooltip" Value="Displays the help contents." />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0,2},{0,2},{0,61},{0,23}}" />
+                        </Window>
+                        <Window Type="TaharezLook/MenuItem" Name="Root/FrameWindow/Menubar/Help/About" >
+                            <Property Name="Text" Value="About..." />
+                            <Property Name="Tooltip" Value="Displays program information, version number, and copyright." />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0,2},{0,25},{0,61},{0,46}}" />
+                        </Window>
+                    </Window>
+                </Window>
+            </Window>
+            <Window Type="TaharezLook/StaticText" Name="Root/FrameWindow/Status" >
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.031818,0},{0.873954,0},{0.972728,0},{0.967087,0}}" />
+            </Window>
+            <Window Type="TaharezLook/StaticText" Name="Root/FrameWindow/FirstPopup" >
+                <Property Name="Text" Value="First Popup" />
+                <Property Name="HorzFormatting" Value="HorzCentred" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.131194,0},{0.701449,0},{0.431194,0},{0.795652,0}}" />
+            </Window>
+            <Window Type="TaharezLook/StaticText" Name="Root/FrameWindow/SecondPopup" >
+                <Property Name="Font" Value="Commonwealth-10" />
+                <Property Name="Text" Value="Second Popup" />
+                <Property Name="HorzFormatting" Value="HorzCentred" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.572904,0},{0.701449,0},{0.872903,0},{0.795652,0}}" />
+            </Window>
+        </Window>
+        <Window Type="TaharezLook/Menubar" Name="Root/Popup" >
+            <Property Name="ItemSpacing" Value="10" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.565585,0},{0.07,0},{0.684029,0},{0.140833,0}}" />
+            <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus" >
+                <Property Name="Text" Value="PopupMenus" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0,7},{0,0},{0,73},{0,21}}" />
+                <Property Name="VerticalAlignment" Value="Centre" />
+                <Window Type="TaharezLook/PopupMenu" Name="Root/Popup/PopupMenus/AutoPopup" >
+                    <Property Name="FadeInTime" Value="0" />
+                    <Property Name="FadeOutTime" Value="0" />
+                    <Property Name="ItemSpacing" Value="2" />
+                    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                    <Property Name="ClippedByParent" Value="False" />
+                    <Property Name="UnifiedAreaRect" Value="{{0,0},{0,21},{0,57},{0,116.749}}" />
+                    <Property Name="AutoResizeEnabled" Value="True" />
+                    <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/FirstPopup" >
+                        <Property Name="Text" Value="First" />
+                        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                        <Property Name="UnifiedAreaRect" Value="{{0,2},{0,2},{0,54},{0,23}}" />
+                        <Window Type="TaharezLook/PopupMenu" Name="Root/Popup/PopupMenus/FirstPopup/AutoPopup" >
+                            <Property Name="FadeInTime" Value="0" />
+                            <Property Name="FadeOutTime" Value="0" />
+                            <Property Name="ItemSpacing" Value="2" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="ClippedByParent" Value="False" />
+                            <Property Name="UnifiedAreaRect" Value="{{0,52},{0,0},{0,97},{0,119.266}}" />
+                            <Property Name="AutoResizeEnabled" Value="True" />
+                            <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/FirstPopup/First-1" >
+                                <Property Name="Text" Value="First-1" />
+                                <Property Name="Tooltip" Value="First-1" />
+                                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                <Property Name="UnifiedAreaRect" Value="{{0,2},{0,2},{0,42},{0,23}}" />
+                            </Window>
+                            <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/FirstPopup/First-2" >
+                                <Property Name="Text" Value="First-2" />
+                                <Property Name="Tooltip" Value="First-2" />
+                                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                <Property Name="UnifiedAreaRect" Value="{{0,2},{0,25},{0,42},{0,46}}" />
+                            </Window>
+                            <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/FirstPopup/First-3" >
+                                <Property Name="Text" Value="First-3" />
+                                <Property Name="Tooltip" Value="First-3" />
+                                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                <Property Name="UnifiedAreaRect" Value="{{0,2},{0,48},{0,42},{0,69}}" />
+                            </Window>
+                            <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/FirstPopup/First-4" >
+                                <Property Name="Text" Value="First-4" />
+                                <Property Name="Tooltip" Value="First-4" />
+                                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                <Property Name="UnifiedAreaRect" Value="{{0,2},{0,71},{0,42},{0,92}}" />
+                            </Window>
+                            <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/FirstPopup/First-5" >
+                                <Property Name="Text" Value="First-5" />
+                                <Property Name="Tooltip" Value="First-5" />
+                                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                <Property Name="UnifiedAreaRect" Value="{{0,2},{0,94},{0,42},{0,115}}" />
+                            </Window>
+                        </Window>
+                    </Window>
+                    <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/SecondPopup" >
+                        <Property Name="Text" Value="Second" />
+                        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                        <Property Name="UnifiedAreaRect" Value="{{0,2},{0,25},{0,54},{0,46}}" />
+                        <Window Type="TaharezLook/PopupMenu" Name="Root/Popup/PopupMenus/SecondPopup/AutoPopup" >
+                            <Property Name="FadeInTime" Value="0" />
+                            <Property Name="FadeOutTime" Value="0" />
+                            <Property Name="ItemSpacing" Value="2" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="ClippedByParent" Value="False" />
+                            <Property Name="UnifiedAreaRect" Value="{{0,52},{0,0},{0,117},{0,119.11}}" />
+                            <Property Name="AutoResizeEnabled" Value="True" />
+                            <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/SecondPopup/Second-1" >
+                                <Property Name="Text" Value="Second-1" />
+                                <Property Name="Tooltip" Value="Second-1" />
+                                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                <Property Name="UnifiedAreaRect" Value="{{0,2},{0,2},{0,62},{0,23}}" />
+                            </Window>
+                            <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/SecondPopup/Second-2" >
+                                <Property Name="Text" Value="Second-2" />
+                                <Property Name="Tooltip" Value="Second-2" />
+                                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                <Property Name="UnifiedAreaRect" Value="{{0,2},{0,25},{0,62},{0,46}}" />
+                            </Window>
+                            <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/SecondPopup/Second-3" >
+                                <Property Name="Text" Value="Second-3" />
+                                <Property Name="Tooltip" Value="Second-3" />
+                                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                <Property Name="UnifiedAreaRect" Value="{{0,2},{0,48},{0,62},{0,69}}" />
+                            </Window>
+                            <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/SecondPopup/Second-4" >
+                                <Property Name="Text" Value="Second-4" />
+                                <Property Name="Tooltip" Value="Second-4" />
+                                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                <Property Name="UnifiedAreaRect" Value="{{0,2},{0,71},{0,62},{0,92}}" />
+                            </Window>
+                            <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/SecondPopup/SubMenu" >
+                                <Property Name="Text" Value="SubMenu" />
+                                <Property Name="Tooltip" Value="SubMenu" />
+                                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                <Property Name="UnifiedAreaRect" Value="{{0,2},{0,94},{0,62},{0,115}}" />
+                                <Window Type="TaharezLook/PopupMenu" Name="Root/Popup/PopupMenus/SecondPopup/SubMenu/AutoPopup" >
+                                    <Property Name="FadeInTime" Value="0" />
+                                    <Property Name="FadeOutTime" Value="0" />
+                                    <Property Name="ItemSpacing" Value="2" />
+                                    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                    <Property Name="ClippedByParent" Value="False" />
+                                    <Property Name="UnifiedAreaRect" Value="{{0,60},{0,0},{0,118},{0,49.3892}}" />
+                                    <Property Name="AutoResizeEnabled" Value="True" />
+                                    <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/SecondPopup/SubMenu/SubItem1" >
+                                        <Property Name="Text" Value="SubItem1" />
+                                        <Property Name="Tooltip" Value="SubItem1" />
+                                        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                        <Property Name="UnifiedAreaRect" Value="{{0,2},{0,2},{0,55},{0,23}}" />
+                                    </Window>
+                                    <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/SecondPopup/SubMenu/SubItem2" >
+                                        <Property Name="Text" Value="SubItem2" />
+                                        <Property Name="Tooltip" Value="SubItem2" />
+                                        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                        <Property Name="UnifiedAreaRect" Value="{{0,2},{0,25},{0,55},{0,46}}" />
+                                    </Window>
+                                </Window>
+                            </Window>
+                        </Window>
+                    </Window>
+                    <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/FramePopup" >
+                        <Property Name="Text" Value="Frame" />
+                        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                        <Property Name="UnifiedAreaRect" Value="{{0,2},{0,48},{0,54},{0,69}}" />
+                        <Window Type="TaharezLook/PopupMenu" Name="Root/Popup/PopupMenus/FramePopup/AutoPopup" >
+                            <Property Name="FadeInTime" Value="0" />
+                            <Property Name="FadeOutTime" Value="0" />
+                            <Property Name="ItemSpacing" Value="2" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="ClippedByParent" Value="False" />
+                            <Property Name="UnifiedAreaRect" Value="{{0,52},{0,0},{0,104},{0,49.3892}}" />
+                            <Property Name="AutoResizeEnabled" Value="True" />
+                            <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/FramePopup/Frame-1" >
+                                <Property Name="Text" Value="Frame-1" />
+                                <Property Name="Tooltip" Value="Frame-1" />
+                                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                <Property Name="UnifiedAreaRect" Value="{{0,2},{0,2},{0,49},{0,23}}" />
+                            </Window>
+                            <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/FramePopup/Frame-2" >
+                                <Property Name="Text" Value="Frame-2" />
+                                <Property Name="Tooltip" Value="Frame-2" />
+                                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                <Property Name="UnifiedAreaRect" Value="{{0,2},{0,25},{0,49},{0,46}}" />
+                            </Window>
+                        </Window>
+                    </Window>
+                    <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/SheetPopup" >
+                        <Property Name="Text" Value="Sheet" />
+                        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                        <Property Name="UnifiedAreaRect" Value="{{0,2},{0,71},{0,54},{0,92}}" />
+                        <Window Type="TaharezLook/PopupMenu" Name="Root/Popup/PopupMenus/SheetPopup/AutoPopup" >
+                            <Property Name="FadeInTime" Value="0" />
+                            <Property Name="FadeOutTime" Value="0" />
+                            <Property Name="ItemSpacing" Value="2" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="ClippedByParent" Value="False" />
+                            <Property Name="UnifiedAreaRect" Value="{{0,52},{0,0},{0,87},{0,119.243}}" />
+                            <Property Name="AutoResizeEnabled" Value="True" />
+                            <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/SheetPopup/Allo" >
+                                <Property Name="Text" Value="Allo" />
+                                <Property Name="Tooltip" Value="Français" />
+                                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                <Property Name="UnifiedAreaRect" Value="{{0,2},{0,2},{0,32},{0,23}}" />
+                            </Window>
+                            <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/SheetPopup/Hello" >
+                                <Property Name="Text" Value="Hello" />
+                                <Property Name="Tooltip" Value="English" />
+                                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                <Property Name="UnifiedAreaRect" Value="{{0,2},{0,25},{0,32},{0,46}}" />
+                            </Window>
+                            <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/SheetPopup/Hallo" >
+                                <Property Name="Text" Value="Hallo" />
+                                <Property Name="Tooltip" Value="Deutsch" />
+                                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                <Property Name="UnifiedAreaRect" Value="{{0,2},{0,48},{0,32},{0,69}}" />
+                            </Window>
+                            <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/SheetPopup/Ciao" >
+                                <Property Name="Text" Value="Ciao" />
+                                <Property Name="Tooltip" Value="Italiano" />
+                                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                <Property Name="UnifiedAreaRect" Value="{{0,2},{0,71},{0,32},{0,92}}" />
+                            </Window>
+                            <Window Type="TaharezLook/MenuItem" Name="Root/Popup/PopupMenus/SheetPopup/Hola" >
+                                <Property Name="Text" Value="Hola" />
+                                <Property Name="Tooltip" Value="Español" />
+                                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                                <Property Name="UnifiedAreaRect" Value="{{0,2},{0,94},{0,32},{0,115}}" />
+                            </Window>
+                        </Window>
+                    </Window>
+                </Window>
+            </Window>
+        </Window>
+    </Window>
+</GUILayout>
