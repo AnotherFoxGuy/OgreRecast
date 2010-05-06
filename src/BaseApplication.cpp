@@ -305,61 +305,7 @@ bool BaseApplication::frameEnded(const Ogre::FrameEvent& evt)
 //-------------------------------------------------------------------------------------
 bool BaseApplication::keyPressed( const OIS::KeyEvent &arg )
 {
-	if (arg.key == OIS::KC_T)   // cycle texture filtering mode
-	{
-		Ogre::String newVal;
-		Ogre::TextureFilterOptions tfo;
-		unsigned int aniso;
-
-		switch(m_textureFilter)
-		{
-		case FILTER_BILINEAR:
-			tfo = Ogre::TFO_TRILINEAR;
-			aniso = 1;
-			m_textureFilter = FILTER_TRILINEAR;
-			break;
-		case FILTER_TRILINEAR:
-			tfo = Ogre::TFO_ANISOTROPIC;
-			aniso = 8;
-			m_textureFilter = FILTER_ANISOTROPIC;
-			break;
-		case FILTER_ANISOTROPIC:
-			tfo = Ogre::TFO_NONE;
-			aniso = 1;
-			m_textureFilter = FILTER_NONE;
-			break;
-		default:
-			tfo = Ogre::TFO_BILINEAR;
-			aniso = 1;
-			m_textureFilter = FILTER_BILINEAR;
-		}
-
-		Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(tfo);
-		Ogre::MaterialManager::getSingleton().setDefaultAnisotropy(aniso);
-	}
-	else if (arg.key == OIS::KC_R)   // cycle polygon rendering mode
-	{
-		Ogre::String newVal;
-		Ogre::PolygonMode pm;
-
-		switch (mCamera->getPolygonMode())
-		{
-		case Ogre::PM_SOLID:
-			newVal = "Wireframe";
-			pm = Ogre::PM_WIREFRAME;
-			break;
-		case Ogre::PM_WIREFRAME:
-			newVal = "Points";
-			pm = Ogre::PM_POINTS;
-			break;
-		default:
-			newVal = "Solid";
-			pm = Ogre::PM_SOLID;
-		}
-
-		mCamera->setPolygonMode(pm);
-	}
-	else if(arg.key == OIS::KC_F5)   // refresh all textures
+	if(arg.key == OIS::KC_F5)   // refresh all textures
 	{
 		Ogre::TextureManager::getSingleton().reloadAll();
 	}

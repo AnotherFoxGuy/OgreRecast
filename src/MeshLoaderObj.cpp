@@ -976,7 +976,6 @@ void rcMeshLoaderObj::setupContent()
 		// this is only here as we KNOW all terrains will be loaded by this point,
 		// otherwise see "frameRender" method and its loadHouses routine
 		loadHouses();
-		mHousesLoaded = true;
 }
 
 // moved entity loading here due to paging... when terrain is paging in, you cannot 
@@ -1142,7 +1141,7 @@ void rcMeshLoaderObj::loadHouses()
 		mHouseList.push_back(e);
 		SharedData::getSingleton().mNavNodeList.push_back(sn);
 
-
+		mHousesLoaded = true;
 }
 
 

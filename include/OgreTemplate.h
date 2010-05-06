@@ -204,6 +204,8 @@ public:
 
 	void cleanup();
 
+	virtual void setCurrentSkybox(int _skybox);
+
 protected:
 
 	virtual void createScene(void);
@@ -318,6 +320,8 @@ protected:
 	bool recalcActiveTile;
 
 	Ogre::Log* mNavMeshLog;
+
+	ApplicationSkyboxType mCurrentSkybox;
 
 };
 

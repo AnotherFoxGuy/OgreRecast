@@ -1020,7 +1020,7 @@ Shift Left Click - Remove a Tile</Property>
             <Property Name="AlwaysOnTop" Value="True" />
             <Property Name="TitlebarFont" Value="DejaVuSans-10" />
             <Property Name="TitlebarEnabled" Value="True" />
-            <Property Name="UnifiedAreaRect" Value="{{0.28894,0},{0.16779,0},{0.713531,0},{0.728612,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.132614,0},{0.170157,0},{0.557205,0},{0.730979,0}}" />
             <Property Name="CloseButtonEnabled" Value="False" />
             <Window Type="WindowsLook/Button" Name="Root/GeneralOptFrame/QuitButton" >
                 <Property Name="Font" Value="fkp-16" />
@@ -1048,6 +1048,7 @@ Shift Left Click - Remove a Tile</Property>
                         <Property Name="Font" Value="fkp-16" />
                         <Property Name="Text" Value="No Skybox" />
                         <Property Name="Tooltip" Value="Select to remove any current Skybox." />
+                        <Property Name="Selected" Value="True" />
                         <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.16,0},{0.2,0},{0.66,0}}" />
                     </Window>
                     <Window Type="WindowsLook/RadioButton" Name="Root/GeneralOptFrame/SetSkyboxHold/SkyboxHoldRB/RBSkyboxMorning" >
@@ -1076,7 +1077,7 @@ Shift Left Click - Remove a Tile</Property>
                 <Property Name="VertExtent" Value="21.8444" />
                 <Property Name="HorzFormatting" Value="HorzCentred" />
                 <Property Name="VertFormatting" Value="TopAligned" />
-                <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.195,0},{0.98,0},{0.36,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.195,0},{0.98,0},{0.3,0}}" />
                 <Window Type="WindowsLook/RadioButton" Name="Root/GeneralOptFrame/TextureFilterHold/TextureFilterNoneRB" >
                     <Property Name="Font" Value="fkp-16" />
                     <Property Name="Text" Value="None" />
@@ -1090,6 +1091,7 @@ Shift Left Click - Remove a Tile</Property>
                 <Window Type="WindowsLook/RadioButton" Name="Root/GeneralOptFrame/TextureFilterHold/TextureFilterTrilinearRB" >
                     <Property Name="Font" Value="fkp-16" />
                     <Property Name="Text" Value="Trilinear" />
+                    <Property Name="Selected" Value="True" />
                     <Property Name="UnifiedAreaRect" Value="{{0.517693,0},{0.591031,0},{0.716582,0},{0.841031,0}}" />
                 </Window>
                 <Window Type="WindowsLook/RadioButton" Name="Root/GeneralOptFrame/TextureFilterHold/TextureFilterAnisotropicRB" >
@@ -1098,12 +1100,79 @@ Shift Left Click - Remove a Tile</Property>
                     <Property Name="UnifiedAreaRect" Value="{{0.748548,0},{0.602018,0},{0.984788,0},{0.852018,0}}" />
                 </Window>
             </Window>
-            <Window Type="WindowsLook/StaticText" Name="Root/GeneralOptFrame/Info" >
-                <Property Name="Text" Value="These options have not been implemented yet. Will be expanded and implemented as soon as possible." />
-                <Property Name="HorzExtent" Value="456" />
-                <Property Name="VertExtent" Value="65.5331" />
+            <Window Type="WindowsLook/StaticText" Name="Root/GeneralOptFrame/DrawModeHold" >
+                <Property Name="Text" Value="Polygon Draw Mode" />
+                <Property Name="HorzExtent" Value="207" />
+                <Property Name="VertExtent" Value="21.8444" />
                 <Property Name="HorzFormatting" Value="WordWrapCentred" />
-                <Property Name="UnifiedAreaRect" Value="{{0.0357741,0},{0.382834,0},{0.974595,0},{0.718663,0}}" />
+                <Property Name="VertFormatting" Value="TopAligned" />
+                <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.305,0},{0.98,0},{0.415,0}}" />
+                <Window Type="WindowsLook/RadioButton" Name="Root/GeneralOptFrame/DrawModeHold/DrawModeSolidRB" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="Solid" />
+                    <Property Name="Selected" Value="True" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.214171,0},{0.45755,0},{0.361372,0},{0.861017,0}}" />
+                </Window>
+                <Window Type="WindowsLook/RadioButton" Name="Root/GeneralOptFrame/DrawModeHold/DrawModeWireframeRB" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="Wireframe" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.406508,0},{0.469184,0},{0.607085,0},{0.872651,0}}" />
+                </Window>
+                <Window Type="WindowsLook/RadioButton" Name="Root/GeneralOptFrame/DrawModeHold/DrawModePointsRB" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="Points" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.642338,0},{0.480817,0},{0.797446,0},{0.884284,0}}" />
+                </Window>
+            </Window>
+            <Window Type="WindowsLook/StaticText" Name="Root/GeneralOptFrame/BuildValuePresetHold" >
+                <Property Name="Text" Value="Navigation Mesh Build Settings Presets" />
+                <Property Name="HorzExtent" Value="416" />
+                <Property Name="VertExtent" Value="21.8444" />
+                <Property Name="HorzFormatting" Value="HorzCentred" />
+                <Property Name="VertFormatting" Value="TopAligned" />
+                <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.42,0},{0.98,0},{0.53,0}}" />
+                <Window Type="WindowsLook/Button" Name="Root/GeneralOptFrame/BuildValuePresetHold/BTOriginalRecast" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="Recast Original" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.125,0},{0.4,0},{0.4,0},{0.98,0}}" />
+                </Window>
+                <Window Type="WindowsLook/Button" Name="Root/GeneralOptFrame/BuildValuePresetHold/BTOgreTerrain" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="Ogre3D Terrain" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.6,0},{0.4,0},{0.875,0},{0.98,0}}" />
+                </Window>
+            </Window>
+            <Window Type="WindowsLook/StaticText" Name="Root/GeneralOptFrame/GUIAlphaHold" >
+                <Property Name="Text" Value="Application User Interface Alpha Setting" />
+                <Property Name="HorzExtent" Value="426" />
+                <Property Name="VertExtent" Value="21.8444" />
+                <Property Name="HorzFormatting" Value="HorzCentred" />
+                <Property Name="VertFormatting" Value="TopAligned" />
+                <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.535,0},{0.98,0},{0.64,0}}" />
+                <Window Type="WindowsLook/Slider" Name="Root/GeneralOptFrame/GUIAlphaHold/SLGUIAlpha" >
+                    <Property Name="CurrentValue" Value="0" />
+                    <Property Name="MaximumValue" Value="1" />
+                    <Property Name="ClickStepSize" Value="0.01" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.229986,0},{0.4,0},{0.776525,0},{0.891163,0}}" />
+                </Window>
+                <Window Type="WindowsLook/StaticText" Name="Root/GeneralOptFrame/GUIAlphaHold/LowInd" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="Transparent" />
+                    <Property Name="HorzExtent" Value="88" />
+                    <Property Name="VertExtent" Value="16" />
+                    <Property Name="FrameEnabled" Value="False" />
+                    <Property Name="HorzFormatting" Value="HorzCentred" />
+                    <Property Name="UnifiedAreaRect" Value="{{0,0},{0.419613,0},{0.220189,0},{1,0}}" />
+                </Window>
+                <Window Type="WindowsLook/StaticText" Name="Root/GeneralOptFrame/GUIAlphaHold/HighInd" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="Solid" />
+                    <Property Name="HorzExtent" Value="40" />
+                    <Property Name="VertExtent" Value="16" />
+                    <Property Name="FrameEnabled" Value="False" />
+                    <Property Name="HorzFormatting" Value="HorzCentred" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.783433,0},{0.369129,0},{1,0},{1,0}}" />
+                </Window>
             </Window>
         </Window>
         <Window Type="WindowsLook/FrameWindow" Name="Root/HelpWindowFrame" >

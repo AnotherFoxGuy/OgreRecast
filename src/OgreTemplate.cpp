@@ -141,7 +141,7 @@ OgreTemplate::OgreTemplate(void):
 	m_navMeshDrawFlags(DU_DRAWNAVMESH_CLOSEDLIST|DU_DRAWNAVMESH_OFFMESHCONS), mCastRays(true),
 	m_buildAll(true), m_totalBuildTimeMs(0), m_maxTiles(0), m_maxPolysPerTile(0), m_tileSize(32),
 	m_tileCol(duRGBA(0,0,0,32)), m_tileBuildTime(0), m_tileMemUsage(0), m_tileTriCount(0), mNavMeshLog(0),
-	recalcActiveTile(true)
+	recalcActiveTile(true), mCurrentSkybox(SKYBOX_NONE)
 {
 	for (unsigned int i = 0; i < MAX_DRAWMODE; ++i)
 		valid[i] = false;
@@ -251,6 +251,8 @@ void OgreTemplate::createScene(void)
 	// Set ambient light so that everything is not too dark
 	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.25f, 0.25f, 0.25f));
 	
+	setCurrentSkybox(SKYBOX_NONE);
+
 	handleValidDrawModes();
 
 }
@@ -994,25 +996,6 @@ bool OgreTemplate::frameRenderingQueued(const Ogre::FrameEvent& evt)
 		static String tris = "Triangle Count: ";
 		static String ddMouseX = "MouseX : ";
 		static String ddMouseY = "MouseY : ";
-
-		String curTexMode = "Texture Mode : ";
-		switch(m_textureFilter)
-		{
-		case FILTER_BILINEAR:
-			curTexMode += "Bilinear";
-			
-			break;
-		case FILTER_ANISOTROPIC:
-			curTexMode += "Anisotropic";
-			
-			break;
-		case FILTER_NONE:
-			curTexMode += "None";
-			
-			break;
-		default:
-			curTexMode += "Trilinear";
-		}
 	
 		String polyMode = "Polygon Draw Mode : ";
 		switch (mCamera->getPolygonMode())
@@ -1037,8 +1020,7 @@ bool OgreTemplate::frameRenderingQueued(const Ogre::FrameEvent& evt)
 						tris + StringConverter::toString(stats.triangleCount) + "\n" +
 						ddMouseX + StringConverter::toString(cursorX) + "\n" +
 						ddMouseY + StringConverter::toString(cursorY) + "\n" +
-						curTexMode + "\n" +
-						polyMode + "\n" +
+						polyMode + "\n \n" +
 						camPos + Ogre::StringConverter::toString(mCamera->getDerivedPosition().x) + " , " + 
 								 Ogre::StringConverter::toString(mCamera->getDerivedPosition().y) + " , " +
 								 Ogre::StringConverter::toString(mCamera->getDerivedPosition().z)
@@ -1135,6 +1117,34 @@ bool OgreTemplate::keyPressed( const OIS::KeyEvent &arg )
 			}
 		}
 		break;
+
+	case OIS::KC_R:   // cycle polygon rendering mode
+		{
+			Ogre::String newVal;
+			Ogre::PolygonMode pm;
+
+			switch (mCamera->getPolygonMode())
+			{
+			case Ogre::PM_SOLID:
+				newVal = "Wireframe";
+				pm = Ogre::PM_WIREFRAME;
+				DemoGUI->setPolygonMode(Ogre::PM_WIREFRAME);
+				break;
+			case Ogre::PM_WIREFRAME:
+				newVal = "Points";
+				pm = Ogre::PM_POINTS;
+				DemoGUI->setPolygonMode(Ogre::PM_POINTS);
+				break;
+			default:
+				newVal = "Solid";
+				pm = Ogre::PM_SOLID;
+				DemoGUI->setPolygonMode(Ogre::PM_SOLID);
+			}
+
+			mCamera->setPolygonMode(pm);
+		}
+		break;
+
 	default:
 		break;
 	}
@@ -1501,12 +1511,14 @@ void OgreTemplate::handleMeshChange(void)
 		newNames.push_back("DungeonNavMesh.mesh");
 		geom->loadMesh(newNames, newNames);
 		SharedData::getSingleton().m_AppMode = APPMODE_MESHSCENE;
+		DemoGUI->setPresetRecastOriginal();
 	}
 	else if(currentMeshName == "Terrain Scene")
 	{
 		// TODO : add entity support for terrain entities
 		geom->loadTerrain();
 		SharedData::getSingleton().m_AppMode = APPMODE_TERRAINSCENE;
+		DemoGUI->setPresetOgreTerrain();
 	}
 	else if(currentMeshName == "City Scene")
 	{
@@ -1517,6 +1529,7 @@ void OgreTemplate::handleMeshChange(void)
 		newNames.push_back(currentMeshName);
 		geom->loadMesh(newNames, newNames);
 		SharedData::getSingleton().m_AppMode = APPMODE_MESHSCENE;
+		DemoGUI->setPresetRecastOriginal();
 	}
 }
 
@@ -2197,4 +2210,28 @@ const float*OgreTemplate::getBoundsMax()
 {
 	if (!geom) return 0;
 	return geom->getMeshBoundsMax();
+}
+
+
+//-----------------------------------------------------------------------------
+void OgreTemplate::setCurrentSkybox(int _skybox)
+{
+	switch(_skybox)
+	{
+	case SKYBOX_NONE:
+		mSceneMgr->setSkyBox(false, "");
+		break;
+	case SKYBOX_MORNING:
+		mSceneMgr->setSkyBox(true, "Examples/MorningSkyBox");
+		break;
+	case SKYBOX_DAWN:
+		mSceneMgr->setSkyBox(true, "Examples/EarlyMorningSkyBox");
+		break;
+	case SKYBOX_EVENING:
+		mSceneMgr->setSkyBox(true, "Examples/EveningSkyBox");
+		break;
+	default:
+		mSceneMgr->setSkyBox(false, "");
+		break;
+	}
 }

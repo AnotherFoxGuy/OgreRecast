@@ -167,6 +167,11 @@ public:
 		resetNavTestCB(d_wm->getWindow("Root/NavTestFrame/ExcFlagHold"), false);
 	}
 
+	void setPresetRecastOriginal(void);
+	void setPresetOgreTerrain(void);
+
+	void setPolygonMode(int _polyMode);
+
 protected:
 
 	void configureMenu(CEGUI::Window* pParent, const bool& pMenubar);
@@ -178,7 +183,9 @@ protected:
 	void configureConvexVolumeRB(CEGUI::Window* pParent);
 	void configureConvexSliders(CEGUI::Window* pParent);
 	void configureFrameWindowMouseEvents(CEGUI::Window* pParent);
-
+	void configureOptionsSkyboxRB(CEGUI::Window* pParent);
+	void configureOptionsPolygonModeRB(CEGUI::Window* pParent);
+	void configureOptionsTextureFilterRB(CEGUI::Window* pParent);
 	
 	void resetNavTestCB(CEGUI::Window* pParent, bool _selected);
 
@@ -236,6 +243,11 @@ protected:
 	bool handleTileToolCreateBT(const CEGUI::EventArgs &e);
 	bool handleTileToolRemoveBT(const CEGUI::EventArgs &e);
 
+	bool handleOptionsSkyboxRB(const CEGUI::EventArgs &e);
+	bool handleOptionsTextureFilteringRB(const CEGUI::EventArgs &e);
+	bool handleOptionsPolygonModeRB(const CEGUI::EventArgs &e);
+	bool handleOptionsPresetButtons(const CEGUI::EventArgs &e);
+	bool handleOptionsAlphaSL(const CEGUI::EventArgs &e);
 	// callback handler for all the global hotkeys
 	bool								hotkeysHandler(const CEGUI::EventArgs& e);
 

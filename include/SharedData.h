@@ -127,6 +127,15 @@ enum ApplicationMode
 	APPMODE_MESHSCENE,
 };
 
+enum ApplicationSkyboxType
+{
+	SKYBOX_NONE = 0,
+	SKYBOX_MORNING,
+	SKYBOX_DAWN,
+	SKYBOX_EVENING,
+};
+
+
 // struct holds the terrain layer blend info
 struct CalcBlendData
 {

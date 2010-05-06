@@ -170,6 +170,20 @@ void GUIManager::Startup(Ogre::StringVector &meshNames, OgreTemplate* _sample)
 	optOK->subscribeEvent(CEGUI::PushButton::EventClicked,
 								  CEGUI::Event::Subscriber(&GUIManager::hideOptionsWindow, this));
 
+	// general options radio button config
+	configureOptionsSkyboxRB(d_wm->getWindow("Root/GeneralOptFrame/SetSkyboxHold/SkyboxHoldRB"));
+	configureOptionsPolygonModeRB(d_wm->getWindow("Root/GeneralOptFrame/DrawModeHold"));
+	configureOptionsTextureFilterRB(d_wm->getWindow("Root/GeneralOptFrame/TextureFilterHold"));
+	CEGUI::Window* btPreset = d_wm->getWindow("Root/GeneralOptFrame/BuildValuePresetHold/BTOriginalRecast");
+	btPreset->subscribeEvent(CEGUI::PushButton::EventClicked,
+							 CEGUI::Event::Subscriber(&GUIManager::handleOptionsPresetButtons, this));
+	btPreset = d_wm->getWindow("Root/GeneralOptFrame/BuildValuePresetHold/BTOgreTerrain");
+	btPreset->subscribeEvent(CEGUI::PushButton::EventClicked,
+							 CEGUI::Event::Subscriber(&GUIManager::handleOptionsPresetButtons, this));
+	CEGUI::Slider* optSL = static_cast<Slider*>(d_wm->getWindow("Root/GeneralOptFrame/GUIAlphaHold/SLGUIAlpha"));
+	optSL->setCurrentValue(0.9f);
+	optSL->subscribeEvent(CEGUI::Slider::EventValueChanged, Event::Subscriber(&GUIManager::handleOptionsAlphaSL, this));
+
 	// setup the callback for the Information Window "OK" button
 	CEGUI::Window* ok = d_wm->getWindow("Root/InfoFrame/BTOk");
 	ok->subscribeEvent(CEGUI::PushButton::EventClicked,
@@ -1471,6 +1485,152 @@ bool GUIManager::handleTileToolRemoveBT(const CEGUI::EventArgs &e)
 	return true;
 }
 
+
+//---------------------------------------------------------------------------------------------
+bool GUIManager::handleOptionsSkyboxRB(const CEGUI::EventArgs &e)
+{
+	using namespace CEGUI;
+
+	CEGUI::RadioButton* rb = static_cast<CEGUI::RadioButton*>(static_cast<const WindowEventArgs&>(e).window); 
+
+	if(rb->getName() == "Root/GeneralOptFrame/SetSkyboxHold/SkyboxHoldRB/RBSkyboxNone")
+	{
+		m_sample->setCurrentSkybox(SKYBOX_NONE);
+	}
+	else if(rb->getName() == "Root/GeneralOptFrame/SetSkyboxHold/SkyboxHoldRB/RBSkyboxMorning")
+	{
+		m_sample->setCurrentSkybox(SKYBOX_MORNING);
+	}
+	else if(rb->getName() == "Root/GeneralOptFrame/SetSkyboxHold/SkyboxHoldRB/RBSkyboxEvening")
+	{
+		m_sample->setCurrentSkybox(SKYBOX_EVENING);
+	}
+	else if(rb->getName() == "Root/GeneralOptFrame/SetSkyboxHold/SkyboxHoldRB/RBSkyboxDawn")
+	{
+		m_sample->setCurrentSkybox(SKYBOX_DAWN);
+	}
+
+	return true;
+}
+
+//---------------------------------------------------------------------------------------------
+bool GUIManager::handleOptionsTextureFilteringRB(const CEGUI::EventArgs &e)
+{
+
+	using namespace CEGUI;
+
+	CEGUI::RadioButton* rb = static_cast<CEGUI::RadioButton*>(static_cast<const WindowEventArgs&>(e).window); 
+
+	if(rb->getName() == "Root/GeneralOptFrame/TextureFilterHold/TextureFilterNoneRB")
+	{
+		Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(Ogre::TFO_NONE);
+		Ogre::MaterialManager::getSingleton().setDefaultAnisotropy(1);
+	}
+	else if(rb->getName() == "Root/GeneralOptFrame/TextureFilterHold/TextureFilterBilinearRB")
+	{
+		Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(Ogre::TFO_BILINEAR);
+		Ogre::MaterialManager::getSingleton().setDefaultAnisotropy(1);
+	}
+	else if(rb->getName() == "Root/GeneralOptFrame/TextureFilterHold/TextureFilterTrilinearRB")
+	{
+		Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(Ogre::TFO_TRILINEAR);
+		Ogre::MaterialManager::getSingleton().setDefaultAnisotropy(1);
+	}
+	else if(rb->getName() == "Root/GeneralOptFrame/TextureFilterHold/TextureFilterAnisotropicRB")
+	{
+		Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(Ogre::TFO_ANISOTROPIC);
+		Ogre::MaterialManager::getSingleton().setDefaultAnisotropy(8);
+	}
+
+	return true;
+}
+
+//---------------------------------------------------------------------------------------------
+bool GUIManager::handleOptionsPolygonModeRB(const CEGUI::EventArgs &e)
+{
+	using namespace CEGUI;
+
+	CEGUI::RadioButton* rb = static_cast<CEGUI::RadioButton*>(static_cast<const WindowEventArgs&>(e).window); 
+
+	if(rb->getName() == "Root/GeneralOptFrame/DrawModeHold/DrawModeSolidRB")
+	{
+		SharedData::getSingleton().iCamera->setPolygonMode(Ogre::PM_SOLID);
+	}
+	else if(rb->getName() == "Root/GeneralOptFrame/DrawModeHold/DrawModeWireframeRB")
+	{
+		SharedData::getSingleton().iCamera->setPolygonMode(Ogre::PM_WIREFRAME);
+	}
+	else if(rb->getName() == "Root/GeneralOptFrame/DrawModeHold/DrawModePointsRB")
+	{
+		SharedData::getSingleton().iCamera->setPolygonMode(Ogre::PM_POINTS);
+	}
+
+	return true;
+}
+
+//---------------------------------------------------------------------------------------------
+void GUIManager::setPolygonMode(int _polyMode)
+{
+	using namespace CEGUI;
+
+	switch(_polyMode)
+	{
+	case Ogre::PM_SOLID:
+		static_cast<CEGUI::RadioButton*>(d_wm->getWindow("Root/GeneralOptFrame/DrawModeHold/DrawModeSolidRB"))->setSelected(true);
+		break;
+	case Ogre::PM_WIREFRAME:
+		static_cast<CEGUI::RadioButton*>(d_wm->getWindow("Root/GeneralOptFrame/DrawModeHold/DrawModeWireframeRB"))->setSelected(true);
+		break;
+	case Ogre::PM_POINTS:
+		static_cast<CEGUI::RadioButton*>(d_wm->getWindow("Root/GeneralOptFrame/DrawModeHold/DrawModePointsRB"))->setSelected(true);
+		break;
+	}
+}
+
+//---------------------------------------------------------------------------------------------
+bool GUIManager::handleOptionsPresetButtons(const CEGUI::EventArgs &e)
+{
+	using namespace CEGUI;
+
+	CEGUI::PushButton* pb = static_cast<CEGUI::PushButton*>(static_cast<const WindowEventArgs&>(e).window); 
+
+	if(pb->getName() == "Root/GeneralOptFrame/BuildValuePresetHold/BTOriginalRecast")
+	{
+		setPresetRecastOriginal();
+	}
+	else if(pb->getName() == "Root/GeneralOptFrame/BuildValuePresetHold/BTOgreTerrain")
+	{
+		setPresetOgreTerrain();
+	}
+
+	return true;
+}
+
+//---------------------------------------------------------------------------------------------
+bool GUIManager::handleOptionsAlphaSL(const CEGUI::EventArgs &e)
+{
+	// Taken from CEGUI Sample Number 7
+	using namespace CEGUI;
+
+	// get the current slider value
+	float val = static_cast<CEGUI::Slider*>(static_cast<const WindowEventArgs&>(e).window)->getCurrentValue();
+	if(val < 0.4f)
+	{
+		val = 0.4f;
+	}
+	else if(val > 1.0f)
+	{
+		val = 1.0f;
+	}
+
+	// set the alpha on the window containing all the controls.
+	d_wm->getWindow("Root")->setAlpha(val);
+
+	// event was handled.
+	return true;
+}
+
+
 //---------------------------------------------------------------------------------------------
 void GUIManager::configureMenu(CEGUI::Window* pParent, const bool& pMenubar)
 {
@@ -1717,6 +1877,51 @@ void GUIManager::configureConvexVolumeRB(CEGUI::Window* pParent)
 }
 
 //---------------------------------------------------------------------------------------------
+void GUIManager::configureOptionsSkyboxRB(CEGUI::Window* pParent)
+{
+	// Recursively subscribe every Build Panel slider to it's callback
+	size_t childCount = pParent->getChildCount(); 
+	for(size_t childIdx = 0; childIdx < childCount; childIdx++) 
+	{ 
+		if(pParent->getChildAtIdx(childIdx)->testClassName("RadioButton"))
+		{ 
+			pParent->getChildAtIdx(childIdx)->subscribeEvent(CEGUI::RadioButton::EventSelectStateChanged, CEGUI::Event::Subscriber(&GUIManager::handleOptionsSkyboxRB, this)); 			
+		} 
+		configureNavTestRB(pParent->getChildAtIdx(childIdx)); 
+	} 
+}
+
+//---------------------------------------------------------------------------------------------
+void GUIManager::configureOptionsPolygonModeRB(CEGUI::Window* pParent)
+{
+	// Recursively subscribe every Build Panel slider to it's callback
+	size_t childCount = pParent->getChildCount(); 
+	for(size_t childIdx = 0; childIdx < childCount; childIdx++) 
+	{ 
+		if(pParent->getChildAtIdx(childIdx)->testClassName("RadioButton"))
+		{ 
+			pParent->getChildAtIdx(childIdx)->subscribeEvent(CEGUI::RadioButton::EventSelectStateChanged, CEGUI::Event::Subscriber(&GUIManager::handleOptionsPolygonModeRB, this)); 			
+		} 
+		configureNavTestRB(pParent->getChildAtIdx(childIdx)); 
+	} 
+}
+
+//---------------------------------------------------------------------------------------------
+void GUIManager::configureOptionsTextureFilterRB(CEGUI::Window* pParent)
+{
+	// Recursively subscribe every Build Panel slider to it's callback
+	size_t childCount = pParent->getChildCount(); 
+	for(size_t childIdx = 0; childIdx < childCount; childIdx++) 
+	{ 
+		if(pParent->getChildAtIdx(childIdx)->testClassName("RadioButton"))
+		{ 
+			pParent->getChildAtIdx(childIdx)->subscribeEvent(CEGUI::RadioButton::EventSelectStateChanged, CEGUI::Event::Subscriber(&GUIManager::handleOptionsTextureFilteringRB, this)); 			
+		} 
+		configureNavTestRB(pParent->getChildAtIdx(childIdx)); 
+	} 
+}
+
+//---------------------------------------------------------------------------------------------
 void GUIManager::configureConvexSliders(CEGUI::Window* pParent)
 {
 	// Recursively subscribe every Build Panel slider to it's callback
@@ -1840,7 +2045,189 @@ void GUIManager::setupHelpTopics(void)
 	
 }
 
+//---------------------------------------------------------------------------------------------
+void GUIManager::setPresetRecastOriginal(void)
+{
+	using namespace CEGUI;
 
+	m_sample->setBuildCellSize(0.3f);
+	m_sample->setBuildCellHeight(0.2f);
+	m_sample->setBuildAgentHeight(2.0f);
+	m_sample->setBuildAgentRadius(0.6f);
+	m_sample->setBuildAgentMaxClimb(0.2f);
+	m_sample->setBuildAgentMaxSlope(45.0f);
+	m_sample->setBuildRegionSize(50);
+	m_sample->setBuildRegionMerge(20);
+	m_sample->setBuildEdgeLength(12.0f);
+	m_sample->setBuildEdgeError(1.3f);
+	m_sample->setBuildVertPerPoly(6.0f);
+	m_sample->setBuildSampleDist(6.0f);
+	m_sample->setBuildSampleError(1.0f);
+	m_sample->setBuildTileSize(32.0f);
+
+
+
+	CEGUI::Slider* sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder1/SLCellSize"));
+	sl->setCurrentValue(0.3f);
+	Window* eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder1/EBCellSize"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder2/SLCellHeight"));
+	sl->setCurrentValue(0.2f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder2/EBCellHeight"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder3/SLAgentHeight"));
+	sl->setCurrentValue(2.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder3/EBAgentHeight"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder4/SLAgentRadius"));
+	sl->setCurrentValue(0.6f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder4/EBAgentRadius"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder5/SLMaxClimb"));
+	sl->setCurrentValue(0.9f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder5/EBMaxClimb"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder6/SLMaxSlope"));
+	sl->setCurrentValue(45.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder6/EBMaxSlope"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder7/SLMinRegion"));
+	sl->setCurrentValue(50.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder7/EBMinRegion"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder8/SLMergedSize"));		
+	sl->setCurrentValue(20.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder8/EBMergedSize"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder9/SLMaxEdge"));		
+	sl->setCurrentValue(12.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder9/EBMaxEdge"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder10/SLMaxEdgeError"));		
+	sl->setCurrentValue(1.3f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder10/EBMaxEdgeError"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder11/SLVertPerPoly"));
+	sl->setCurrentValue(6.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder11/EBVertPerPoly"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder12/SLSampleDist"));
+	sl->setCurrentValue(6.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder12/EBSampleDist"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder13/SLMaxSampErr"));
+	sl->setCurrentValue(1.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder13/EBMaxSampErr"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder14/SLTileSize"));
+	sl->setCurrentValue(32.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder14/EBTileSize"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+}
+
+//---------------------------------------------------------------------------------------------
+void GUIManager::setPresetOgreTerrain(void)
+{
+	using namespace CEGUI;
+
+	m_sample->setBuildCellSize(2.0f);
+	m_sample->setBuildCellHeight(1.0f);
+	m_sample->setBuildAgentHeight(4.0f);
+	m_sample->setBuildAgentRadius(1.5f);
+	m_sample->setBuildAgentMaxClimb(1.5f);
+	m_sample->setBuildAgentMaxSlope(60.0f);
+	m_sample->setBuildRegionSize(90);
+	m_sample->setBuildRegionMerge(60);
+	m_sample->setBuildEdgeLength(24.0f);
+	m_sample->setBuildEdgeError(2.0f);
+	m_sample->setBuildVertPerPoly(6.0f);
+	m_sample->setBuildSampleDist(6.0f);
+	m_sample->setBuildSampleError(1.0f);
+	m_sample->setBuildTileSize(128.0f);
+
+	CEGUI::Slider* sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder1/SLCellSize"));
+	sl->setCurrentValue(2.0f);
+	Window* eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder1/EBCellSize"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder2/SLCellHeight"));
+	sl->setCurrentValue(1.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder2/EBCellHeight"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder3/SLAgentHeight"));
+	sl->setCurrentValue(4.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder3/EBAgentHeight"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder4/SLAgentRadius"));
+	sl->setCurrentValue(1.5f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder4/EBAgentRadius"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder5/SLMaxClimb"));
+	sl->setCurrentValue(1.5f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder5/EBMaxClimb"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder6/SLMaxSlope"));
+	sl->setCurrentValue(60.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder6/EBMaxSlope"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder7/SLMinRegion"));
+	sl->setCurrentValue(90.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder7/EBMinRegion"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder8/SLMergedSize"));		
+	sl->setCurrentValue(60.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder8/EBMergedSize"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder9/SLMaxEdge"));		
+	sl->setCurrentValue(24.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder9/EBMaxEdge"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder10/SLMaxEdgeError"));		
+	sl->setCurrentValue(2.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder10/EBMaxEdgeError"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder11/SLVertPerPoly"));
+	sl->setCurrentValue(6.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder11/EBVertPerPoly"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder12/SLSampleDist"));
+	sl->setCurrentValue(6.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder12/EBSampleDist"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder13/SLMaxSampErr"));
+	sl->setCurrentValue(1.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder13/EBMaxSampErr"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+
+	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder14/SLTileSize"));
+	sl->setCurrentValue(128.0f);
+	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder14/EBTileSize"));
+	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
+}
 
 //---------------------------------------------------------------------------------------------
 // END OF FILE
