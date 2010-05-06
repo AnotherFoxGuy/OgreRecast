@@ -107,6 +107,12 @@
                 <Property Name="Tooltip" Value="Click to hide all GUI windows except this one." />
                 <Property Name="UnifiedAreaRect" Value="{{0.6,0},{0.9,0},{0.97,0},{0.98,0}}" />
             </Window>
+            <Window Type="WindowsLook/Button" Name="Root/ToolFrame/BTHelp" >
+                <Property Name="Font" Value="fkp-16" />
+                <Property Name="Text" Value="Help" />
+                <Property Name="Tooltip" Value="Click to show or hide the Application Help Window." />
+                <Property Name="UnifiedAreaRect" Value="{{0.41,0},{0.9,0},{0.59,0},{0.98,0}}" />
+            </Window>
         </Window>
         <Window Type="WindowsLook/FrameWindow" Name="Root/DDFrame" >
             <Property Name="Text" Value="Debug Drawing Options" />
@@ -116,7 +122,7 @@
             <Property Name="UnifiedAreaRect" Value="{{0.79,0},{0.575901,0},{0.998362,0},{0.997035,0}}" />
             <Property Name="CloseButtonEnabled" Value="False" />
             <Window Type="WindowsLook/ScrollablePane" Name="Root/DDFrame/DDScrollPane" >
-                <Property Name="ContentArea" Value="l:0 t:0 r:227 b:443" />
+                <Property Name="ContentArea" Value="l:0 t:0 r:226 b:450" />
                 <Property Name="HorzStepSize" Value="0.1" />
                 <Property Name="VertStepSize" Value="0.1" />
                 <Property Name="HorzOverlapSize" Value="0.01" />
@@ -125,13 +131,13 @@
                 <Property Name="HorzScrollPosition" Value="0" />
                 <Property Name="VertScrollPosition" Value="0" />
                 <AutoWindow NameSuffix="__auto_container__" >
-                    <Property Name="ContentArea" Value="l:0 t:0 r:227 b:443" />
-                    <Property Name="ChildExtentsArea" Value="l:0 t:0 r:227 b:443" />
+                    <Property Name="ContentArea" Value="l:0 t:0 r:226 b:450" />
+                    <Property Name="ChildExtentsArea" Value="l:0 t:0 r:226 b:450" />
                     <Window Type="WindowsLook/StaticText" Name="Root/DDFrame/DDScrollPane/Title" >
                         <Property Name="Text" >Keep Intermediate Results
 for more options</Property>
-                        <Property Name="HorzExtent" Value="284" />
-                        <Property Name="VertExtent" Value="42.9612" />
+                        <Property Name="HorzExtent" Value="283" />
+                        <Property Name="VertExtent" Value="43.6887" />
                         <Property Name="HorzFormatting" Value="HorzCentred" />
                         <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.010865,0},{0.98,0},{0.155198,0}}" />
                     </Window>
@@ -313,7 +319,7 @@ for more options</Property>
                 <Property Name="Tooltip" Value="These options control how the Navigation Mesh is built." />
                 <Property Name="UnifiedAreaRect" Value="{{0.025,0},{0.01,0},{0.975,0},{0.695,0}}" />
                 <Window Type="WindowsLook/ScrollablePane" Name="Root/BuildFrame/BuildSliderSPane" >
-                    <Property Name="ContentArea" Value="l:0 t:0 r:217 b:603" />
+                    <Property Name="ContentArea" Value="l:0 t:0 r:216 b:615" />
                     <Property Name="HorzStepSize" Value="0.1" />
                     <Property Name="VertStepSize" Value="0.1" />
                     <Property Name="HorzOverlapSize" Value="0.01" />
@@ -322,14 +328,14 @@ for more options</Property>
                     <Property Name="HorzScrollPosition" Value="0" />
                     <Property Name="VertScrollPosition" Value="0" />
                     <AutoWindow NameSuffix="__auto_container__" >
-                        <Property Name="ContentArea" Value="l:0 t:0 r:217 b:603" />
-                        <Property Name="ChildExtentsArea" Value="l:0 t:0 r:217 b:603" />
+                        <Property Name="ContentArea" Value="l:0 t:0 r:216 b:615" />
+                        <Property Name="ChildExtentsArea" Value="l:0 t:0 r:216 b:615" />
                         <Window Type="WindowsLook/StaticText" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder1" >
                             <Property Name="Font" Value="DejaVuSans-10" />
                             <Property Name="Text" Value="  Cell Size" />
                             <Property Name="Tooltip" Value="Adjust the NavMesh Cell Size" />
-                            <Property Name="HorzExtent" Value="103" />
-                            <Property Name="VertExtent" Value="21.4806" />
+                            <Property Name="HorzExtent" Value="102" />
+                            <Property Name="VertExtent" Value="21.8444" />
                             <Property Name="VertFormatting" Value="TopAligned" />
                             <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.065,0},{0.98,0},{0.17,0}}" />
                             <Window Type="WindowsLook/Slider" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder1/SLCellSize" >
@@ -359,8 +365,8 @@ for more options</Property>
                             <Property Name="Font" Value="DejaVuSans-10" />
                             <Property Name="Text" Value="  Cell Height" />
                             <Property Name="Tooltip" Value="Adjust the NavMesh Cell Height" />
-                            <Property Name="HorzExtent" Value="131" />
-                            <Property Name="VertExtent" Value="21.4806" />
+                            <Property Name="HorzExtent" Value="130" />
+                            <Property Name="VertExtent" Value="21.8444" />
                             <Property Name="VertFormatting" Value="TopAligned" />
                             <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.175,0},{0.98,0},{0.29224,0}}" />
                             <Window Type="WindowsLook/Slider" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder2/SLCellHeight" >
@@ -390,8 +396,8 @@ for more options</Property>
                             <Property Name="Font" Value="DejaVuSans-10" />
                             <Property Name="Text" Value="  Agent Height" />
                             <Property Name="Tooltip" Value="Adjust the Agent&apos;s height value." />
-                            <Property Name="HorzExtent" Value="155" />
-                            <Property Name="VertExtent" Value="21.4806" />
+                            <Property Name="HorzExtent" Value="154" />
+                            <Property Name="VertExtent" Value="21.8444" />
                             <Property Name="VertFormatting" Value="TopAligned" />
                             <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.370519,0},{0.98,0},{0.479039,0}}" />
                             <Window Type="WindowsLook/Slider" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder3/SLAgentHeight" >
@@ -413,7 +419,7 @@ for more options</Property>
                             <Property Name="Text" Value="  Agent Radius" />
                             <Property Name="Tooltip" Value="Adjust the Agent&apos;s radius value." />
                             <Property Name="HorzExtent" Value="156" />
-                            <Property Name="VertExtent" Value="21.4806" />
+                            <Property Name="VertExtent" Value="21.8444" />
                             <Property Name="VertFormatting" Value="TopAligned" />
                             <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.487399,0},{0.98,0},{0.59896,0}}" />
                             <Window Type="WindowsLook/Slider" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder4/SLAgentRadius" >
@@ -435,7 +441,7 @@ for more options</Property>
                             <Property Name="Text" Value="  Maximum Climb" />
                             <Property Name="Tooltip" Value="Adjust the Agent&apos;s maximum climbing value." />
                             <Property Name="HorzExtent" Value="183" />
-                            <Property Name="VertExtent" Value="21.4806" />
+                            <Property Name="VertExtent" Value="21.8444" />
                             <Property Name="VertFormatting" Value="TopAligned" />
                             <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.604279,0},{0.98,0},{0.715839,0}}" />
                             <Window Type="WindowsLook/Slider" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder5/SLMaxClimb" >
@@ -456,8 +462,8 @@ for more options</Property>
                             <Property Name="Font" Value="DejaVuSans-10" />
                             <Property Name="Text" Value="  Maximum Slope" />
                             <Property Name="Tooltip" Value="Adjust the Maximum Slope the Agent can climb." />
-                            <Property Name="HorzExtent" Value="181" />
-                            <Property Name="VertExtent" Value="21.4806" />
+                            <Property Name="HorzExtent" Value="180" />
+                            <Property Name="VertExtent" Value="21.8444" />
                             <Property Name="VertFormatting" Value="TopAligned" />
                             <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.718119,0},{0.98,0},{0.83,0}}" />
                             <Window Type="WindowsLook/Slider" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder6/SLMaxSlope" >
@@ -487,8 +493,8 @@ for more options</Property>
                             <Property Name="Font" Value="DejaVuSans-10" />
                             <Property Name="Text" Value="  Min Region Size" />
                             <Property Name="Tooltip" Value="Adjust the minimum mesh region size." />
-                            <Property Name="HorzExtent" Value="182" />
-                            <Property Name="VertExtent" Value="21.4806" />
+                            <Property Name="HorzExtent" Value="181" />
+                            <Property Name="VertExtent" Value="21.8444" />
                             <Property Name="VertFormatting" Value="TopAligned" />
                             <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.9,0},{0.98,0},{1.01,0}}" />
                             <Window Type="WindowsLook/Slider" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder7/SLMinRegion" >
@@ -509,8 +515,8 @@ for more options</Property>
                             <Property Name="Font" Value="DejaVuSans-10" />
                             <Property Name="Text" Value="  Region Merged Size" />
                             <Property Name="Tooltip" Value="Adjust the size of Region Merging." />
-                            <Property Name="HorzExtent" Value="223" />
-                            <Property Name="VertExtent" Value="21.4806" />
+                            <Property Name="HorzExtent" Value="222" />
+                            <Property Name="VertExtent" Value="21.8444" />
                             <Property Name="VertFormatting" Value="TopAligned" />
                             <Property Name="UnifiedAreaRect" Value="{{0.02,0},{1.03,0},{0.98,0},{1.14,0}}" />
                             <Window Type="WindowsLook/Slider" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder8/SLMergedSize" >
@@ -540,8 +546,8 @@ for more options</Property>
                             <Property Name="Font" Value="DejaVuSans-10" />
                             <Property Name="Text" Value="  Max Edge Length" />
                             <Property Name="Tooltip" Value="Adjust the mesh&apos;s maximum edge length." />
-                            <Property Name="HorzExtent" Value="197" />
-                            <Property Name="VertExtent" Value="21.4806" />
+                            <Property Name="HorzExtent" Value="198" />
+                            <Property Name="VertExtent" Value="21.8444" />
                             <Property Name="VertFormatting" Value="TopAligned" />
                             <Property Name="UnifiedAreaRect" Value="{{0.02,0},{1.21,0},{0.98,0},{1.32,0}}" />
                             <Window Type="WindowsLook/Slider" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder9/SLMaxEdge" >
@@ -563,7 +569,7 @@ for more options</Property>
                             <Property Name="Text" Value="  Max Edge Error" />
                             <Property Name="Tooltip" Value="Adjust the maximum error in edge calculation." />
                             <Property Name="HorzExtent" Value="175" />
-                            <Property Name="VertExtent" Value="21.4806" />
+                            <Property Name="VertExtent" Value="21.8444" />
                             <Property Name="VertFormatting" Value="TopAligned" />
                             <Property Name="UnifiedAreaRect" Value="{{0.02,0},{1.325,0},{0.98,0},{1.435,0}}" />
                             <Window Type="WindowsLook/Slider" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder10/SLMaxEdgeError" >
@@ -584,8 +590,8 @@ for more options</Property>
                             <Property Name="Font" Value="DejaVuSans-10" />
                             <Property Name="Text" Value="  Verts per Poly" />
                             <Property Name="Tooltip" Value="Adjust the number of verts per poly used in construction of the mesh." />
-                            <Property Name="HorzExtent" Value="163" />
-                            <Property Name="VertExtent" Value="21.4806" />
+                            <Property Name="HorzExtent" Value="162" />
+                            <Property Name="VertExtent" Value="21.8444" />
                             <Property Name="VertFormatting" Value="TopAligned" />
                             <Property Name="UnifiedAreaRect" Value="{{0.02,0},{1.44,0},{0.98,0},{1.55,0}}" />
                             <Window Type="WindowsLook/Slider" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder11/SLVertPerPoly" >
@@ -614,8 +620,8 @@ for more options</Property>
                         <Window Type="WindowsLook/StaticText" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder12" >
                             <Property Name="Text" Value="  Sample Distance" />
                             <Property Name="Tooltip" Value="Adjust the mesh sampling distance." />
-                            <Property Name="HorzExtent" Value="192" />
-                            <Property Name="VertExtent" Value="21.4806" />
+                            <Property Name="HorzExtent" Value="191" />
+                            <Property Name="VertExtent" Value="21.8444" />
                             <Property Name="VertFormatting" Value="TopAligned" />
                             <Property Name="UnifiedAreaRect" Value="{{0.02,0},{1.63,0},{0.98,0},{1.74,0}}" />
                             <Window Type="WindowsLook/Slider" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder12/SLSampleDist" >
@@ -635,8 +641,8 @@ for more options</Property>
                         <Window Type="WindowsLook/StaticText" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder13" >
                             <Property Name="Text" Value="  Max Sample Error" />
                             <Property Name="Tooltip" Value="Adjust the maximum mesh sampling error." />
-                            <Property Name="HorzExtent" Value="201" />
-                            <Property Name="VertExtent" Value="21.4806" />
+                            <Property Name="HorzExtent" Value="200" />
+                            <Property Name="VertExtent" Value="21.8444" />
                             <Property Name="VertFormatting" Value="TopAligned" />
                             <Property Name="UnifiedAreaRect" Value="{{0.02,0},{1.75,0},{0.98,0},{1.86,0}}" />
                             <Window Type="WindowsLook/Slider" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder13/SLMaxSampErr" >
@@ -666,7 +672,7 @@ for more options</Property>
                             <Property Name="Text" Value="Mesh Tiling" />
                             <Property Name="Tooltip" Value="Adjust the size of the NavMesh Tiles generated." />
                             <Property Name="HorzExtent" Value="121" />
-                            <Property Name="VertExtent" Value="21.4806" />
+                            <Property Name="VertExtent" Value="21.8444" />
                             <Property Name="VertFormatting" Value="TopAligned" />
                             <Property Name="UnifiedAreaRect" Value="{{0.02,0},{1.94,0},{0.98,0},{2.05,0}}" />
                             <Window Type="WindowsLook/Slider" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder14/SLTileSize" >
@@ -692,7 +698,7 @@ for more options</Property>
             <Property Name="Tooltip" Value="Tools to Test the Navigation Mesh using Detour." />
             <Property Name="TitlebarFont" Value="DejaVuSans-10" />
             <Property Name="TitlebarEnabled" Value="True" />
-            <Property Name="UnifiedAreaRect" Value="{{0.00409841,0},{0.43248,0},{0.264206,0},{0.788298,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.00571001,0},{0.476267,0},{0.241644,0},{0.832084,0}}" />
             <Property Name="CloseButtonEnabled" Value="False" />
             <Window Type="WindowsLook/StaticText" Name="Root/NavTestFrame/IncFlagHold" >
                 <Property Name="Tooltip" Value="Flags to include in pathing searches." />
@@ -794,7 +800,7 @@ for more options</Property>
                 </Window>
                 <Window Type="WindowsLook/RadioButton" Name="Root/NavTestFrame/NavTestTypeHold/RBRaycast" >
                     <Property Name="Font" Value="fkp-16" />
-                    <Property Name="Text" Value=" RayCast Test" />
+                    <Property Name="Text" Value="RayCast Test" />
                     <Property Name="Tooltip" Value="Perform a Ray Casting test from Start to End." />
                     <Property Name="UnifiedAreaRect" Value="{{0.554518,0},{0.239444,0},{0.980137,0},{0.459444,0}}" />
                 </Window>
@@ -811,7 +817,7 @@ for more options</Property>
             <Property Name="Tooltip" Value="Tool to create off-mesh connections in the Navigation Mesh." />
             <Property Name="TitlebarFont" Value="DejaVuSans-10" />
             <Property Name="TitlebarEnabled" Value="True" />
-            <Property Name="UnifiedAreaRect" Value="{{0.00495113,0},{0.433894,0},{0.226379,0},{0.673144,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.00736854,0},{0.586557,0},{0.228796,0},{0.825807,0}}" />
             <Property Name="CloseButtonEnabled" Value="False" />
             <Window Type="WindowsLook/StaticText" Name="Root/OffMeshTestFrame/OffMeshInfo" >
                 <Property Name="Font" Value="fkp-16" />
@@ -843,7 +849,7 @@ for more options</Property>
             <Property Name="Tooltip" Value="Tools to Test the Navigation Mesh using Detour." />
             <Property Name="TitlebarFont" Value="DejaVuSans-10" />
             <Property Name="TitlebarEnabled" Value="True" />
-            <Property Name="UnifiedAreaRect" Value="{{0.00493137,0},{0.434876,0},{0.230574,0},{0.734171,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.00654297,0},{0.529551,0},{0.232186,0},{0.828845,0}}" />
             <Property Name="CloseButtonEnabled" Value="False" />
             <Window Type="WindowsLook/StaticText" Name="Root/ConvexToolsFrame/ConvexVolInfo" >
                 <Property Name="Font" Value="fkp-16" />
@@ -858,8 +864,8 @@ for more options</Property>
                 <Window Type="WindowsLook/StaticText" Name="Root/ConvexToolsFrame/ConvexOPHold/SLHeightHold" >
                     <Property Name="Text" Value="Shape Height" />
                     <Property Name="Tooltip" Value="Adjust the Convex Volume&apos;s Height variable." />
-                    <Property Name="HorzExtent" Value="144" />
-                    <Property Name="VertExtent" Value="21.4806" />
+                    <Property Name="HorzExtent" Value="142" />
+                    <Property Name="VertExtent" Value="21.8444" />
                     <Property Name="VertFormatting" Value="TopAligned" />
                     <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.02,0},{0.98,0},{0.23,0}}" />
                     <Window Type="WindowsLook/Slider" Name="Root/ConvexToolsFrame/ConvexOPHold/SLHeightHold/SLConvHeight" >
@@ -880,8 +886,8 @@ for more options</Property>
                 <Window Type="WindowsLook/StaticText" Name="Root/ConvexToolsFrame/ConvexOPHold/SLDescentHold" >
                     <Property Name="Text" Value="Shape Descent" />
                     <Property Name="Tooltip" Value="Adjust the Convex Volume&apos;s Descent variable." />
-                    <Property Name="HorzExtent" Value="160" />
-                    <Property Name="VertExtent" Value="21.4806" />
+                    <Property Name="HorzExtent" Value="159" />
+                    <Property Name="VertExtent" Value="21.8444" />
                     <Property Name="VertFormatting" Value="TopAligned" />
                     <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.24,0},{0.98,0},{0.45,0}}" />
                     <Window Type="WindowsLook/Slider" Name="Root/ConvexToolsFrame/ConvexOPHold/SLDescenttHold/SLConvDescent" >
@@ -982,14 +988,14 @@ for more options</Property>
             <Property Name="Tooltip" Value="Tools to create and remove tiles from the Navigation Mesh." />
             <Property Name="TitlebarFont" Value="DejaVuSans-10" />
             <Property Name="TitlebarEnabled" Value="True" />
-            <Property Name="UnifiedAreaRect" Value="{{0.00612306,0},{0.435006,0},{0.219388,0},{0.685007,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.00612306,0},{0.579385,0},{0.194408,0},{0.829386,0}}" />
             <Property Name="CloseButtonEnabled" Value="False" />
             <Window Type="WindowsLook/StaticText" Name="Root/TileToolFrame/TileToolInfo" >
                 <Property Name="Font" Value="fkp-16" />
                 <Property Name="Text" >Left Click - Create a Tile
 Shift Left Click - Remove a Tile</Property>
-                <Property Name="HorzExtent" Value="216" />
-                <Property Name="VertExtent" Value="48" />
+                <Property Name="HorzExtent" Value="200" />
+                <Property Name="VertExtent" Value="64" />
                 <Property Name="HorzFormatting" Value="WordWrapCentred" />
                 <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.02,0},{0.98,0},{0.7,0}}" />
             </Window>
@@ -1031,8 +1037,8 @@ Shift Left Click - Remove a Tile</Property>
             <Window Type="WindowsLook/StaticText" Name="Root/GeneralOptFrame/SetSkyboxHold" >
                 <Property Name="Text" Value="SkyBox Selection" />
                 <Property Name="Tooltip" Value="Select the type and whether to show the Skybox." />
-                <Property Name="HorzExtent" Value="179" />
-                <Property Name="VertExtent" Value="21.4806" />
+                <Property Name="HorzExtent" Value="177" />
+                <Property Name="VertExtent" Value="21.8444" />
                 <Property Name="HorzFormatting" Value="HorzCentred" />
                 <Property Name="VertFormatting" Value="TopAligned" />
                 <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.02,0},{0.98,0},{0.192103,0}}" />
@@ -1067,7 +1073,7 @@ Shift Left Click - Remove a Tile</Property>
             <Window Type="WindowsLook/StaticText" Name="Root/GeneralOptFrame/TextureFilterHold" >
                 <Property Name="Text" Value="Texture Filtering Mode" />
                 <Property Name="HorzExtent" Value="241" />
-                <Property Name="VertExtent" Value="21.4806" />
+                <Property Name="VertExtent" Value="21.8444" />
                 <Property Name="HorzFormatting" Value="HorzCentred" />
                 <Property Name="VertFormatting" Value="TopAligned" />
                 <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.195,0},{0.98,0},{0.36,0}}" />
@@ -1095,9 +1101,67 @@ Shift Left Click - Remove a Tile</Property>
             <Window Type="WindowsLook/StaticText" Name="Root/GeneralOptFrame/Info" >
                 <Property Name="Text" Value="These options have not been implemented yet. Will be expanded and implemented as soon as possible." />
                 <Property Name="HorzExtent" Value="456" />
-                <Property Name="VertExtent" Value="64.4418" />
+                <Property Name="VertExtent" Value="65.5331" />
                 <Property Name="HorzFormatting" Value="WordWrapCentred" />
                 <Property Name="UnifiedAreaRect" Value="{{0.0357741,0},{0.382834,0},{0.974595,0},{0.718663,0}}" />
+            </Window>
+        </Window>
+        <Window Type="WindowsLook/FrameWindow" Name="Root/HelpWindowFrame" >
+            <Property Name="Text" Value="Application Help Window" />
+            <Property Name="AlwaysOnTop" Value="True" />
+            <Property Name="TitlebarFont" Value="DejaVuSans-10" />
+            <Property Name="SizingEnabled" Value="False" />
+            <Property Name="TitlebarEnabled" Value="True" />
+            <Property Name="UnifiedAreaRect" Value="{{0.237228,0},{0.00710051,0},{0.587148,0},{0.653549,0}}" />
+            <Property Name="CloseButtonEnabled" Value="False" />
+            <Window Type="WindowsLook/Button" Name="Root/HelpWindowFrame/BTClose" >
+                <Property Name="Font" Value="fkp-16" />
+                <Property Name="Text" Value="C L O S E" />
+                <Property Name="UnifiedAreaRect" Value="{{0.4,0},{0.91,0},{0.65,0},{0.99,0}}" />
+            </Window>
+            <Window Type="WindowsLook/StaticText" Name="Root/HelpWindowFrame/HelpTopicSelectHold" >
+                <Property Name="Text" Value="Application Help Topic Selection" />
+                <Property Name="HorzExtent" Value="336" />
+                <Property Name="VertExtent" Value="21.8444" />
+                <Property Name="HorzFormatting" Value="HorzCentred" />
+                <Property Name="VertFormatting" Value="TopAligned" />
+                <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.02,0},{0.98,0},{0.245,0}}" />
+                <Window Type="WindowsLook/Combobox" Name="Root/HelpWindowFrame/HelpTopicSelectHold/HelpTopicSelectCMB" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="ReadOnly" Value="True" />
+                    <Property Name="InheritsAlpha" Value="False" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.2,0},{0.15,0},{0.8,0},{1,0}}" />
+                    <Property Name="MaxEditTextLength" Value="1073741823" />
+                    <Property Name="InheritsTooltipText" Value="False" />
+                </Window>
+            </Window>
+            <Window Type="WindowsLook/StaticText" Name="Root/HelpWindowFrame/HelpTopicTextHold" >
+                <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.25,0},{0.98,0},{0.9,0}}" />
+                <Window Type="WindowsLook/ScrollablePane" Name="Root/HelpWindowFrame/HelpTopicTextHold/HelpTopicTextScrollPane" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="ContentArea" Value="l:0 t:0 r:778 b:628" />
+                    <Property Name="HorzStepSize" Value="0.1" />
+                    <Property Name="VertStepSize" Value="0.1" />
+                    <Property Name="HorzOverlapSize" Value="0.01" />
+                    <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+                    <Property Name="VertOverlapSize" Value="0.01" />
+                    <Property Name="HorzScrollPosition" Value="0" />
+                    <Property Name="VertScrollPosition" Value="0" />
+                    <AutoWindow NameSuffix="__auto_container__" >
+                        <Property Name="ContentArea" Value="l:0 t:0 r:778 b:628" />
+                        <Property Name="ChildExtentsArea" Value="l:0 t:0 r:778 b:628" />
+                        <Window Type="WindowsLook/StaticText" Name="Root/HelpWindowFrame/HelpTopicTextHold/HelpTopicTextScrollPane/HelpTopicText" >
+                            <Property Name="Text" >Please select a topic from the above Drop Down list. If you cannot find the help that you need here, please visit the Ogre3D forums thread, or the OgreRecast wiki where the code for this application and it&apos;s downloads are housed.
+
+P.Wilson - Author</Property>
+                            <Property Name="HorzExtent" Value="758" />
+                            <Property Name="VertExtent" Value="109.222" />
+                            <Property Name="HorzFormatting" Value="WordWrapLeftAligned" />
+                            <Property Name="VertFormatting" Value="TopAligned" />
+                            <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{2,0},{2,0}}" />
+                        </Window>
+                    </AutoWindow>
+                </Window>
             </Window>
         </Window>
     </Window>

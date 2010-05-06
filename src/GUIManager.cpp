@@ -45,6 +45,8 @@ using namespace Ogre;
 template<> GUIManager* Ogre::Singleton<GUIManager>::ms_Singleton = 0;
 
 
+
+
 //---------------------------------------------------------------------------------------------
 // CONSTRUCTION / DESTRUCTION
 //---------------------------------------------------------------------------------------------
@@ -54,15 +56,19 @@ GUIManager::GUIManager():
 	mIsInitialised(false), mLeftButton(false), mMiddleButton(false), mRightButton(false),
 	mShuttingDown(false), mRenderer(0), d_wm(0), d_system(0), d_root(0), d_font(0), d_pane(0),
 	d_meshSelect(0), mKeepIntResult(true), mBuildToggled(false), mSaveToggled(false), 
-	mLoadToggled(false), mClearToggled(false), m_sample(0), mBuildAllTiles(true)
+	mLoadToggled(false), mClearToggled(false), m_sample(0), mBuildAllTiles(true), d_helpTopicSelect(0)
 {
-
+	mHelpTopicList.resize(0);
 }
 
 //---------------------------------------------------------------------------------------------
 GUIManager::~GUIManager()
 {
-
+	for(uint i = 0; i < mHelpTopicList.size(); ++i)
+	{
+		delete mHelpTopicList[i];
+	}
+	mHelpTopicList.resize(0);
 }
 
 
@@ -165,9 +171,31 @@ void GUIManager::Startup(Ogre::StringVector &meshNames, OgreTemplate* _sample)
 								  CEGUI::Event::Subscriber(&GUIManager::hideOptionsWindow, this));
 
 	// setup the callback for the Information Window "OK" button
-	CEGUI::Window *ok = d_wm->getWindow("Root/InfoFrame/BTOk");
+	CEGUI::Window* ok = d_wm->getWindow("Root/InfoFrame/BTOk");
 	ok->subscribeEvent(CEGUI::PushButton::EventClicked,
 					   CEGUI::Event::Subscriber(&GUIManager::hideInfoWindow, this));
+
+	// setup callback for help topic window close button
+	CEGUI::Window* closeHelp = d_wm->getWindow("Root/HelpWindowFrame/BTClose");
+	closeHelp->subscribeEvent(CEGUI::PushButton::EventClicked,
+							  CEGUI::Event::Subscriber(&GUIManager::handleHelpTopicCloseButon, this));
+
+	// set the Help Window
+	setupHelpTopics();
+	d_helpTopicSelect = static_cast<Combobox*>(d_wm->getWindow("Root/HelpWindowFrame/HelpTopicSelectHold/HelpTopicSelectCMB"));
+	unsigned int numTopics = mHelpTopicList.size();
+	for(unsigned int i = 0; i < numTopics; ++i)
+	{
+		MyListItem* lstItem = new MyListItem(mHelpTopicList[i]->getTopicTitle());
+		lstItem->setTextColours(CEGUI::colour(0.0f, 0.0f, 0.0f));
+		d_helpTopicSelect->addItem(lstItem);
+	}
+	d_helpTopicSelect->setItemSelectState((unsigned int)0, true);
+	d_helpTopicSelect->setFont("");
+	d_helpTopicSelect->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted, 
+									  CEGUI::Event::Subscriber(&GUIManager::handleHelpTopicSelectionCMB, this));
+	// set the Help window's initial text to be the general usage help
+	d_wm->getWindow("Root/HelpWindowFrame/HelpTopicTextHold/HelpTopicTextScrollPane/HelpTopicText")->setText(mHelpTopicList[0]->getTopicText());
 
 	// setup the mesh selection combobox
 	d_meshSelect = static_cast<Combobox*>(d_wm->getWindow("Root/BuildFrame/BuildButtons/CMBMeshSelect"));
@@ -182,6 +210,8 @@ void GUIManager::Startup(Ogre::StringVector &meshNames, OgreTemplate* _sample)
 	d_meshSelect->setFont("");
 	d_meshSelect->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted, 
 								 CEGUI::Event::Subscriber(&GUIManager::handleMeshSelectionCMB, this));
+
+	
 
 	// setup the tools frame Check Boxes to hide/show the tools panels
 	CEGUI::Window *cb = d_wm->getWindow("Root/ToolFrame/ViewOptionsHolder/CBShowGenOptions");
@@ -216,6 +246,10 @@ void GUIManager::Startup(Ogre::StringVector &meshNames, OgreTemplate* _sample)
 	// setup callback for Hide All button
 	pb = d_wm->getWindow("Root/ToolFrame/BTHideAll");
 	pb->subscribeEvent(CEGUI::PushButton::EventClicked, Event::Subscriber(&GUIManager::handleToolFrameBTHideAll, this));
+
+	// setup callback for Help Window button
+	pb = d_wm->getWindow("Root/ToolFrame/BTHelp");
+	pb->subscribeEvent(CEGUI::PushButton::EventClicked, Event::Subscriber(&GUIManager::handleToolFrameBTHelp, this));
 
 	// setupcallbacks for Build Panel Sliders
 	CEGUI::Slider* sl = static_cast<Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder1/SLCellSize"));
@@ -374,6 +408,7 @@ void GUIManager::Startup(Ogre::StringVector &meshNames, OgreTemplate* _sample)
 	d_wm->getWindow("Root/NavTestFrame")->hide();
 	d_wm->getWindow("Root/DDFrame")->hide();
 	d_wm->getWindow("Root/TileToolFrame")->hide();
+	d_wm->getWindow("Root/HelpWindowFrame")->hide();
 
 }
 
@@ -644,7 +679,22 @@ bool GUIManager::handleToolFrameBTHideAll(const CEGUI::EventArgs &e)
 	d_wm->getWindow("Root/DDFrame")->hide();
 	d_wm->getWindow("Root/BuildFrame")->hide();
 	d_wm->getWindow("Root/TileToolFrame")->hide();
+	d_wm->getWindow("Root/HelpWindowFrame")->hide();
 
+	return true;
+}
+
+//---------------------------------------------------------------------------------------------
+bool GUIManager::handleToolFrameBTHelp(const CEGUI::EventArgs &e)
+{
+	if(d_wm->getWindow("Root/HelpWindowFrame")->isVisible())
+	{
+		d_wm->getWindow("Root/HelpWindowFrame")->hide();
+	}
+	else if(!d_wm->getWindow("Root/HelpWindowFrame")->isVisible())
+	{
+		d_wm->getWindow("Root/HelpWindowFrame")->show();
+	}
 	return true;
 }
 
@@ -1347,6 +1397,31 @@ bool GUIManager::handleConvexVolumeBT(const CEGUI::EventArgs &e)
 	return true;
 }
 
+//---------------------------------------------------------------------------------------------
+bool GUIManager::handleHelpTopicCloseButon(const CEGUI::EventArgs &e)
+{
+	d_wm->getWindow("Root/HelpWindowFrame")->hide();
+	return true;
+}
+
+//---------------------------------------------------------------------------------------------
+bool GUIManager::handleHelpTopicSelectionCMB(const CEGUI::EventArgs &e)
+{
+	using namespace CEGUI;
+	
+	Combobox* dm = static_cast<Combobox*>(d_wm->getWindow("Root/HelpWindowFrame/HelpTopicSelectHold/HelpTopicSelectCMB"));
+	if(dm->getSelectedItem()->getText() == "Application Interface")
+	{
+		d_wm->getWindow("Root/HelpWindowFrame/HelpTopicTextHold/HelpTopicTextScrollPane/HelpTopicText")->setText(mHelpTopicList[0]->getTopicText());
+	}
+	else if(dm->getSelectedItem()->getText() == "Application Notes")
+	{
+		d_wm->getWindow("Root/HelpWindowFrame/HelpTopicTextHold/HelpTopicTextScrollPane/HelpTopicText")->setText(mHelpTopicList[1]->getTopicText());
+	}
+
+
+	return true;
+}
 
 //---------------------------------------------------------------------------------------------
 bool GUIManager::handleMeshSelectionCMB(const CEGUI::EventArgs &e)
@@ -1731,6 +1806,39 @@ void GUIManager::setStatusText(const CEGUI::String& pText, const CEGUI::Window& 
 	//pWindow.setText(pText);
 }	
 
+//---------------------------------------------------------------------------------------------
+void GUIManager::setupHelpTopics(void)
+{
+	using namespace CEGUI;
+
+	CEGUI::String title1 = "Application Interface";
+	CEGUI::String title2 = "Application Notes";
+	
+	CEGUI::String txt1 = "OgreRecast User Interface Help Notes\n \n";
+	CEGUI::String txt2 = "Basic Controls\n  W - move camera forward\n  S - move camera backward \n";
+	CEGUI::String txt3 = "  A - move camera left\n  D - move camera right\n \n  Right Mouse Button - adjust camera angle \n";
+	CEGUI::String txt4 = "  Left Mouse Button  - select current interface option or use current tool\n";
+	CEGUI::String txt5 = "  Shift Left Mouse Button - remove nearest Convex Volume/Off-Mesh Connection/NavMesh Tile as per tool selection\n \n";
+	CEGUI::String txt6 = "  Left Mouse Button(NavMesh Test Tool) - Place path ending point and Recalc the path \n";
+	CEGUI::String txt7 = "  Shift Left Mouse Button(NavMesh Test Tool) - Place path starting point \n \n";
+	CEGUI::String txt8 = "  Space Bar(NavMesh Test Tool) - Step the Path in increments. See source code.";
+	CEGUI::String text1 = (txt1 + txt2 + txt3 + txt4 + txt5 + txt6 + txt7 + txt8);
+
+	CEGUI::String btxt1 = "OgreRecast Application Usage Help Notes\n \n ";
+	CEGUI::String btxt2 = "This page will contain notes on the best usage of the OgreRecast Demonstration Application.";
+	CEGUI::String text2 = (btxt1 + btxt2);
+	
+	GUIHelpTopic* mTopic1 = new GUIHelpTopic(title1);
+	mTopic1->setTopicText(text1);
+
+	GUIHelpTopic* mTopic2 = new GUIHelpTopic(title2);
+	mTopic2->setTopicText(text2);
+
+	
+	mHelpTopicList.push_back(mTopic1);
+	mHelpTopicList.push_back(mTopic2);
+	
+}
 
 
 

@@ -31,7 +31,7 @@
 #ifndef _H_GUIMANAGER_H_
 #define _H_GUIMANAGER_H_
 
-
+#include <vector>
 #include "Ogre.h"
 #include "OIS.h"
 #include <CEGUI.h> 
@@ -40,6 +40,67 @@
 using namespace Ogre;
 
 class OgreTemplate;
+
+//---------------------------------------------------------------------------------------------
+// HELP TOPIC HELPER CLASS
+//---------------------------------------------------------------------------------------------
+
+#define NUMBER_HELP_TOPICS 2
+
+class GUIHelpTopic
+{
+	CEGUI::String mTopicTitle;
+	CEGUI::String mTopicText;
+	bool mIsDisplayed;
+	bool mIsInitialised;
+
+public:
+	GUIHelpTopic()
+	{
+		mTopicTitle = "";
+		mTopicText = "";
+		mIsInitialised = true;
+	}
+	GUIHelpTopic(CEGUI::String& topicTitle)
+	{
+		mTopicTitle = topicTitle;
+		mTopicText = "";
+		mIsInitialised = true;
+	}
+	~GUIHelpTopic()
+	{
+
+	}
+
+
+	void setTopicTitle(CEGUI::String& topicTitle)
+	{
+		mTopicTitle = topicTitle;
+	}
+
+	void setTopicText(CEGUI::String& topicText)
+	{
+		mTopicText = topicText;
+	}
+
+	CEGUI::String getTopicText(void)
+	{
+		return mTopicText;
+	}
+
+	CEGUI::String getTopicTitle(void)
+	{
+		return mTopicTitle;
+	}
+
+
+	bool getIsInitialised(void)
+	{
+		return mIsInitialised;
+	}
+};
+typedef std::vector<GUIHelpTopic*> GUIHelpTopicList;
+
 
 class GUIManager : public FrameListener, public Ogre::Singleton<GUIManager> 
 {
@@ -117,6 +178,7 @@ protected:
 	void configureConvexVolumeRB(CEGUI::Window* pParent);
 	void configureConvexSliders(CEGUI::Window* pParent);
 	void configureFrameWindowMouseEvents(CEGUI::Window* pParent);
+
 	
 	void resetNavTestCB(CEGUI::Window* pParent, bool _selected);
 
@@ -136,6 +198,7 @@ protected:
 	bool handleToolFrameRB(const CEGUI::EventArgs &e);
 	bool handleToolFrameBTHideTool(const CEGUI::EventArgs &e);
 	bool handleToolFrameBTHideAll(const CEGUI::EventArgs &e);
+	bool handleToolFrameBTHelp(const CEGUI::EventArgs &e);
 	bool handleBuildSliders(const CEGUI::EventArgs &e);
 	bool handleDebugRB(const CEGUI::EventArgs &e);
 
@@ -151,6 +214,8 @@ protected:
 	bool mKeepIntResult;
 	bool handleBuildAllTilesCB(const CEGUI::EventArgs &e);
 	bool mBuildAllTiles;
+	bool handleHelpTopicSelectionCMB(const CEGUI::EventArgs &e);
+	bool handleHelpTopicCloseButon(const CEGUI::EventArgs &e);
 	bool handleMeshSelectionCMB(const CEGUI::EventArgs &e);
 	bool hideInfoWindow(const CEGUI::EventArgs &e);
 	bool quitApplication(const CEGUI::EventArgs &e); // callback for cegui to quit app
@@ -192,8 +257,12 @@ protected:
 	CEGUI::Font*						d_font;        // the font we use
 	CEGUI::ScrollablePane*				d_pane; // the scrollable pane.
 	CEGUI::Combobox*					d_meshSelect; // combobox to select the mesh to use for input.
+	CEGUI::Combobox*					d_helpTopicSelect; // comboxbox to select the help topic to display
 
 	OgreTemplate* m_sample;
+
+	GUIHelpTopicList					mHelpTopicList;
+	void setupHelpTopics(void);
 
 };
 
