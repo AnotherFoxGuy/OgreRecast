@@ -186,7 +186,7 @@ void OffMeshConnectionTool::handleStep()
 {
 }
 
-void OffMeshConnectionTool::handleRender()
+void OffMeshConnectionTool::handleRender(float _timeSinceLastFrame)
 {
 	dd->clear();
 

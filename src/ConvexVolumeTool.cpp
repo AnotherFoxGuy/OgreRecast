@@ -292,7 +292,7 @@ void ConvexVolumeTool::handleStep()
 {
 }
 
-void ConvexVolumeTool::handleRender()
+void ConvexVolumeTool::handleRender(float _timeSinceLastFrame)
 {
 	dd->clear();
 	ddPoint->clear();

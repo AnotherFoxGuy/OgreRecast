@@ -42,6 +42,7 @@
 #include "Recast.h"
 #include "RecastDebugDraw.h"
 #include "DetourDebugDraw.h"
+#include "SinbadController.h"
 
 #include "GUIManager.h"
 
@@ -110,7 +111,7 @@ void NavMeshTileTool::handleStep()
 
 }
 
-void NavMeshTileTool::handleRender()
+void NavMeshTileTool::handleRender(float _timeSinceLastFrame)
 {
 	dd->clear();
 

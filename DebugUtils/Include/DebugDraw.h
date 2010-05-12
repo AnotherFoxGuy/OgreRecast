@@ -24,12 +24,15 @@ enum duDebugDrawPrimitives
 	DU_DRAW_POINTS,
 	DU_DRAW_LINES,
 	DU_DRAW_TRIS,
-	DU_DRAW_QUADS,	
+	DU_DRAW_QUADS,
+	DU_DRAW_LINES_STRIP,
 };
 
 // Abstrace debug draw interface.
 struct duDebugDraw
 {
+	virtual ~duDebugDraw() = 0;
+	
 	virtual void depthMask(bool state) = 0;
 
 	// Begin drawing primitives.

@@ -55,7 +55,7 @@ public:
 	virtual void handleMenu();
 	virtual void handleClick(const float* p, bool shift);
 	virtual void handleStep();
-	virtual void handleRender();
+	virtual void handleRender(float _timeSinceLastFrame);
 
 };
 

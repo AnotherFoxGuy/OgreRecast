@@ -78,7 +78,7 @@ public:
 	virtual void handleMenu();
 	virtual void handleClick(const float* p, bool shift);
 	virtual void handleStep();
-	virtual void handleRender();
+	virtual void handleRender(float _timeSinceLastFrame);
 
 	virtual void setBoxHeight(float _height) { m_boxHeight = _height; }
 	virtual void setBoxDescent(float _descent) { m_boxDescent = _descent; }

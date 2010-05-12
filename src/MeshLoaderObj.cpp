@@ -60,7 +60,7 @@ using namespace Ogre;
 #define TERRAIN_PAGE_MAX_Y 0
 
 // heightmap from PLSM2 originally
-#define TERRAIN_HEIGHTMAP_FULLPATH_NAME Ogre::String("../../media/_ORIG_Heightmaps/ps_height_1k.png")
+#define TERRAIN_HEIGHTMAP_FULLPATH_NAME Ogre::String("../../media/OgreRecastMedia/Materials/ps_height_1k.png")
 #define TERRAIN_HEIGHTMAP_ORIGINAL String("ps_height_1k.png")
 #define TERRAIN_FILE_PREFIX String("TestPage")
 #define TERRAIN_FILE_SUFFIX String("dat")
@@ -251,10 +251,10 @@ bool rcMeshLoaderObj::load(Ogre::StringVector entNames, Ogre::StringVector fileN
 		Ogre::Entity* ent = SharedData::getSingleton().iSceneMgr->createEntity(entNames[i], fileNames[i]);
 		Ogre::SceneNode* lvlNode = SharedData::getSingleton().iSceneMgr->getRootSceneNode()->createChildSceneNode(entNames[i]);
  		lvlNode->attachObject(ent);
-		lvlNode->setPosition(offsetX, 0, offsetZ);
+		lvlNode->setPosition(offsetX, 30.0f, offsetZ);
 		SharedData::getSingleton().mNavNodeList.push_back(lvlNode);
-		offsetX += 70.0f;
-		offsetZ += 70.0f;
+		offsetX += 270.0f;
+		offsetZ += 270.0f;
 	}
 
 		//get all vertices and triangles
@@ -1230,12 +1230,7 @@ void rcMeshLoaderObj::importFullTerrainFromHeightMap()
 
 
 bool rcMeshLoaderObj::keyPressed( const OIS::KeyEvent &arg )
-{
-	if (arg.key == OIS::KC_0)   // toggle scenenode debug renderables
-	{
-		mSceneMgr->setDisplaySceneNodes(!mSceneMgr->getDisplaySceneNodes());
-	}
-	
+{	
 	switch (arg.key)
 		{
 		case OIS::KC_S:

@@ -195,6 +195,8 @@ void GUIManager::Startup(Ogre::StringVector &meshNames, OgreTemplate* _sample)
 							  CEGUI::Event::Subscriber(&GUIManager::handleHelpTopicCloseButon, this));
 
 	// set the Help Window
+	mHelpTopicList.clear();
+	mHelpTopicList.resize(0);
 	setupHelpTopics();
 	d_helpTopicSelect = static_cast<Combobox*>(d_wm->getWindow("Root/HelpWindowFrame/HelpTopicSelectHold/HelpTopicSelectCMB"));
 	unsigned int numTopics = mHelpTopicList.size();
@@ -378,6 +380,13 @@ void GUIManager::Startup(Ogre::StringVector &meshNames, OgreTemplate* _sample)
 	configureNavTestRB(d_wm->getWindow("Root/NavTestFrame/NavTestTypeHold"));
 	configureNavTestCB(d_wm->getWindow("Root/NavTestFrame"));
 	//configureNavTestCB(d_wm->getWindow("Root/NavTestFrame/ExcFlagHold"));
+	CEGUI::Window* rbEntity = d_wm->getWindow("Root/NavTestFrame/EntityDemoHold/RBIdle");
+	rbEntity->subscribeEvent(CEGUI::RadioButton::EventSelectStateChanged, Event::Subscriber(&GUIManager::handleNavMeshTestEntityRB, this));
+	rbEntity = d_wm->getWindow("Root/NavTestFrame/EntityDemoHold/RBFindPath");
+	rbEntity->subscribeEvent(CEGUI::RadioButton::EventSelectStateChanged, Event::Subscriber(&GUIManager::handleNavMeshTestEntityRB, this));
+	
+	CEGUI::Window* pbEntity = d_wm->getWindow("Root/NavTestFrame/EntityDemoHold/BTRemoveEntity");
+	pbEntity->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&GUIManager::handleNavMeshTestEntityRemoveBT, this));
 
 	// setup callbacks for OffMesh Connection tools RadioButtons
 	CEGUI::Window* omRB = d_wm->getWindow("Root/OffMeshTestFrame/OffMeshRBHold/RBOneWay");
@@ -419,6 +428,7 @@ void GUIManager::Startup(Ogre::StringVector &meshNames, OgreTemplate* _sample)
 	d_wm->getWindow("Root/GeneralOptFrame")->hide();
 	d_wm->getWindow("Root/ConvexToolsFrame")->hide();
 	d_wm->getWindow("Root/OffMeshTestFrame")->hide();
+	d_wm->getWindow("Root/NavTestEntityPanel")->hide();
 	d_wm->getWindow("Root/NavTestFrame")->hide();
 	d_wm->getWindow("Root/DDFrame")->hide();
 	d_wm->getWindow("Root/TileToolFrame")->hide();
@@ -653,6 +663,7 @@ bool GUIManager::handleToolFrameBTHideTool(const CEGUI::EventArgs &e)
 	d_wm->getWindow("Root/OffMeshTestFrame")->hide();
 	d_wm->getWindow("Root/ConvexToolsFrame")->hide();
 	d_wm->getWindow("Root/TileToolFrame")->hide();
+	d_wm->getWindow("Root/NavTestEntityPanel")->hide();
 
 	return true;
 }
@@ -674,6 +685,7 @@ bool GUIManager::handleToolFrameBTHideAll(const CEGUI::EventArgs &e)
 	rb = static_cast<RadioButton*>(d_wm->getWindow("Root/ToolFrame/ToolTypeHolder/RBTileTool"));
 	rb->setSelected(false);
 
+
 	m_sample->setSampleToolType(TOOL_NONE);
 
 	CEGUI::Checkbox* cb = static_cast<Checkbox*>(d_wm->getWindow("Root/ToolFrame/ViewOptionsHolder/CBShowGenOptions"));
@@ -688,6 +700,7 @@ bool GUIManager::handleToolFrameBTHideAll(const CEGUI::EventArgs &e)
 	d_wm->getWindow("Root/NavTestFrame")->hide();
 	d_wm->getWindow("Root/OffMeshTestFrame")->hide();
 	d_wm->getWindow("Root/ConvexToolsFrame")->hide();
+	d_wm->getWindow("Root/NavTestEntityPanel")->hide();
 	d_wm->getWindow("Root/InfoFrame")->hide();
 	d_wm->getWindow("Root/GeneralOptFrame")->hide();
 	d_wm->getWindow("Root/DDFrame")->hide();
@@ -1120,6 +1133,35 @@ bool GUIManager::handleDebugRB(const CEGUI::EventArgs &e)
 }
 
 //---------------------------------------------------------------------------------------------
+bool GUIManager::handleNavMeshTestEntityRB(const CEGUI::EventArgs &e)
+{
+	using namespace CEGUI;
+	
+	CEGUI::RadioButton* rb = static_cast<CEGUI::RadioButton*>(static_cast<const WindowEventArgs&>(e).window); 
+
+	if(rb->getName() == "Root/NavTestFrame/EntityDemoHold/RBFindPath")
+	{
+		static_cast<NavMeshTesterTool*>(m_sample->getCurrentTool())->setEntityMode(ENTITY_FINDPATH);
+	}
+	else if(rb->getName() == "Root/NavTestFrame/EntityDemoHold/RBIdle")
+	{
+		static_cast<NavMeshTesterTool*>(m_sample->getCurrentTool())->setEntityMode(ENTITY_IDLE);
+	}
+
+	return true;
+}
+
+//---------------------------------------------------------------------------------------------
+bool GUIManager::handleNavMeshTestEntityRemoveBT(const CEGUI::EventArgs &e)
+{
+	using namespace CEGUI;
+
+	static_cast<NavMeshTesterTool*>(m_sample->getCurrentTool())->removeLatestEntity();
+
+	return true;
+}
+
+//---------------------------------------------------------------------------------------------
 bool GUIManager::handleNavMeshTestRB(const CEGUI::EventArgs &e)
 {
 	using namespace CEGUI;
@@ -1179,6 +1221,18 @@ bool GUIManager::handleNavMeshTestRB(const CEGUI::EventArgs &e)
 		else
 		{
 
+		}
+	}
+	else if(rb->getName() == "Root/NavTestFrame/NavTestTypeHold/RBEntityDemo")
+	{
+		if(rb->isSelected())
+		{
+			static_cast<NavMeshTesterTool*>(m_sample->getCurrentTool())->setToolMode(TOOLMODE_ENTITY_DEMO);
+			d_wm->getWindow("Root/NavTestEntityPanel")->show();
+		}
+		else
+		{
+			d_wm->getWindow("Root/NavTestEntityPanel")->hide();
 		}
 	}
 
@@ -1424,16 +1478,32 @@ bool GUIManager::handleHelpTopicSelectionCMB(const CEGUI::EventArgs &e)
 	using namespace CEGUI;
 	
 	Combobox* dm = static_cast<Combobox*>(d_wm->getWindow("Root/HelpWindowFrame/HelpTopicSelectHold/HelpTopicSelectCMB"));
-	if(dm->getSelectedItem()->getText() == "Application Interface")
+
+	if(dm->getSelectedItem()->getText() == "Base Application Interface")
 	{
 		d_wm->getWindow("Root/HelpWindowFrame/HelpTopicTextHold/HelpTopicTextScrollPane/HelpTopicText")->setText(mHelpTopicList[0]->getTopicText());
 	}
-	else if(dm->getSelectedItem()->getText() == "Application Notes")
+	else if(dm->getSelectedItem()->getText() == "Application Tool Notes")
 	{
 		d_wm->getWindow("Root/HelpWindowFrame/HelpTopicTextHold/HelpTopicTextScrollPane/HelpTopicText")->setText(mHelpTopicList[1]->getTopicText());
 	}
-
-
+	else if(dm->getSelectedItem()->getText() == "NavMesh Test Tool Notes")
+	{
+		d_wm->getWindow("Root/HelpWindowFrame/HelpTopicTextHold/HelpTopicTextScrollPane/HelpTopicText")->setText(mHelpTopicList[2]->getTopicText());
+	}
+	else if(dm->getSelectedItem()->getText() == "NavMesh Test Tool Entity Notes")
+	{
+		d_wm->getWindow("Root/HelpWindowFrame/HelpTopicTextHold/HelpTopicTextScrollPane/HelpTopicText")->setText(mHelpTopicList[3]->getTopicText());
+	}
+	else if(dm->getSelectedItem()->getText() == "ConvexVolume Tool Notes")
+	{
+		d_wm->getWindow("Root/HelpWindowFrame/HelpTopicTextHold/HelpTopicTextScrollPane/HelpTopicText")->setText(mHelpTopicList[4]->getTopicText());
+	}
+	else if(dm->getSelectedItem()->getText() == "Off-Mesh Connection Tool Notes")
+	{
+		d_wm->getWindow("Root/HelpWindowFrame/HelpTopicTextHold/HelpTopicTextScrollPane/HelpTopicText")->setText(mHelpTopicList[5]->getTopicText());
+	}
+	
 	return true;
 }
 
@@ -1666,6 +1736,13 @@ void GUIManager::setOffMeshText(const CEGUI::String& pText)
 void GUIManager::setTileToolText(const CEGUI::String& pText)
 {
 	d_wm->getWindow("Root/TileToolFrame/TileToolInfo")->setText(pText);
+}
+
+//---------------------------------------------------------------------------------------------
+void GUIManager::setEntitiesCreatedInfo(int _entCreated)
+{
+	Ogre::String entCreated = Ogre::StringConverter::toString(_entCreated);
+	d_wm->getWindow("Root/NavTestFrame/EntityDemoHold/EntitiesCreated")->setText(entCreated.c_str());
 }
 
 //---------------------------------------------------------------------------------------------
@@ -1962,10 +2039,24 @@ void GUIManager::resetNavTestCB(CEGUI::Window* pParent, bool _selected)
 		{ 
 			static_cast<CEGUI::Checkbox*>(pParent->getChildAtIdx(childIdx))->setSelected(_selected);
 		} 
-		configureNavTestCB(pParent->getChildAtIdx(childIdx)); 
+		resetNavTestCB(pParent->getChildAtIdx(childIdx), _selected); 
 	} 
 }
 
+//---------------------------------------------------------------------------------------------
+void GUIManager::resetNavTestRB(CEGUI::Window* pParent, bool _selected)
+{
+	// Recursively subscribe every Build Panel slider to it's callback
+	size_t childCount = pParent->getChildCount(); 
+	for(size_t childIdx = 0; childIdx < childCount; childIdx++) 
+	{ 
+		if(pParent->getChildAtIdx(childIdx)->testClassName("RadioButton"))
+		{ 
+			static_cast<CEGUI::Checkbox*>(pParent->getChildAtIdx(childIdx))->setSelected(_selected);
+		} 
+		resetNavTestRB(pParent->getChildAtIdx(childIdx), _selected); 
+	} 
+}
 
 //---------------------------------------------------------------------------------------------
 void GUIManager::hideAllTools(void)
@@ -1991,6 +2082,7 @@ void GUIManager::hideAllTools(void)
 	d_wm->getWindow("Root/OffMeshTestFrame")->hide();
 	d_wm->getWindow("Root/ConvexToolsFrame")->hide();
 	d_wm->getWindow("Root/TileToolFrame")->hide();
+	d_wm->getWindow("Root/NavTestEntityPanel")->hide();
 	
 
 	m_sample->setSampleToolType(TOOL_NONE);
@@ -2012,13 +2104,32 @@ void GUIManager::setStatusText(const CEGUI::String& pText, const CEGUI::Window& 
 }	
 
 //---------------------------------------------------------------------------------------------
+void GUIManager::setHelpWindowWithKey(void)
+{
+	if(d_wm->getWindow("Root/HelpWindowFrame")->isVisible())
+	{
+		d_wm->getWindow("Root/HelpWindowFrame")->hide();
+	}
+	else if(!d_wm->getWindow("Root/HelpWindowFrame")->isVisible())
+	{
+		d_wm->getWindow("Root/HelpWindowFrame")->show();
+	}
+}
+
+//---------------------------------------------------------------------------------------------
 void GUIManager::setupHelpTopics(void)
 {
 	using namespace CEGUI;
 
-	CEGUI::String title1 = "Application Interface";
-	CEGUI::String title2 = "Application Notes";
+	// setup help topic titles
+	CEGUI::String title1 = "Base Application Interface";
+	CEGUI::String title2 = "Application Tool Notes";
+	CEGUI::String title3 = "NavMesh Test Tool Notes";
+	CEGUI::String title4 = "NavMesh Test Tool Entity Notes";
+	CEGUI::String title5 = "ConvexVolume Tool Notes";
+	CEGUI::String title6 = "Off-Mesh Connection Tool Notes";
 	
+	// setup help topic 1 - "Base Application Interface"
 	CEGUI::String txt1 = "OgreRecast User Interface Help Notes\n \n";
 	CEGUI::String txt2 = "Basic Controls\n  W - move camera forward\n  S - move camera backward \n";
 	CEGUI::String txt3 = "  A - move camera left\n  D - move camera right\n \n  Right Mouse Button - adjust camera angle \n";
@@ -2029,19 +2140,60 @@ void GUIManager::setupHelpTopics(void)
 	CEGUI::String txt8 = "  Space Bar(NavMesh Test Tool) - Step the Path in increments. See source code.";
 	CEGUI::String text1 = (txt1 + txt2 + txt3 + txt4 + txt5 + txt6 + txt7 + txt8);
 
-	CEGUI::String btxt1 = "OgreRecast Application Usage Help Notes\n \n ";
-	CEGUI::String btxt2 = "This page will contain notes on the best usage of the OgreRecast Demonstration Application.";
-	CEGUI::String text2 = (btxt1 + btxt2);
-	
 	GUIHelpTopic* mTopic1 = new GUIHelpTopic(title1);
 	mTopic1->setTopicText(text1);
+	mHelpTopicList.push_back(mTopic1);
+
+	// setup help topic 2 - "Application Tool Notes"
+	CEGUI::String btxt1 = "OgreRecast Application Tools Basic Notes\n \n ";
+	CEGUI::String btxt2 = "All of the basic tools, that is the NavMesh Tester(without Entity), the ConvexVolume and the OffMesh Connection tool,\n";
+	CEGUI::String btxt3 = " share most of their basic usage features, in that they are mouse input controlled. For specific help with\n";
+	CEGUI::String btxt4 = " a tool please see the Tool's help topic.\n \n";
+	CEGUI::String btxt5 = "Basic Tool Use\n \n";
+	CEGUI::String btxt6 = " Left Click - Use primary tool property, place a point.\n";
+	CEGUI::String btxt7 = " Shift-Left Click - Use secondary tool property, remove a point, place end point.\n \n";
+	CEGUI::String btxt8 = "Basic tool functionality and options are controlled through the User Interface.";
+	CEGUI::String text2 = (btxt1 + btxt2 + btxt3 + btxt4 + btxt5 + btxt6 + btxt7 + btxt8);
 
 	GUIHelpTopic* mTopic2 = new GUIHelpTopic(title2);
 	mTopic2->setTopicText(text2);
-
-	
-	mHelpTopicList.push_back(mTopic1);
 	mHelpTopicList.push_back(mTopic2);
+	
+	// setup help topic 3 - "NavMesh Test Tool Notes"
+	CEGUI::String ctxt1 = "Navigation Mesh Testing Tool Notes\n \n";
+	CEGUI::String ctxt2 = "This section will contain basic help for the navmesh tester tool.";
+	CEGUI::String text3 = (ctxt1 + ctxt2);
+
+	GUIHelpTopic* mTopic3 = new GUIHelpTopic(title3);
+	mTopic3->setTopicText(text3);
+	mHelpTopicList.push_back(mTopic3);
+		
+	// setup help topic 4 - "NavMesh Test Tool Entity Notes"
+	CEGUI::String dtxt1 = "Navigation Mesh Entity Testing Tool Notes\n \n";
+	CEGUI::String dtxt2 = "This section will contain basic help for the navmesh test entity panel";
+	CEGUI::String text4 = (dtxt1 + dtxt2);
+
+	GUIHelpTopic* mTopic4 = new GUIHelpTopic(title4);
+	mTopic4->setTopicText(text4);
+	mHelpTopicList.push_back(mTopic4);
+
+	// setup help topic 5 - "ConvexVolume Tool Notes"
+	CEGUI::String etxt1 = "Convex Volume Tool Notes\n \n";
+	CEGUI::String etxt2 = "This section will contain basic help for the convex volume creation tool";
+	CEGUI::String text5 = (etxt1 + etxt2);
+
+	GUIHelpTopic* mTopic5 = new GUIHelpTopic(title5);
+	mTopic5->setTopicText(text5);
+	mHelpTopicList.push_back(mTopic5);
+
+	// setup help topic 6 - "Off-Mesh Connection Tool Notes"
+	CEGUI::String ftxt1 = "Off-Mesh Connection Tool Notes\n \n";
+	CEGUI::String ftxt2 = "This section will contain basic help for the off mesh connection tool";
+	CEGUI::String text6 = (ftxt1 + ftxt2);
+
+	GUIHelpTopic* mTopic6 = new GUIHelpTopic(title6);
+	mTopic6->setTopicText(text6);
+	mHelpTopicList.push_back(mTopic6);
 	
 }
 
@@ -2050,12 +2202,12 @@ void GUIManager::setPresetRecastOriginal(void)
 {
 	using namespace CEGUI;
 
-	m_sample->setBuildCellSize(0.3f);
-	m_sample->setBuildCellHeight(0.2f);
-	m_sample->setBuildAgentHeight(2.0f);
-	m_sample->setBuildAgentRadius(0.6f);
-	m_sample->setBuildAgentMaxClimb(0.2f);
-	m_sample->setBuildAgentMaxSlope(45.0f);
+	m_sample->setBuildCellSize(1.0f);
+	m_sample->setBuildCellHeight(0.6f);
+	m_sample->setBuildAgentHeight(7.0f);
+	m_sample->setBuildAgentRadius(5.0f);
+	m_sample->setBuildAgentMaxClimb(2.0f);
+	m_sample->setBuildAgentMaxSlope(60.0f);
 	m_sample->setBuildRegionSize(50);
 	m_sample->setBuildRegionMerge(20);
 	m_sample->setBuildEdgeLength(12.0f);
@@ -2063,37 +2215,37 @@ void GUIManager::setPresetRecastOriginal(void)
 	m_sample->setBuildVertPerPoly(6.0f);
 	m_sample->setBuildSampleDist(6.0f);
 	m_sample->setBuildSampleError(1.0f);
-	m_sample->setBuildTileSize(32.0f);
+	m_sample->setBuildTileSize(64.0f);
 
 
 
 	CEGUI::Slider* sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder1/SLCellSize"));
-	sl->setCurrentValue(0.3f);
+	sl->setCurrentValue(1.0f);
 	Window* eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder1/EBCellSize"));
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
 	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder2/SLCellHeight"));
-	sl->setCurrentValue(0.2f);
+	sl->setCurrentValue(0.6f);
 	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder2/EBCellHeight"));
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
 	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder3/SLAgentHeight"));
-	sl->setCurrentValue(2.0f);
+	sl->setCurrentValue(7.0f);
 	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder3/EBAgentHeight"));
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
 	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder4/SLAgentRadius"));
-	sl->setCurrentValue(0.6f);
+	sl->setCurrentValue(5.0f);
 	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder4/EBAgentRadius"));
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
 	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder5/SLMaxClimb"));
-	sl->setCurrentValue(0.9f);
+	sl->setCurrentValue(2.0f);
 	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder5/EBMaxClimb"));
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
 	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder6/SLMaxSlope"));
-	sl->setCurrentValue(45.0f);
+	sl->setCurrentValue(60.0f);
 	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder6/EBMaxSlope"));
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
@@ -2133,7 +2285,7 @@ void GUIManager::setPresetRecastOriginal(void)
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
 	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder14/SLTileSize"));
-	sl->setCurrentValue(32.0f);
+	sl->setCurrentValue(64.0f);
 	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder14/EBTileSize"));
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 }
@@ -2143,43 +2295,43 @@ void GUIManager::setPresetOgreTerrain(void)
 {
 	using namespace CEGUI;
 
-	m_sample->setBuildCellSize(2.0f);
-	m_sample->setBuildCellHeight(1.0f);
-	m_sample->setBuildAgentHeight(4.0f);
-	m_sample->setBuildAgentRadius(1.5f);
-	m_sample->setBuildAgentMaxClimb(1.5f);
+	m_sample->setBuildCellSize(2.5f);
+	m_sample->setBuildCellHeight(1.5f);
+	m_sample->setBuildAgentHeight(15.0f);
+	m_sample->setBuildAgentRadius(10.0f);
+	m_sample->setBuildAgentMaxClimb(2.0f);
 	m_sample->setBuildAgentMaxSlope(60.0f);
-	m_sample->setBuildRegionSize(90);
-	m_sample->setBuildRegionMerge(60);
-	m_sample->setBuildEdgeLength(24.0f);
-	m_sample->setBuildEdgeError(2.0f);
+	m_sample->setBuildRegionSize(100);
+	m_sample->setBuildRegionMerge(70);
+	m_sample->setBuildEdgeLength(32.0f);
+	m_sample->setBuildEdgeError(1.5f);
 	m_sample->setBuildVertPerPoly(6.0f);
-	m_sample->setBuildSampleDist(6.0f);
-	m_sample->setBuildSampleError(1.0f);
+	m_sample->setBuildSampleDist(16.0f);
+	m_sample->setBuildSampleError(2.0f);
 	m_sample->setBuildTileSize(128.0f);
 
 	CEGUI::Slider* sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder1/SLCellSize"));
-	sl->setCurrentValue(2.0f);
+	sl->setCurrentValue(2.5f);
 	Window* eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder1/EBCellSize"));
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
 	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder2/SLCellHeight"));
-	sl->setCurrentValue(1.0f);
+	sl->setCurrentValue(1.5f);
 	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder2/EBCellHeight"));
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
 	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder3/SLAgentHeight"));
-	sl->setCurrentValue(4.0f);
+	sl->setCurrentValue(15.0f);
 	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder3/EBAgentHeight"));
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
 	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder4/SLAgentRadius"));
-	sl->setCurrentValue(1.5f);
+	sl->setCurrentValue(10.0f);
 	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder4/EBAgentRadius"));
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
 	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder5/SLMaxClimb"));
-	sl->setCurrentValue(1.5f);
+	sl->setCurrentValue(2.0f);
 	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder5/EBMaxClimb"));
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
@@ -2189,22 +2341,22 @@ void GUIManager::setPresetOgreTerrain(void)
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
 	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder7/SLMinRegion"));
-	sl->setCurrentValue(90.0f);
+	sl->setCurrentValue(100.0f);
 	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder7/EBMinRegion"));
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
 	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder8/SLMergedSize"));		
-	sl->setCurrentValue(60.0f);
+	sl->setCurrentValue(70.0f);
 	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder8/EBMergedSize"));
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
 	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder9/SLMaxEdge"));		
-	sl->setCurrentValue(24.0f);
+	sl->setCurrentValue(32.0f);
 	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder9/EBMaxEdge"));
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
 	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder10/SLMaxEdgeError"));		
-	sl->setCurrentValue(2.0f);
+	sl->setCurrentValue(1.5f);
 	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder10/EBMaxEdgeError"));
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
@@ -2214,12 +2366,12 @@ void GUIManager::setPresetOgreTerrain(void)
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
 	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder12/SLSampleDist"));
-	sl->setCurrentValue(6.0f);
+	sl->setCurrentValue(16.0f);
 	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder12/EBSampleDist"));
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 
 	sl = static_cast<CEGUI::Slider*>(d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder13/SLMaxSampErr"));
-	sl->setCurrentValue(1.0f);
+	sl->setCurrentValue(2.0f);
 	eb = (d_wm->getWindow("Root/BuildFrame/BuildSliderSPane/SliderHolder13/EBMaxSampErr"));
 	eb->setText(Ogre::StringConverter::toString(sl->getCurrentValue()));
 

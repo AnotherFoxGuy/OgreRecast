@@ -402,7 +402,7 @@ for more options</Property>
                             <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.370519,0},{0.98,0},{0.479039,0}}" />
                             <Window Type="WindowsLook/Slider" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder3/SLAgentHeight" >
                                 <Property Name="CurrentValue" Value="1" />
-                                <Property Name="MaximumValue" Value="5" />
+                                <Property Name="MaximumValue" Value="15" />
                                 <Property Name="ClickStepSize" Value="0.1" />
                                 <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.432569,0},{0.715635,0},{0.828001,0}}" />
                             </Window>
@@ -424,7 +424,7 @@ for more options</Property>
                             <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.487399,0},{0.98,0},{0.59896,0}}" />
                             <Window Type="WindowsLook/Slider" Name="Root/BuildFrame/BuildSliderSPane/SliderHolder4/SLAgentRadius" >
                                 <Property Name="CurrentValue" Value="0.6" />
-                                <Property Name="MaximumValue" Value="5" />
+                                <Property Name="MaximumValue" Value="10" />
                                 <Property Name="ClickStepSize" Value="0.1" />
                                 <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.432569,0},{0.715635,0},{0.828001,0}}" />
                             </Window>
@@ -698,11 +698,11 @@ for more options</Property>
             <Property Name="Tooltip" Value="Tools to Test the Navigation Mesh using Detour." />
             <Property Name="TitlebarFont" Value="DejaVuSans-10" />
             <Property Name="TitlebarEnabled" Value="True" />
-            <Property Name="UnifiedAreaRect" Value="{{0.00571001,0},{0.476267,0},{0.241644,0},{0.832084,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.00571001,0},{0.509403,0},{0.23842,0},{0.832084,0}}" />
             <Property Name="CloseButtonEnabled" Value="False" />
             <Window Type="WindowsLook/StaticText" Name="Root/NavTestFrame/IncFlagHold" >
                 <Property Name="Tooltip" Value="Flags to include in pathing searches." />
-                <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.4,0},{0.49,0},{0.98,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.475,0},{0.49,0},{0.98,0}}" />
                 <Window Type="WindowsLook/StaticText" Name="Root/NavTestFrame/IncFlagHold/IncTitle" >
                     <Property Name="Font" Value="fkp-16" />
                     <Property Name="Text" Value="Include Flags" />
@@ -738,7 +738,7 @@ for more options</Property>
             </Window>
             <Window Type="WindowsLook/StaticText" Name="Root/NavTestFrame/ExcFlagHold" >
                 <Property Name="Tooltip" Value="Flags to exclude from pathing searches." />
-                <Property Name="UnifiedAreaRect" Value="{{0.5,0},{0.4,0},{0.98,0},{0.98,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.5,0},{0.475,0},{0.98,0},{0.98,0}}" />
                 <Window Type="WindowsLook/StaticText" Name="Root/NavTestFrame/ExcFlagHold/ExcTitle" >
                     <Property Name="Font" Value="fkp-16" />
                     <Property Name="Text" Value="Exclude Flags" />
@@ -770,45 +770,51 @@ for more options</Property>
             </Window>
             <Window Type="WindowsLook/StaticText" Name="Root/NavTestFrame/NavTestTypeHold" >
                 <Property Name="Tooltip" Value="Select a pathfinding test type to perform." />
-                <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.02,0},{0.98,0},{0.395,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.02,0},{0.98,0},{0.474,0}}" />
                 <Window Type="WindowsLook/StaticText" Name="Root/NavTestFrame/NavTestTypeHold/NavTestTypeTitle" >
                     <Property Name="Font" Value="fkp-16" />
                     <Property Name="Text" Value="NavMesh Test Tool Selection" />
                     <Property Name="HorzExtent" Value="216" />
                     <Property Name="VertExtent" Value="16" />
                     <Property Name="HorzFormatting" Value="HorzCentred" />
-                    <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.02,0},{0.98,0},{0.2,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.02,0},{0.98,0},{0.225,0}}" />
                 </Window>
                 <Window Type="WindowsLook/RadioButton" Name="Root/NavTestFrame/NavTestTypeHold/RBPathFindIter" >
                     <Property Name="Font" Value="fkp-16" />
                     <Property Name="Text" Value="Iter Path" />
                     <Property Name="Tooltip" Value="Perform smothed path Iterative test." />
                     <Property Name="Selected" Value="True" />
-                    <Property Name="UnifiedAreaRect" Value="{{0.302664,0},{0.456338,0},{0.63,0},{0.676338,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.472494,0},{0.355166,0},{0.670684,0}}" />
                 </Window>
                 <Window Type="WindowsLook/RadioButton" Name="Root/NavTestFrame/NavTestTypeHold/RBPathFindStraight" >
                     <Property Name="Font" Value="fkp-16" />
                     <Property Name="Text" Value="Straight Path" />
                     <Property Name="Tooltip" Value="Perform non-smoothed straight point-to-point test." />
-                    <Property Name="UnifiedAreaRect" Value="{{0.030307,0},{0.233809,0},{0.47,0},{0.453809,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.233809,0},{0.466648,0},{0.453809,0}}" />
                 </Window>
                 <Window Type="WindowsLook/RadioButton" Name="Root/NavTestFrame/NavTestTypeHold/RBDistToWall" >
                     <Property Name="Font" Value="fkp-16" />
                     <Property Name="Text" Value=" Dist To Wall" />
                     <Property Name="Tooltip" Value="Perform a Distance to Wall test." />
-                    <Property Name="UnifiedAreaRect" Value="{{0.027025,0},{0.714785,0},{0.48,0},{0.934785,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.714785,0},{0.48,0},{0.934785,0}}" />
                 </Window>
                 <Window Type="WindowsLook/RadioButton" Name="Root/NavTestFrame/NavTestTypeHold/RBRaycast" >
                     <Property Name="Font" Value="fkp-16" />
                     <Property Name="Text" Value="RayCast Test" />
                     <Property Name="Tooltip" Value="Perform a Ray Casting test from Start to End." />
-                    <Property Name="UnifiedAreaRect" Value="{{0.554518,0},{0.239444,0},{0.980137,0},{0.459444,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.55,0},{0.239444,0},{0.980137,0},{0.459444,0}}" />
                 </Window>
                 <Window Type="WindowsLook/RadioButton" Name="Root/NavTestFrame/NavTestTypeHold/RBFindPoly" >
                     <Property Name="Font" Value="fkp-16" />
                     <Property Name="Text" Value=" Find Polys" />
                     <Property Name="Tooltip" Value="Display NavMesh polys touched in search from Start to End." />
                     <Property Name="UnifiedAreaRect" Value="{{0.55,0},{0.707744,0},{0.94,0},{0.927744,0}}" />
+                </Window>
+                <Window Type="WindowsLook/RadioButton" Name="Root/NavTestFrame/NavTestTypeHold/RBEntityDemo" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="Entity Demo" />
+                    <Property Name="Tooltip" Value="Select to place and watch atuomated Ogre entities." />
+                    <Property Name="UnifiedAreaRect" Value="{{0.55,0},{0.483123,0},{0.966151,0},{0.689504,0}}" />
                 </Window>
             </Window>
         </Window>
@@ -1020,7 +1026,7 @@ Shift Left Click - Remove a Tile</Property>
             <Property Name="AlwaysOnTop" Value="True" />
             <Property Name="TitlebarFont" Value="DejaVuSans-10" />
             <Property Name="TitlebarEnabled" Value="True" />
-            <Property Name="UnifiedAreaRect" Value="{{0.132614,0},{0.170157,0},{0.557205,0},{0.730979,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.267183,0},{0.212761,0},{0.691774,0},{0.773583,0}}" />
             <Property Name="CloseButtonEnabled" Value="False" />
             <Window Type="WindowsLook/Button" Name="Root/GeneralOptFrame/QuitButton" >
                 <Property Name="Font" Value="fkp-16" />
@@ -1181,7 +1187,7 @@ Shift Left Click - Remove a Tile</Property>
             <Property Name="TitlebarFont" Value="DejaVuSans-10" />
             <Property Name="SizingEnabled" Value="False" />
             <Property Name="TitlebarEnabled" Value="True" />
-            <Property Name="UnifiedAreaRect" Value="{{0.237228,0},{0.00710051,0},{0.587148,0},{0.653549,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.329089,0},{0.121893,0},{0.679008,0},{0.768342,0}}" />
             <Property Name="CloseButtonEnabled" Value="False" />
             <Window Type="WindowsLook/Button" Name="Root/HelpWindowFrame/BTClose" >
                 <Property Name="Font" Value="fkp-16" />
@@ -1202,6 +1208,15 @@ Shift Left Click - Remove a Tile</Property>
                     <Property Name="UnifiedAreaRect" Value="{{0.2,0},{0.15,0},{0.8,0},{1,0}}" />
                     <Property Name="MaxEditTextLength" Value="1073741823" />
                     <Property Name="InheritsTooltipText" Value="False" />
+                </Window>
+                <Window Type="WindowsLook/StaticText" Name="Root/HelpWindowFrame/HelpTopicSelectHold/MouseInfoText" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="Use the mouse wheel to select help topics." />
+                    <Property Name="HorzExtent" Value="336" />
+                    <Property Name="VertExtent" Value="16" />
+                    <Property Name="FrameEnabled" Value="False" />
+                    <Property Name="HorzFormatting" Value="WordWrapCentred" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.0490305,0},{0.483727,0},{0.961093,0},{0.961544,0}}" />
                 </Window>
             </Window>
             <Window Type="WindowsLook/StaticText" Name="Root/HelpWindowFrame/HelpTopicTextHold" >
@@ -1230,6 +1245,110 @@ P.Wilson - Author</Property>
                             <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{2,0},{2,0}}" />
                         </Window>
                     </AutoWindow>
+                </Window>
+            </Window>
+        </Window>
+        <Window Type="WindowsLook/FrameWindow" Name="Root/NavTestEntityPanel" >
+            <Property Name="TitlebarFont" Value="DejaVuSans-10" />
+            <Property Name="SizingEnabled" Value="False" />
+            <Property Name="TitlebarEnabled" Value="False" />
+            <Property Name="UnifiedAreaRect" Value="{{0.238921,0},{0.5142,0},{0.469581,0},{0.828106,0}}" />
+            <Property Name="CloseButtonEnabled" Value="False" />
+            <Window Type="WindowsLook/StaticText" Name="Root/NavTestFrame/EntityDemoHold" >
+                <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.02,0},{0.98,0},{0.225,0}}" />
+                <Window Type="WindowsLook/StaticText" Name="Root/NavTestFrame/EntityDemoHold/EntityDemoTitle" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="Ogre3D Entity AI Mode Options" />
+                    <Property Name="HorzExtent" Value="232" />
+                    <Property Name="VertExtent" Value="16" />
+                    <Property Name="HorzFormatting" Value="HorzCentred" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.02,0},{0.98,0},{0.425131,0}}" />
+                </Window>
+                <Window Type="WindowsLook/RadioButton" Name="Root/NavTestFrame/EntityDemoHold/RBFindPath" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="Pathing" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.5,0},{0.35,0},{0.9,0}}" />
+                </Window>
+                <Window Type="WindowsLook/RadioButton" Name="Root/NavTestFrame/EntityDemoHold/RBIdle" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="Idle" />
+                    <Property Name="Selected" Value="True" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.39,0},{0.5,0},{0.62,0},{0.9,0}}" />
+                </Window>
+                <Window Type="WindowsLook/RadioButton" Name="Root/NavTestFrame/EntityDemoHold/RBAutoMode" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="Auto" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.68,0},{0.5,0},{0.95,0},{0.9,0}}" />
+                </Window>
+            </Window>
+            <Window Type="WindowsLook/StaticText" Name="Root/NavTestEntityPanel/EntityAdjustHold" >
+                <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.23,0},{0.98,0},{0.795,0}}" />
+                <Window Type="WindowsLook/StaticText" Name="Root/NavTestEntityPanel/EntityAdjustHold/EntityAdjustTitle" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="Entity Adjustments / Tweaks" />
+                    <Property Name="HorzExtent" Value="216" />
+                    <Property Name="VertExtent" Value="16" />
+                    <Property Name="HorzFormatting" Value="HorzCentred" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0,0},{0.98,0},{0.166547,0}}" />
+                </Window>
+                <Window Type="WindowsLook/Spinner" Name="Root/NavTestEntityPanel/EntityAdjustHold/SPMaxForce" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="StepSize" Value="1" />
+                    <Property Name="CurrentValue" Value="0" />
+                    <Property Name="MaximumValue" Value="32767" />
+                    <Property Name="MinimumValue" Value="-32768" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.625,0},{0.18,0},{0.98,0},{0.37,0}}" />
+                </Window>
+                <Window Type="WindowsLook/StaticText" Name="Root/NavTestEntityPanel/EntityAdjustHold/MaxForceTitle" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="Maximum Force :" />
+                    <Property Name="HorzExtent" Value="120" />
+                    <Property Name="VertExtent" Value="16" />
+                    <Property Name="FrameEnabled" Value="False" />
+                    <Property Name="HorzFormatting" Value="HorzCentred" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.18,0},{0.6,0},{0.37,0}}" />
+                </Window>
+                <Window Type="WindowsLook/StaticText" Name="Root/NavTestEntityPanel/EntityAdjustHold/MaxSpeedTitle" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="Maximum Speed :" />
+                    <Property Name="HorzExtent" Value="120" />
+                    <Property Name="VertExtent" Value="16" />
+                    <Property Name="FrameEnabled" Value="False" />
+                    <Property Name="HorzFormatting" Value="HorzCentred" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.375,0},{0.6,0},{0.565,0}}" />
+                </Window>
+                <Window Type="WindowsLook/Spinner" Name="Root/NavTestEntityPanel/EntityAdjustHold/SPMaxSpeed" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="StepSize" Value="1" />
+                    <Property Name="CurrentValue" Value="0" />
+                    <Property Name="MaximumValue" Value="32767" />
+                    <Property Name="MinimumValue" Value="-32768" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.625,0},{0.375,0},{0.98,0},{0.565,0}}" />
+                </Window>
+            </Window>
+            <Window Type="WindowsLook/StaticText" Name="Root/NavTestEntityPanel/EntityInfoHold" >
+                <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.8,0},{0.98,0},{0.98,0}}" />
+                <Window Type="WindowsLook/Button" Name="Root/NavTestFrame/EntityDemoHold/BTRemoveEntity" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="Remove Entity" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.0219637,0},{0.193001,0},{0.446964,0},{0.796889,0}}" />
+                </Window>
+                <Window Type="WindowsLook/StaticText" Name="Root/NavTestFrame/EntityDemoHold/LabelEntCreated" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="Entities :" />
+                    <Property Name="HorzExtent" Value="80" />
+                    <Property Name="VertExtent" Value="16" />
+                    <Property Name="FrameEnabled" Value="False" />
+                    <Property Name="HorzFormatting" Value="HorzCentred" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.446964,0},{0.142223,0},{0.796963,0},{0.826889,0}}" />
+                </Window>
+                <Window Type="WindowsLook/StaticText" Name="Root/NavTestFrame/EntityDemoHold/EntitiesCreated" >
+                    <Property Name="Font" Value="fkp-16" />
+                    <Property Name="Text" Value="0" />
+                    <Property Name="HorzExtent" Value="8" />
+                    <Property Name="VertExtent" Value="16" />
+                    <Property Name="HorzFormatting" Value="HorzCentred" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.777075,0},{0.142223,0},{0.976964,0},{0.776112,0}}" />
                 </Window>
             </Window>
         </Window>

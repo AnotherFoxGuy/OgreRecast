@@ -71,14 +71,21 @@
 
 using namespace Ogre;
 
-Ogre::String   TemplateUtils::mExePath = "";
-unsigned int   TemplateUtils::mVertexBufferSize = 0;
-unsigned int   TemplateUtils::mIndexBufferSize = 0;
-Ogre::Vector3 *TemplateUtils::mVertexBuffer = 0;
-unsigned long *TemplateUtils::mIndexBuffer = 0;
-int			   TemplateUtils::mMtlCount = 0;
-int			   TemplateUtils::mObjCount = 0;
-int			   TemplateUtils::mNameCount = 0;
+Ogre::String	TemplateUtils::mExePath = "";
+unsigned int	TemplateUtils::mVertexBufferSize = 0;
+unsigned int	TemplateUtils::mIndexBufferSize = 0;
+Ogre::Vector3*	TemplateUtils::mVertexBuffer = 0;
+unsigned long*	TemplateUtils::mIndexBuffer = 0;
+int				TemplateUtils::mMtlCount = 0;
+int				TemplateUtils::mObjCount = 0;
+int				TemplateUtils::mNameCount = 1; // used for entities, statemachine objectID 0 is invalid
+
+int				TemplateUtils::mBodyNodeCount = 1;
+int				TemplateUtils::mBodyEntityCount = 1;
+int				TemplateUtils::mRibbonTrailCount = 1;
+int				TemplateUtils::mLeftSwordCount = 1;
+int				TemplateUtils::mRightSwordCount = 1;
+int				TemplateUtils::mEntityLabelCount = 1;
 
 //-----------------------------------------------------------------------------------------
 Ogre::String TemplateUtils::GetUniqueObjName(Ogre::String prefix)
@@ -97,6 +104,38 @@ Ogre::String TemplateUtils::GetUniqueName(Ogre::String prefix)
 {
 	return prefix + Ogre::StringConverter::toString(mNameCount++);
 }
+
+//-----------------------------------------------------------------------------------------
+Ogre::String TemplateUtils::GetUniqueEntityLabelName(Ogre::String prefix)
+{
+	return prefix + Ogre::StringConverter::toString(mEntityLabelCount++);
+}
+//-----------------------------------------------------------------------------------------
+Ogre::String TemplateUtils::GetUniqueBodyEntityName(Ogre::String prefix)
+{
+	return prefix + Ogre::StringConverter::toString(mBodyEntityCount++);
+}
+//-----------------------------------------------------------------------------------------
+Ogre::String TemplateUtils::GetUniqueRibbonTrailName(Ogre::String prefix)
+{
+	return prefix + Ogre::StringConverter::toString(mRibbonTrailCount++);
+}
+//-----------------------------------------------------------------------------------------
+Ogre::String TemplateUtils::GetUniqueBodyNodeName(Ogre::String prefix)
+{
+	return prefix + Ogre::StringConverter::toString(mBodyNodeCount++);
+}
+//-----------------------------------------------------------------------------------------
+Ogre::String TemplateUtils::GetUniqueLeftSwordName(Ogre::String prefix)
+{
+	return prefix + Ogre::StringConverter::toString(mLeftSwordCount++);
+}
+//-----------------------------------------------------------------------------------------
+Ogre::String TemplateUtils::GetUniqueRightSwordName(Ogre::String prefix)
+{
+	return prefix + Ogre::StringConverter::toString(mRightSwordCount++);
+}
+
 
 //-----------------------------------------------------------------------------------------
 void TemplateUtils::ParseStringVector(Ogre::String &str, Ogre::StringVector &list)

@@ -47,7 +47,6 @@
 #	define snprintf _snprintf
 #endif
 
-
 //----------------------------------------------------------------------------------------------
 DebugDrawGL::DebugDrawGL():
 	mYOffset(0.0f),
@@ -100,6 +99,10 @@ void DebugDrawGL::begin(duDebugDrawPrimitives prim, float size)
 		break;
 	case DU_DRAW_QUADS:
 		obj->begin(mtl, Ogre::RenderOperation::OT_POINT_LIST);
+		break;
+	case DU_DRAW_LINES_STRIP:
+		mMtrl->getTechnique(0)->setPointSize(size);
+		obj->begin(mtl, Ogre::RenderOperation::OT_LINE_STRIP);
 		break;
 	};
 

@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain_d.lib OIS_d.lib OgreTerrain_d.lib OgrePaging_d.lib CEGUIBase_d.lib CEGUIOgreRenderer_d.lib"
+				AdditionalDependencies="OgreMain_d.lib OIS_d.lib OgreTerrain_d.lib OgrePaging_d.lib CEGUIBase_d.lib CEGUIOgreRenderer_d.lib Winmm.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(OGRE_HOME)\lib\$(ConfigurationName);$(CEGUI)\lib"
 				GenerateDebugInformation="true"
@@ -115,11 +115,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="3"
+				Optimization="2"
 				InlineFunctionExpansion="0"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				WholeProgramOptimization="true"
+				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="DebugUtils\Include;Detour\Include;Recast\Include;.\include;&quot;$(OGRE_HOME)\include\OIS&quot;;&quot;$(OGRE_HOME)\include\OGRE&quot;;&quot;$(OGRE_HOME)\include\OGRE\Terrain&quot;;&quot;$(OGRE_HOME)\include\OGRE\Paging&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG"
 				GeneratePreprocessedFile="0"
@@ -143,7 +143,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain.lib OIS.lib OgreTerrain.lib OgrePaging.lib CEGUIBase.lib CEGUIOgreRenderer.lib"
+				AdditionalDependencies="OgreMain.lib OIS.lib OgreTerrain.lib OgrePaging.lib CEGUIBase.lib CEGUIOgreRenderer.lib Winmm.lib"
 				OutputFile="bin\$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="$(OGRE_HOME)\lib\$(ConfigurationName);$(CEGUI)\lib"
@@ -387,7 +387,19 @@
 					Name="Header Files"
 					>
 					<File
+						RelativePath=".\include\C2DMatrix.h"
+						>
+					</File>
+					<File
+						RelativePath=".\include\CellSpacePartition.h"
+						>
+					</File>
+					<File
 						RelativePath=".\include\Filelist.h"
+						>
+					</File>
+					<File
+						RelativePath=".\include\Geometry.h"
 						>
 					</File>
 					<File
@@ -395,7 +407,47 @@
 						>
 					</File>
 					<File
+						RelativePath=".\include\InvertedAABBox2D.h"
+						>
+					</File>
+					<File
+						RelativePath=".\include\MiscUtils.h"
+						>
+					</File>
+					<File
+						RelativePath=".\include\MoveableTextOverlay.h"
+						>
+					</File>
+					<File
+						RelativePath=".\include\OgreRecastAutoList.h"
+						>
+					</File>
+					<File
+						RelativePath=".\include\OgreRecastPriorityQueue.h"
+						>
+					</File>
+					<File
+						RelativePath=".\include\OgreRecastSettingLoader.h"
+						>
+					</File>
+					<File
+						RelativePath=".\include\OgreRecastWall3D.h"
+						>
+					</File>
+					<File
+						RelativePath=".\include\RectLayoutManager.h"
+						>
+					</File>
+					<File
 						RelativePath=".\include\SharedData.h"
+						>
+					</File>
+					<File
+						RelativePath=".\include\Transformations.h"
+						>
+					</File>
+					<File
+						RelativePath=".\include\Vector2D.h"
 						>
 					</File>
 				</Filter>
@@ -408,6 +460,18 @@
 					</File>
 					<File
 						RelativePath=".\src\GUtility.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\src\MoveableTextOverlay.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\src\OgreRecastSettingLoader.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\src\Vector2D.cpp"
 						>
 					</File>
 				</Filter>
@@ -440,6 +504,10 @@
 					</File>
 					<File
 						RelativePath=".\include\OgreTemplate.h"
+						>
+					</File>
+					<File
+						RelativePath=".\include\SinbadController.h"
 						>
 					</File>
 				</Filter>
@@ -476,6 +544,10 @@
 					</File>
 					<File
 						RelativePath=".\src\OgreTemplateDraw.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\src\SinbadController.cpp"
 						>
 					</File>
 				</Filter>
@@ -520,6 +592,142 @@
 					</File>
 					<File
 						RelativePath=".\src\OffMeshConnectionTool.cpp"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="AI_Entitiy"
+				>
+				<Filter
+					Name="StateMachine"
+					>
+					<Filter
+						Name="Header Files"
+						>
+						<File
+							RelativePath=".\include\database.h"
+							>
+						</File>
+						<File
+							RelativePath=".\include\debuglog.h"
+							>
+						</File>
+						<File
+							RelativePath=".\include\gameobject.h"
+							>
+						</File>
+						<File
+							RelativePath=".\include\msg.h"
+							>
+						</File>
+						<File
+							RelativePath=".\include\msgnames.h"
+							>
+						</File>
+						<File
+							RelativePath=".\include\msgroute.h"
+							>
+						</File>
+						<File
+							RelativePath=".\include\singleton.h"
+							>
+						</File>
+						<File
+							RelativePath=".\include\statemch.h"
+							>
+						</File>
+						<File
+							RelativePath=".\include\timesm.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Source Files"
+						>
+						<File
+							RelativePath=".\src\database.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\src\debuglog.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\src\gameobject.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\src\msg.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\src\msgroute.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\src\statemch.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\src\timesm.cpp"
+							>
+						</File>
+					</Filter>
+				</Filter>
+				<Filter
+					Name="Entity"
+					>
+					<File
+						RelativePath=".\src\BaseOgreRecastEntity.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\include\BaseOgreRecastEntity.h"
+						>
+					</File>
+					<File
+						RelativePath=".\include\MovingOgreRecastEntity.h"
+						>
+					</File>
+					<File
+						RelativePath=".\include\OgreRecastEntityFunctionTemplate.h"
+						>
+					</File>
+					<File
+						RelativePath=".\src\OgreRecastEntityManager.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\include\OgreRecastEntityManager.h"
+						>
+					</File>
+					<File
+						RelativePath=".\src\OgreRecastObstacle.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\include\OgreRecastObstacle.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Steering"
+					>
+					<File
+						RelativePath=".\src\OgreRecastPath.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\include\OgreRecastPath.h"
+						>
+					</File>
+					<File
+						RelativePath=".\src\OgreRecastSteeringBehaviour.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\include\OgreRecastSteeringBehaviour.h"
 						>
 					</File>
 				</Filter>

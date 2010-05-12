@@ -376,6 +376,48 @@ class TemplateUtils
 		*/
 		static Ogre::String GetUniqueName(Ogre::String prefix);
 
+		/**
+		*	Get an application unique Ogre::String name
+		*	@param : prefix - Ogre::String that need not be unique
+		*   @return : Ogre::String - in the forum of "prefix00". 00 is app independant.
+		*/
+		static Ogre::String GetUniqueEntityLabelName(Ogre::String prefix);
+
+		/**
+		*	Get an application unique Ogre::String name
+		*	@param : prefix - Ogre::String that need not be unique
+		*   @return : Ogre::String - in the forum of "prefix00". 00 is app independant.
+		*/
+		static Ogre::String GetUniqueBodyEntityName(Ogre::String prefix);
+
+		/**
+		*	Get an application unique Ogre::String name
+		*	@param : prefix - Ogre::String that need not be unique
+		*   @return : Ogre::String - in the forum of "prefix00". 00 is app independant.
+		*/
+		static Ogre::String GetUniqueRibbonTrailName(Ogre::String prefix);
+
+		/**
+		*	Get an application unique Ogre::String name
+		*	@param : prefix - Ogre::String that need not be unique
+		*   @return : Ogre::String - in the forum of "prefix00". 00 is app independant.
+		*/
+		static Ogre::String GetUniqueBodyNodeName(Ogre::String prefix);
+
+		/**
+		*	Get an application unique Ogre::String name
+		*	@param : prefix - Ogre::String that need not be unique
+		*   @return : Ogre::String - in the forum of "prefix00". 00 is app independant.
+		*/
+		static Ogre::String GetUniqueLeftSwordName(Ogre::String prefix);
+
+		/**
+		*	Get an application unique Ogre::String name
+		*	@param : prefix - Ogre::String that need not be unique
+		*   @return : Ogre::String - in the forum of "prefix00". 00 is app independant.
+		*/
+		static Ogre::String GetUniqueRightSwordName(Ogre::String prefix);
+
 
 
 
@@ -384,6 +426,14 @@ class TemplateUtils
 		static int				mObjCount;
 		static int				mMtlCount;
 		static int				mNameCount;
+
+		static int				mEntityLabelCount;
+		static int				mBodyNodeCount;
+		static int				mBodyEntityCount;
+		static int				mRibbonTrailCount;
+		static int				mLeftSwordCount;
+		static int				mRightSwordCount;
+
         static Ogre::String		mExePath;
         static unsigned int		mVertexBufferSize;
         static unsigned int		mIndexBufferSize;

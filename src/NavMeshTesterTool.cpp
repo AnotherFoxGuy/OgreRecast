@@ -53,12 +53,31 @@
 #include "Ogre.h"
 #include "NavMeshTesterTool.h"
 #include "OgreTemplate.h"
-#include "SharedData.h"
+#include "GUtility.h"
+#include "GUIManager.h"
 #include "Recast.h"
 #include "RecastDebugDraw.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
 #include "DetourDebugDraw.h"
+#include "SinbadController.h"
+#include "MoveableTextOverlay.h"
+#include "timesm.h"
+#include "database.h"
+#include "msgroute.h"
+#include "debuglog.h"
+#include "gameobject.h"
+#include "statemch.h"
+
+#include "SharedData.h"
+
+
+#include "Geometry.h"
+#include "OgreRecastWall3D.h"
+#include "Transformations.h"
+#include "OgreRecastSteeringBehaviour.h"
+#include "OgreRecastSettingLoader.h"
+#include "OgreRecastObstacle.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -143,31 +162,24 @@ static void getPolyCenter(dtNavMesh* navMesh, dtPolyRef ref, float* center)
 }
 
 NavMeshTesterTool::NavMeshTesterTool() :
-		m_sample(0),
-		m_navMesh(0),
-		m_toolMode(TOOLMODE_PATHFIND_ITER),
-		m_startRef(0),
-		m_endRef(0),
-		m_npolys(0),
-		m_nstraightPath(0),
-		m_nsmoothPath(0),
-		m_hitResult(false),
-		m_distanceToWall(0),
-		m_sposSet(false),
-		m_eposSet(false),
-		m_pathIterNum(0),
-		m_steerPointCount(0),
-		dd(0),
-		ddAgent(0),
-		ddPolys(0)
+		m_sample(0), m_navMesh(0), m_toolMode(TOOLMODE_PATHFIND_ITER), m_startRef(0),
+		m_endRef(0), m_npolys(0), m_nstraightPath(0), m_nsmoothPath(0), m_hitResult(false),
+		m_distanceToWall(0), m_sposSet(false), m_eposSet(false), m_pathIterNum(0), m_steerPointCount(0),
+		dd(0), ddAgent(0), ddPolys(0), m_EntityMode(ENTITY_IDLE), mCurrentEntities(0), mframeTimeCount(0),
+		m_OverlayAttributes(0), m_bPaused(false), m_bShowWalls(true), m_bShowObstacles(false),m_bShowPath(true),
+		m_bShowWanderCircle(false), m_bShowSteeringForce(true), m_bShowFeelers(true), m_bShowDetectionBox(true),
+		m_bShowFPS(true), m_dAvFrameTime(0), m_bRenderNeighbors(false), m_bViewKeys(false), 
+		m_bShowCellSpaceInfo(false), m_vCrosshair(Vector2D(0, 0))
 {
 	m_filter.includeFlags = SAMPLE_POLYFLAGS_ALL;
 	m_filter.excludeFlags = 0;
 
-	m_polyPickExt[0] = 2;
-	m_polyPickExt[1] = 4;
-	m_polyPickExt[2] = 2;
+	m_polyPickExt[0] = 10;
+	m_polyPickExt[1] = 20;
+	m_polyPickExt[2] = 10;
 
+	m_EntityList.resize(0);
+	m_GameObjectList.resize(0);
 }
 
 NavMeshTesterTool::~NavMeshTesterTool()
@@ -195,6 +207,37 @@ NavMeshTesterTool::~NavMeshTesterTool()
 		delete ddPolys;
 		ddPolys = NULL;
 	}
+
+	if(m_OverlayAttributes)
+	{
+		delete m_OverlayAttributes;
+	}
+	
+	for(unsigned int i = 0; i < m_GameObjectList.size(); ++i)
+	{
+		g_database.Remove(static_cast<GameObject*>(m_GameObjectList[i])->GetID());
+		delete m_GameObjectList[i];
+	}
+	m_GameObjectList.resize(0);
+	m_EntityList.resize(0);
+	m_Vehicles.resize(0);
+}
+
+void NavMeshTesterTool::removeLatestEntity(void)
+{
+	// TODO : make sure that we are removing an entity we want to remove
+	// add ability to remove from places other than end of list
+
+	if(m_GameObjectList.size() > 0)
+	{
+		g_database.Remove(static_cast<GameObject*>(m_GameObjectList[(unsigned int)(m_GameObjectList.size() - 1)])->GetID());
+		delete m_GameObjectList[(unsigned int)(m_GameObjectList.size() - 1)];
+		m_GameObjectList.pop_back();
+		m_EntityList.pop_back();
+		m_Vehicles.pop_back();
+		--mCurrentEntities;
+		m_sample->getGUI()->setEntitiesCreatedInfo(mCurrentEntities);
+	}
 }
 
 void NavMeshTesterTool::init(OgreTemplate* sample)
@@ -202,6 +245,15 @@ void NavMeshTesterTool::init(OgreTemplate* sample)
 	m_sample = sample;
 	m_navMesh = sample->getNavMesh();
 	recalc();
+
+	// setup the bounds for our steering agents
+	const float* maxBound = m_sample->getBoundsMax();
+	const float* minBound = m_sample->getBoundsMin();
+	m_cxClient = maxBound[0];
+	m_cyClient = maxBound[2];
+	m_cxClientMin = minBound[0];
+	m_cyClientMin = minBound[2];
+
 
 	if (m_navMesh)
 	{
@@ -237,6 +289,12 @@ void NavMeshTesterTool::init(OgreTemplate* sample)
 	ddPolys = new DebugDrawGL();
 	ddPolys->setMaterialScript(Ogre::String("NavMeshTestPolys"));
 	ddPolys->setOffset(0.30f);
+
+	m_OverlayAttributes = new MovableTextOverlayAttributes("Attrs1", SharedData::getSingleton().iCamera, "EntityLabel", 14, ColourValue::White, "RedTransparent");
+
+	m_GameObjectList.resize(0);
+	m_EntityList.resize(0);
+	m_Vehicles.resize(0);
 }
 
 void NavMeshTesterTool::handleMenu()
@@ -263,6 +321,52 @@ void NavMeshTesterTool::handleClick(const float* p, bool shift)
 	{
 		m_sposSet = true;
 		rcVcopy(m_spos, p);
+		// place an entity if we are in Entity Mode and we haven't reached that max entities yet
+		if(m_toolMode == TOOLMODE_ENTITY_DEMO)
+		{
+			if(mCurrentEntities < MAXIMUM_ENTITIES)
+			{
+				GameObject* SinbadEntity = new GameObject( g_database.GetNewObjectID(), OBJECT_Enemy | OBJECT_Character, const_cast<char*>(TemplateUtils::GetUniqueName("SinbadControl_").c_str()));
+				g_database.Store( *SinbadEntity );
+				m_GameObjectList.push_back( SinbadEntity );
+				SinbadCharacterController* chara = new SinbadCharacterController(m_sample, *SinbadEntity, this, Vector2D(m_spos[0],m_spos[2]),
+					RandFloat()*TwoPi,  Vector2D(0,0), Prm.VehicleMass, Prm.MaxSteeringForce, Prm.MaxSpeed, Prm.MaxTurnRatePerSecond, Prm.VehicleScale );
+				chara->setLabelAttributes(m_OverlayAttributes);
+				chara->Initialize();
+				if(SharedData::getSingleton().m_AppMode == APPMODE_TERRAINSCENE)
+				{
+					chara->GetBodyNode()->setScale(5.0f, 5.0f, 5.0f);
+					chara->setCharHeightVal((5.0f * 5.0f));
+				}
+				else
+				{
+					chara->GetBodyNode()->setScale(2.5f, 2.5f, 2.5f);
+					chara->setCharHeightVal((5.0f * 2.5f));
+				}
+				chara->GetBodyNode()->setPosition(m_spos[0], m_spos[1], m_spos[2]);
+				chara->setGroundHeight(m_spos[1]);
+				chara->setSinbadPosition(m_spos[0], m_spos[1], m_spos[2]);
+				chara->setPathStart(Ogre::Vector3(m_spos[0], m_spos[1], m_spos[2]));
+				chara->setInitialPosition(Ogre::Vector3(m_spos[0], m_spos[1], m_spos[2]));
+				chara->setHasMoved(true);
+
+				SinbadEntity->PushStateMachine(*chara);
+				m_EntityList.push_back(chara);
+				chara->setEntityMode(m_EntityMode);
+
+				chara->SetScale(Vector2D(4, 5));
+				chara->Steering()->FollowPathOff();
+				chara->Steering()->FlockingOff();
+				chara->Steering()->SeparationOn();
+				chara->Steering()->ObstacleAvoidanceOn();
+				chara->SmoothingOn();
+				m_Vehicles.push_back(chara);
+
+				chara->sendModeChangeMessage();
+				++mCurrentEntities;
+				m_sample->getGUI()->setEntitiesCreatedInfo(mCurrentEntities);
+			}
+		}
 	}
 	else
 	{
@@ -437,6 +541,19 @@ void NavMeshTesterTool::reset()
 		ddPolys = NULL;
 	}
 
+	if(m_OverlayAttributes)
+	{
+		delete m_OverlayAttributes;
+	}
+
+	for(unsigned int i = 0; i < m_GameObjectList.size(); ++i)
+	{
+		g_database.Remove(static_cast<GameObject*>(m_GameObjectList[i])->GetID());
+		delete m_GameObjectList[i];
+	}
+	m_GameObjectList.resize(0);
+	m_EntityList.resize(0);
+
 	m_startRef = 0;
 	m_endRef = 0;
 	m_npolys = 0;
@@ -445,6 +562,8 @@ void NavMeshTesterTool::reset()
 	memset(m_hitPos, 0, sizeof(m_hitPos));
 	memset(m_hitNormal, 0, sizeof(m_hitNormal));
 	m_distanceToWall = 0;
+	mframeTimeCount = 0.0f;
+	mCurrentEntities = 0;
 
 }
 
@@ -719,14 +838,62 @@ void NavMeshTesterTool::setToolMode(ToolMode _mode)
 	recalc();
 }
 
-void NavMeshTesterTool::handleRender()
+void NavMeshTesterTool::setEntityMode(int _entityMode)
 {
+	switch(_entityMode)
+	{
+	case 0:
+		m_EntityMode = ENTITY_NONE;
+		for(unsigned int i = 0; i < m_EntityList.size(); ++i)
+		{
+			m_EntityList[i]->setEntityMode(ENTITY_NONE);
+			//m_EntityList[i]->sendModeChangeMessage();
+		}
+		break;
+	case 1:
+		m_EntityMode = ENTITY_IDLE;
+		for(unsigned int i = 0; i < m_EntityList.size(); ++i)
+		{
+			m_EntityList[i]->setEntityMode(ENTITY_IDLE);
+			m_EntityList[i]->sendModeChangeMessage();
+		}
+		break;
+	case 2:
+		m_EntityMode = ENTITY_FINDPATH;
+		for(unsigned int i = 0; i < m_EntityList.size(); ++i)
+		{
+			m_EntityList[i]->setEntityMode(ENTITY_FINDPATH);
+			m_EntityList[i]->sendModeChangeMessage();
+		}
+		break;
+	case 3:
+		m_EntityMode = ENTITY_AUTOMATED;
+		for(unsigned int i = 0; i < m_EntityList.size(); ++i)
+		{
+			m_EntityList[i]->setEntityMode(ENTITY_AUTOMATED);
+			m_EntityList[i]->sendModeChangeMessage();
+		}
+		break;
+	case 4:
+	case 5:
+		m_EntityMode = ENTITY_IDLE;
+		break;
+	default:
+		m_EntityMode = ENTITY_IDLE;
+	}
+}
+
+void NavMeshTesterTool::handleRender(float _timeSinceLastFrame)
+{
+
 	if(!dd || !ddAgent || !ddPolys)
 		return;
-
+	
 	dd->clear();
 	ddAgent->clear();
 	ddPolys->clear();
+
+	mframeTimeCount += _timeSinceLastFrame;
 
 	if (m_toolMode == TOOLMODE_PATHFIND_ITER || m_toolMode == TOOLMODE_PATHFIND_STRAIGHT)
 	{
@@ -752,19 +919,37 @@ void NavMeshTesterTool::handleRender()
 	const float agentHeight = m_sample->getAgentHeight();
 	const float agentClimb = m_sample->getAgentClimb();
 
-	ddAgent->depthMask(false);
-	if (m_sposSet)
-		drawAgent(m_spos, agentRadius, agentHeight, agentClimb, startCol);
-	if (m_eposSet)
-		drawAgent(m_epos, agentRadius, agentHeight, agentClimb, endCol);
-	ddAgent->depthMask(true);
-
 	if (!m_navMesh)
 	{
 		return;
 	}
 
-	if (m_toolMode == TOOLMODE_PATHFIND_ITER)
+	if(m_toolMode != TOOLMODE_ENTITY_DEMO)
+	{
+
+		ddAgent->depthMask(false);
+		if (m_sposSet)
+			drawAgent(m_spos, agentRadius, agentHeight, agentClimb, startCol);
+		if (m_eposSet)
+			drawAgent(m_epos, agentRadius, agentHeight, agentClimb, endCol);
+		ddAgent->depthMask(true);
+	}
+
+	// HANDLE ENTITY UPDATING -----------------------------------------------------------
+	if(m_toolMode == TOOLMODE_ENTITY_DEMO)
+	{
+		for(unsigned int i = 0; i < m_EntityList.size(); ++i)
+		{
+			m_EntityList[i]->addTime(_timeSinceLastFrame, SharedData::getSingleton().m_AppMode);
+			if(mframeTimeCount >= 10.0f)
+			{
+				m_EntityList[i]->sendThinkMessage();
+			}
+		}
+
+	}
+	// RENDER ITERATIVE PATH -----------------------------------------------------------
+	else if (m_toolMode == TOOLMODE_PATHFIND_ITER)
 	{
 		duDebugDrawNavMeshPoly(ddPolys, *m_navMesh, m_startRef, startCol);
 		duDebugDrawNavMeshPoly(ddPolys, *m_navMesh, m_endRef, endCol);
@@ -819,6 +1004,7 @@ void NavMeshTesterTool::handleRender()
 			dd->depthMask(true);
 		}
 	}
+	// RENDER STRAIGHT PATH -----------------------------------------------------------
 	else if (m_toolMode == TOOLMODE_PATHFIND_STRAIGHT)
 	{
 		duDebugDrawNavMeshPoly(ddPolys, *m_navMesh, m_startRef, startCol);
@@ -866,6 +1052,7 @@ void NavMeshTesterTool::handleRender()
 			dd->depthMask(true);
 		}
 	}
+	// RENDER RAYCAST TEST PATH -----------------------------------------------------------
 	else if (m_toolMode == TOOLMODE_RAYCAST)
 	{
 		duDebugDrawNavMeshPoly(ddPolys, *m_navMesh, m_startRef, startCol);
@@ -902,6 +1089,7 @@ void NavMeshTesterTool::handleRender()
 			dd->depthMask(true);
 		}
 	}
+	// RENDER DISTANCE TO WALL -----------------------------------------------------------
 	else if (m_toolMode == TOOLMODE_DISTANCE_TO_WALL)
 	{
 		duDebugDrawNavMeshPoly(ddPolys, *m_navMesh, m_startRef, startCol);
@@ -913,6 +1101,7 @@ void NavMeshTesterTool::handleRender()
 		dd->end();
 		dd->depthMask(true);
 	}
+	// RENDER POLYGON CONNETIONS -----------------------------------------------------------
 	else if (m_toolMode == TOOLMODE_FIND_POLYS_AROUND)
 	{
 		for (int i = 0; i < m_npolys; ++i)
@@ -940,7 +1129,10 @@ void NavMeshTesterTool::handleRender()
 			duDebugDrawCircle(dd, m_spos[0], m_spos[1]+agentHeight/2, m_spos[2], dist, duRGBA(64,16,0,220), 2.0f);
 			dd->depthMask(true);
 		}
-	}	
+	}
+
+	if(mframeTimeCount >= 10.0f)
+		mframeTimeCount = 0.0f;
 }
 
 
@@ -965,4 +1157,167 @@ void NavMeshTesterTool::drawAgent(const float* pos, float r, float h, float c, c
 	
 
 	ddAgent->depthMask(true);
+}
+
+//------------------------------------------------------------------------
+// -- UNUSED - sets walls from base 0 - TODO : alter to create boundary for 
+// nav mesh
+void NavMeshTesterTool::CreateWalls()
+{
+	//create the walls  
+	double bordersize = 20.0;
+	double CornerSize = 0.2;
+	double vDist = m_cyClient-2*bordersize;
+	double hDist = m_cxClient-2*bordersize;
+
+	const int NumWallVerts = 8;
+
+	Vector2D walls[NumWallVerts] = {Vector2D(hDist*CornerSize+bordersize, bordersize),
+		Vector2D(m_cxClient-bordersize-hDist*CornerSize, bordersize),
+		Vector2D(m_cxClient-bordersize, bordersize+vDist*CornerSize),
+		Vector2D(m_cxClient-bordersize, m_cyClient-bordersize-vDist*CornerSize),
+
+		Vector2D(m_cxClient-bordersize-hDist*CornerSize, m_cyClient-bordersize),
+		Vector2D(hDist*CornerSize+bordersize, m_cyClient-bordersize),
+		Vector2D(bordersize, m_cyClient-bordersize-vDist*CornerSize),
+		Vector2D(bordersize, bordersize+vDist*CornerSize)};
+
+	for (int w=0; w<NumWallVerts-1; ++w)
+	{
+		m_Walls.push_back(Wall2D(walls[w], walls[w+1]));
+	}
+
+	m_Walls.push_back(Wall2D(walls[NumWallVerts-1], walls[0]));
+}
+
+//------------------------------------------------------------------------
+// -- UNUSED - TODO : setup to create steering obstacles in the recast world, where recast
+// sees obstacles, so that our steering entities are more accurate about where they can
+// and cannot go, they have sensory memory so can tell if they are going to hit something or not
+// the code for the memory is all there, it is not implemented atm
+void NavMeshTesterTool::CreateObstacles()
+{
+	//create a number of randomly sized tiddlywinks
+	for (int o=0; o<Prm.NumObstacles; ++o)
+	{   
+		bool bOverlapped = true;
+
+		//keep creating tiddlywinks until we find one that doesn't overlap
+		//any others.Sometimes this can get into an endless loop because the
+		//obstacle has nowhere to fit. We test for this case and exit accordingly
+
+		int NumTrys = 0; int NumAllowableTrys = 2000;
+
+		while (bOverlapped)
+		{
+			NumTrys++;
+
+			if (NumTrys > NumAllowableTrys) return;
+
+			int radius = RandInt((int)Prm.MinObstacleRadius, (int)Prm.MaxObstacleRadius);
+
+			const int border                 = 10;
+			const int MinGapBetweenObstacles = 20;
+
+			Obstacle* ob = new Obstacle(RandInt(radius+border, m_cxClient-radius-border),
+				RandInt(radius+border, m_cyClient-radius-30-border),
+				radius);
+
+			if (!Overlapped(ob, m_Obstacles, MinGapBetweenObstacles))
+			{
+				//its not overlapped so we can add it
+				m_Obstacles.push_back(ob);
+
+				bOverlapped = false;
+			}
+
+			else
+			{
+				delete ob;
+			}
+		}
+	}
+}
+
+//------------------------- Set Crosshair ------------------------------------
+//-- UNUSED MOSTLY - used to set a place for flocks/moving entities to flee/seek/hide from/pursue/evade etc
+void NavMeshTesterTool::SetCrosshair(POINTS p)
+{
+	Vector2D ProposedPosition((double)p.x, (double)p.y);
+
+	//make sure it's not inside an obstacle
+	for (ObIt curOb = m_Obstacles.begin(); curOb != m_Obstacles.end(); ++curOb)
+	{
+		if (PointInCircle((*curOb)->Pos(), (*curOb)->BRadius(), ProposedPosition))
+		{
+			return;
+		}
+
+	}
+	m_vCrosshair.x = (double)p.x;
+	m_vCrosshair.y = (double)p.y;
+}
+
+//------------------------------------------------------------------------------
+// -- DEBUG HANDLER FOR KEYSTROKES - displayed in entity's label atm - messy
+void NavMeshTesterTool::handleKeyStrokes(const OIS::KeyEvent &arg)
+{
+	switch(arg.key)
+	{
+	case OIS::KC_INSERT:
+		for(unsigned int i = 0; i < m_Vehicles.size(); ++i)
+		{
+			m_Vehicles[i]->SetMaxForce(m_Vehicles[i]->MaxForce() + 1000.0f*m_Vehicles[i]->TimeElapsed());
+		}
+		break;
+	case OIS::KC_DELETE:
+		for(unsigned int i = 0; i < m_Vehicles.size(); ++i)
+		{
+			if (m_Vehicles[i]->MaxForce() > 0.2f) 
+				m_Vehicles[i]->SetMaxForce(m_Vehicles[i]->MaxForce() - 1000.0f*m_Vehicles[i]->TimeElapsed());
+		}
+		break;
+	case OIS::KC_HOME:
+		for(unsigned int i = 0; i < m_Vehicles.size(); ++i)
+		{
+			m_Vehicles[i]->SetMaxSpeed(m_Vehicles[i]->MaxSpeed() + 50.0f*m_Vehicles[i]->TimeElapsed());
+		}
+		break;
+	case OIS::KC_END:
+		for(unsigned int i = 0; i < m_Vehicles.size(); ++i)
+		{
+			if (m_Vehicles[i]->MaxSpeed() > 0.2f) 
+				m_Vehicles[i]->SetMaxSpeed(m_Vehicles[i]->MaxSpeed() - 50.0f*m_Vehicles[i]->TimeElapsed());
+		}
+		break;
+	case OIS::KC_P:
+		for(unsigned int i = 0; i < m_Vehicles.size(); ++i)
+		{
+			m_Vehicles[i]->Steering()->setWaypointSeekDistance( (5.0 + m_Vehicles[i]->Steering()->WaypointSeekDistance()) );
+		}
+		break;
+	case OIS::KC_L:
+		for(unsigned int i = 0; i < m_Vehicles.size(); ++i)
+		{
+			if(m_Vehicles[i]->Steering()->WaypointSeekDistance() > 6.0)
+			{
+				m_Vehicles[i]->Steering()->setWaypointSeekDistance( (m_Vehicles[i]->Steering()->WaypointSeekDistance() - 5.0) );
+			}
+		}
+		break;
+	default:
+		break;
+	}
+
+	for(unsigned int i = 0; i < m_Vehicles.size(); ++i)
+	{
+		if (m_Vehicles[i]->MaxForce() < 0) m_Vehicles[i]->SetMaxForce(0.0f);
+		if (m_Vehicles[i]->MaxSpeed() < 0) m_Vehicles[i]->SetMaxSpeed(0.0f);
+
+		Ogre::String capText = "MaxForce : " + Ogre::StringConverter::toString((float)m_Vehicles[i]->MaxForce()) + "\n" +
+								"MaxSpeed : " + Ogre::StringConverter::toString((float)m_Vehicles[i]->MaxSpeed()) + "\n" + 
+								"WP Seek  : " + Ogre::StringConverter::toString((float)m_Vehicles[i]->Steering()->WaypointSeekDistance());
+		m_Vehicles[i]->setEntityLabelCaption(capText, 3, 15);
+	}
+
 }

@@ -37,15 +37,36 @@
 #ifndef __H_SHAREDDATA_H__
 #define __H_SHAREDDATA_H__
 
+#include <assert.h>
 #include "Ogre.h"
 #include "OIS.h"
 #include "RecastLog.h"
 #include "DetourNavMesh.h"
 
+#define g_time Time::GetSingleton()
+#define g_database Database::GetSingleton()
+#define g_msgroute MsgRoute::GetSingleton()
+#define g_debuglog DebugLog::GetSingleton()
+
+#define INVALID_OBJECT_ID 0
+
+
+#define ASSERTMSG(a,b) assert(a && b)
 
 #define SDATA SharedData::getSingleton()
 #define MAX_LAYERS_ALLOWED 6
 
+
+//----------------------------------------
+// APP GLOBAL CLASS DEFINITIONS - mainly for helpers.. should migrate
+// all the defs at the start of OgreTempalte.h here
+class MovableTextOverlay;
+
+
+// typedef for global moveable text overlay ractangle
+typedef std::vector<MovableTextOverlay*> FloatingLabelList;
+// typedef for statemachine gameobject
+typedef unsigned int objectID;
 // typedef for nodelist for navmesh
 typedef std::vector<Ogre::SceneNode*> NavSceneNodeList;
 // UTF String vector for use in the GUtility class.
@@ -116,6 +137,7 @@ enum ToolMode
 	TOOLMODE_RAYCAST,
 	TOOLMODE_DISTANCE_TO_WALL,
 	TOOLMODE_FIND_POLYS_AROUND,
+	TOOLMODE_ENTITY_DEMO,
 };
 
 enum ApplicationMode
@@ -178,6 +200,7 @@ public:
 		currentMeshName = "";
 		mNavNodeList.resize(0);
 		m_BlendList.resize(0);
+		m_EntityLabelList.resize(0);
 	}
 
 		~SharedData() {}
@@ -279,6 +302,17 @@ public:
 		*	Use : to hold information for terrain generation
 		*/
 		BlendData m_BlendList;
+
+		/*
+		*	an std::vector containing all of the MoveableTextOverlay
+		*	objects the application own. Used to label entities.
+		*
+		*	DO NOT DESTROY OBJECTS IN HERE MANUALLY. 
+		*
+		*	The owner of the overlay is in charge of creation/destruction of the
+		*	assets/objects. See : SinbadCharacterController() for details
+		*/
+		FloatingLabelList m_EntityLabelList;
 
 		bool m_bidir;
 

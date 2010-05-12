@@ -45,7 +45,7 @@ class OgreTemplate;
 // HELP TOPIC HELPER CLASS
 //---------------------------------------------------------------------------------------------
 
-#define NUMBER_HELP_TOPICS 2
+#define NUMBER_HELP_TOPICS 6
 
 class GUIHelpTopic
 {
@@ -65,6 +65,7 @@ public:
 	{
 		mTopicTitle = topicTitle;
 		mTopicText = "";
+		mIsDisplayed = false;
 		mIsInitialised = true;
 	}
 	~GUIHelpTopic()
@@ -75,11 +76,13 @@ public:
 
 	void setTopicTitle(CEGUI::String& topicTitle)
 	{
+		mTopicTitle.clear();
 		mTopicTitle = topicTitle;
 	}
 
 	void setTopicText(CEGUI::String& topicText)
 	{
+		mTopicText.clear();
 		mTopicText = topicText;
 	}
 
@@ -165,12 +168,19 @@ public:
 	{ 
 		resetNavTestCB(d_wm->getWindow("Root/NavTestFrame/IncFlagHold"), true);
 		resetNavTestCB(d_wm->getWindow("Root/NavTestFrame/ExcFlagHold"), false);
+		resetNavTestRB(d_wm->getWindow("Root/NavTestFrame/NavTestTypeHold"), false);
+		resetNavTestRB(d_wm->getWindow("Root/NavTestFrame/EntityDemoHold"), false);
+		d_wm->getWindow("Root/NavTestFrame/EntityDemoHold/EntitiesCreated")->setText(" 0 ");
+		static_cast<CEGUI::RadioButton*>(d_wm->getWindow("Root/NavTestFrame/EntityDemoHold/RBIdle"))->setSelected(true);
 	}
 
 	void setPresetRecastOriginal(void);
 	void setPresetOgreTerrain(void);
 
 	void setPolygonMode(int _polyMode);
+
+	void setEntitiesCreatedInfo(int _entCreated);
+	void setHelpWindowWithKey(void);
 
 protected:
 
@@ -188,6 +198,7 @@ protected:
 	void configureOptionsTextureFilterRB(CEGUI::Window* pParent);
 	
 	void resetNavTestCB(CEGUI::Window* pParent, bool _selected);
+	void resetNavTestRB(CEGUI::Window* pParent, bool _selected);
 
 	bool onMouseEntersMenuItem(const CEGUI::EventArgs& e);
 	bool onMouseLeavesMenuItem(const CEGUI::EventArgs& e);
@@ -230,6 +241,8 @@ protected:
 	
 	bool handleNavMeshTestRB(const CEGUI::EventArgs &e);
 	bool handleNavMeshTestCB(const CEGUI::EventArgs &e);
+	bool handleNavMeshTestEntityRB(const CEGUI::EventArgs &e);
+	bool handleNavMeshTestEntityRemoveBT(const CEGUI::EventArgs &e);
 
 	bool handleOffMeshConnRB(const CEGUI::EventArgs &e);
 
@@ -248,6 +261,7 @@ protected:
 	bool handleOptionsPolygonModeRB(const CEGUI::EventArgs &e);
 	bool handleOptionsPresetButtons(const CEGUI::EventArgs &e);
 	bool handleOptionsAlphaSL(const CEGUI::EventArgs &e);
+
 	// callback handler for all the global hotkeys
 	bool								hotkeysHandler(const CEGUI::EventArgs& e);
 
