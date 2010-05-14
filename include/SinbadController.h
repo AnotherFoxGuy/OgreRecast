@@ -47,6 +47,7 @@
 #include <string>
 #include "Vector2D.h"
 #include "MovingOgreRecastEntity.h"
+#include "MoveableTextOverlay.h"
 #include "MiscUtils.h"
 
 using namespace Ogre;
@@ -158,6 +159,8 @@ public:
 
 	void setEntityMode(int _entMode);
 	EntityAIMode getEntityMode(void) { return m_EntityAIMode; }
+	bool getIsSelected()const{return m_bIsSelected;}
+	void setIsSelected(bool _selected) {m_bIsSelected = _selected;}
 
 	void setLabelAttributes(MovableTextOverlayAttributes* _attr) { m_EntityLabelAttributes = _attr; }
 	MovableTextOverlay* getLabel(void) { return m_EntityLabel; }
@@ -184,7 +187,7 @@ public:
 	double       TimeElapsed()const{return m_dTimeElapsed;}
 	void sendFindNewPathMessage(void);
 	void setEntityLabelCaption(Ogre::String _caption, int _numLines, int _maxWidth);
-
+	void setEntityLabelVisible(bool _vis); 
 
 private:
 
@@ -249,6 +252,7 @@ private:
 	Real						mBodyUpdateTimerTotal;
 	Real						mBodyUpdateTimerCurrent;
 	bool						mHasMoved;
+	bool						mEntityLabelVisible;
 
 	//-- Names of entities and nodes etc
 	Ogre::String				mBodyName;
@@ -267,6 +271,12 @@ private:
 	virtual bool States( State_Machine_Event event, MSG_Object * msg, int state, int substate );
 	virtual void recalc(void);
 	virtual void findStartEndPositions();
+	// returns a position that will be valid for starting a pathing entity from
+	// ie. we CAN find paths from this point, it IS within the navmesh
+	// @param : _rayHeight - The height from which the rays are cast to find a ground point to check
+	//						 this can be adjusted to enable the position returned to be above or below
+	//						 other parts of the level geometry. To be safe, a high value( 5000+ ) is safest.
+	virtual Ogre::Vector3 findValidSpawnPosition(float _rayHeight = 5000.0f);
 
 	objectID m_curTarget;
 	GameObject* GetClosestPlayer( void );
@@ -335,17 +345,19 @@ private:
 	// -- VEHICLE AI
 
 	//the steering behavior class
-	SteeringBehavior*     m_pSteering;
-	Smoother<Vector2D>*  m_pHeadingSmoother;
-	Vector2D             m_vSmoothedHeading;
-	bool                  m_bSmoothingOn;
-	double                m_dTimeElapsed;
+	SteeringBehavior*		m_pSteering;
+	Smoother<Vector2D>*		m_pHeadingSmoother;
+	Vector2D				m_vSmoothedHeading;
+	bool					m_bSmoothingOn;
+	bool					m_bIsSelected;
+	double					m_dTimeElapsed;
 
 	Path*                         m_pPath;
 	//buffer for the vehicle shape
 	std::vector<Vector2D> m_vecVehicleVB;
 	// object to draw to debug visuals for this vehicle
-	DebugDrawGL* dd;
+	DebugDrawGL* ddPoints;
+	DebugDrawGL* ddBounds;
 	void InitializeBuffer(void);
 	void handleRenderDebug(void);
 	void handleLabelUpdate(float _deltaTime);

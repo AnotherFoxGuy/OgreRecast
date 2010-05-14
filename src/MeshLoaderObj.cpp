@@ -249,6 +249,7 @@ bool rcMeshLoaderObj::load(Ogre::StringVector entNames, Ogre::StringVector fileN
 	for(int i = 0; i < numEnt; ++i)
 	{
 		Ogre::Entity* ent = SharedData::getSingleton().iSceneMgr->createEntity(entNames[i], fileNames[i]);
+		ent->setQueryFlags(GEOMETRY_QUERY_MASK);
 		Ogre::SceneNode* lvlNode = SharedData::getSingleton().iSceneMgr->getRootSceneNode()->createChildSceneNode(entNames[i]);
  		lvlNode->attachObject(ent);
 		lvlNode->setPosition(offsetX, 30.0f, offsetZ);
@@ -387,6 +388,7 @@ bool rcMeshLoaderObj::load()
 	while(ti.hasMoreElements())
 	{
 		 trn = ti.getNext()->instance;
+		 trn->setQueryFlags(GEOMETRY_QUERY_MASK);
 
 	// get height data, world size, map size
 	float *mapptr = trn->getHeightData();
@@ -990,6 +992,7 @@ void rcMeshLoaderObj::loadHouses()
 	}
 	// create a few entities on the terrain
 		Entity* e = mSceneMgr->createEntity("tudorhouse.mesh");
+		e->setQueryFlags(GEOMETRY_QUERY_MASK);
 		Vector3 entPos(mTerrainPos.x + 2043, 0, mTerrainPos.z + 1715);
 		Quaternion rot;
 		entPos.y = mTerrainGroup->getHeightAtWorldPosition(entPos) + 60.5 + mTerrainPos.y;
@@ -1001,6 +1004,7 @@ void rcMeshLoaderObj::loadHouses()
 		SharedData::getSingleton().mNavNodeList.push_back(sn);
 
 		e = mSceneMgr->createEntity("tudorhouse.mesh");
+		e->setQueryFlags(GEOMETRY_QUERY_MASK);
 		entPos = Vector3(mTerrainPos.x + 1850, 0, mTerrainPos.z + 1478);
 		entPos.y = mTerrainGroup->getHeightAtWorldPosition(entPos) + 60.5 + mTerrainPos.y;
 		rot.FromAngleAxis(Degree(Math::RangeRandom(-180, 180)), Vector3::UNIT_Y);
@@ -1011,6 +1015,7 @@ void rcMeshLoaderObj::loadHouses()
 		SharedData::getSingleton().mNavNodeList.push_back(sn);
 
 		e = mSceneMgr->createEntity("tudorhouse.mesh");
+		e->setQueryFlags(GEOMETRY_QUERY_MASK);
 		entPos = Vector3(mTerrainPos.x + 1970, 0, mTerrainPos.z + 2180);
 		entPos.y = mTerrainGroup->getHeightAtWorldPosition(entPos) + 60.5 + mTerrainPos.y;
 		rot.FromAngleAxis(Degree(Math::RangeRandom(-180, 180)), Vector3::UNIT_Y);
@@ -1022,6 +1027,7 @@ void rcMeshLoaderObj::loadHouses()
 
 		////////////////////////////////////////////////////////////////////
 		e = mSceneMgr->createEntity("HouseMesh.mesh");
+		e->setQueryFlags(GEOMETRY_QUERY_MASK);
 		entPos = Vector3(mTerrainPos.x + 970, 0, mTerrainPos.z + 580);
 		entPos.y = mTerrainGroup->getHeightAtWorldPosition(entPos) + mTerrainPos.y - 2.0f;
 		rot.FromAngleAxis(Degree(Math::RangeRandom(-180, 180)), Vector3::UNIT_Y);
@@ -1032,6 +1038,7 @@ void rcMeshLoaderObj::loadHouses()
 		SharedData::getSingleton().mNavNodeList.push_back(sn);
 
 		e = mSceneMgr->createEntity("HouseMesh.mesh");
+		e->setQueryFlags(GEOMETRY_QUERY_MASK);
 		entPos = Vector3(mTerrainPos.x + 4070, 0, mTerrainPos.z + -280);
 		entPos.y = mTerrainGroup->getHeightAtWorldPosition(entPos) + mTerrainPos.y - 2.0f;
 		rot.FromAngleAxis(Degree(Math::RangeRandom(-180, 180)), Vector3::UNIT_Y);
@@ -1042,6 +1049,7 @@ void rcMeshLoaderObj::loadHouses()
 		SharedData::getSingleton().mNavNodeList.push_back(sn);
 
 		e = mSceneMgr->createEntity("HouseMesh.mesh");
+		e->setQueryFlags(GEOMETRY_QUERY_MASK);
 		entPos = Vector3(mTerrainPos.x + 4270, 0, mTerrainPos.z + -480);
 		entPos.y = mTerrainGroup->getHeightAtWorldPosition(entPos) + mTerrainPos.y - 2.0f;
 		rot.FromAngleAxis(Degree(Math::RangeRandom(-180, 180)), Vector3::UNIT_Y);
@@ -1052,6 +1060,7 @@ void rcMeshLoaderObj::loadHouses()
 		SharedData::getSingleton().mNavNodeList.push_back(sn);
 
 		e = mSceneMgr->createEntity("HouseMesh.mesh");
+		e->setQueryFlags(GEOMETRY_QUERY_MASK);
 		entPos = Vector3(mTerrainPos.x + 4470, 0, mTerrainPos.z + -680);
 		entPos.y = mTerrainGroup->getHeightAtWorldPosition(entPos) + mTerrainPos.y - 2.0f;
 		rot.FromAngleAxis(Degree(Math::RangeRandom(-180, 180)), Vector3::UNIT_Y);
@@ -1062,6 +1071,7 @@ void rcMeshLoaderObj::loadHouses()
 		SharedData::getSingleton().mNavNodeList.push_back(sn);
 
 		e = mSceneMgr->createEntity("HouseMesh.mesh");
+		e->setQueryFlags(GEOMETRY_QUERY_MASK);
 		entPos = Vector3(mTerrainPos.x + 2470, 0, mTerrainPos.z + -2500);
 		entPos.y = mTerrainGroup->getHeightAtWorldPosition(entPos) + mTerrainPos.y - 2.0f;
 		rot.FromAngleAxis(Degree(Math::RangeRandom(-180, 180)), Vector3::UNIT_Y);
@@ -1072,6 +1082,7 @@ void rcMeshLoaderObj::loadHouses()
 		SharedData::getSingleton().mNavNodeList.push_back(sn);
 
 		e = mSceneMgr->createEntity("HouseMesh.mesh");
+		e->setQueryFlags(GEOMETRY_QUERY_MASK);
 		entPos = Vector3(mTerrainPos.x + 2370, 0, mTerrainPos.z + -2200);
 		entPos.y = mTerrainGroup->getHeightAtWorldPosition(entPos) + mTerrainPos.y - 2.0f;
 		rot.FromAngleAxis(Degree(Math::RangeRandom(-180, 180)), Vector3::UNIT_Y);
@@ -1082,6 +1093,7 @@ void rcMeshLoaderObj::loadHouses()
 		SharedData::getSingleton().mNavNodeList.push_back(sn);
 
 		e = mSceneMgr->createEntity("HouseMesh.mesh");
+		e->setQueryFlags(GEOMETRY_QUERY_MASK);
 		entPos = Vector3(mTerrainPos.x + 2170, 0, mTerrainPos.z + -2000);
 		entPos.y = mTerrainGroup->getHeightAtWorldPosition(entPos) + mTerrainPos.y - 2.0f;
 		rot.FromAngleAxis(Degree(Math::RangeRandom(-180, 180)), Vector3::UNIT_Y);
@@ -1092,6 +1104,7 @@ void rcMeshLoaderObj::loadHouses()
 		SharedData::getSingleton().mNavNodeList.push_back(sn);
 
 		e = mSceneMgr->createEntity("ChapelMesh.mesh");
+		e->setQueryFlags(GEOMETRY_QUERY_MASK);
 		entPos = Vector3(mTerrainPos.x + 2450, 0, mTerrainPos.z + -750);
 		entPos.y = mTerrainGroup->getHeightAtWorldPosition(entPos) + mTerrainPos.y - 2.0f;
 		rot.FromAngleAxis(Degree(Math::RangeRandom(-180, 180)), Vector3::UNIT_Y);
@@ -1102,6 +1115,7 @@ void rcMeshLoaderObj::loadHouses()
 		SharedData::getSingleton().mNavNodeList.push_back(sn);
 
 		e = mSceneMgr->createEntity("ChapelMesh.mesh");
+		e->setQueryFlags(GEOMETRY_QUERY_MASK);
 		entPos = Vector3(mTerrainPos.x + 1650, 0, mTerrainPos.z + -1150);
 		entPos.y = mTerrainGroup->getHeightAtWorldPosition(entPos) + mTerrainPos.y - 2.0f;
 		rot.FromAngleAxis(Degree(Math::RangeRandom(-180, 180)), Vector3::UNIT_Y);
@@ -1112,6 +1126,7 @@ void rcMeshLoaderObj::loadHouses()
 		SharedData::getSingleton().mNavNodeList.push_back(sn);
 
 		e = mSceneMgr->createEntity("WindmillMesh.mesh");
+		e->setQueryFlags(GEOMETRY_QUERY_MASK);
 		entPos = Vector3(mTerrainPos.x + 1850, 0, mTerrainPos.z + -1350);
 		entPos.y = mTerrainGroup->getHeightAtWorldPosition(entPos) + mTerrainPos.y - 2.0f;
 		rot.FromAngleAxis(Degree(Math::RangeRandom(-180, 180)), Vector3::UNIT_Y);
@@ -1122,6 +1137,7 @@ void rcMeshLoaderObj::loadHouses()
 		SharedData::getSingleton().mNavNodeList.push_back(sn);
 
 		e = mSceneMgr->createEntity("WindmillMesh.mesh");
+		e->setQueryFlags(GEOMETRY_QUERY_MASK);
 		entPos = Vector3(mTerrainPos.x + 3450, 0, mTerrainPos.z + -950);
 		entPos.y = mTerrainGroup->getHeightAtWorldPosition(entPos) + mTerrainPos.y - 2.0f;
 		rot.FromAngleAxis(Degree(Math::RangeRandom(-180, 180)), Vector3::UNIT_Y);
@@ -1132,6 +1148,7 @@ void rcMeshLoaderObj::loadHouses()
 		SharedData::getSingleton().mNavNodeList.push_back(sn);
 
 		e = mSceneMgr->createEntity("WindmillMesh.mesh");
+		e->setQueryFlags(GEOMETRY_QUERY_MASK);
 		entPos = Vector3(mTerrainPos.x + 2250, 0, mTerrainPos.z + -1550);
 		entPos.y = mTerrainGroup->getHeightAtWorldPosition(entPos) + mTerrainPos.y - 2.0f;
 		rot.FromAngleAxis(Degree(Math::RangeRandom(-180, 180)), Vector3::UNIT_Y);

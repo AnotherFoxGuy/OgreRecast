@@ -1,0 +1,65 @@
+material EntityLines
+{
+  technique
+  {
+    pass
+    {
+      scene_blend alpha_blend
+      depth_write off
+     
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 1 1 1
+        alpha_op_ex source1 src_manual src_current 1
+      }
+    }
+  }
+}
+
+material EntityPoints
+{
+  technique
+  {
+    pass
+    {
+      scene_blend alpha_blend
+      depth_write off
+		  
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 0.8 0.2 0.2
+        alpha_op_ex source1 src_manual src_current 0.9
+      }
+    }
+  }
+}
+
+material EntityMisc
+{
+  technique
+  {
+    pass
+    {
+      scene_blend alpha_blend
+      depth_write off
+      
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 0.1 0.1 0.8
+        alpha_op_ex source1 src_manual src_current 0.5
+      }
+    }
+	pass
+    {
+	  polygon_mode wireframe
+      scene_blend alpha_blend
+      depth_write off
+	       
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 0.8 0.2 0.2
+        alpha_op_ex source1 src_manual src_current 0.9
+      }
+	}
+  }
+}

@@ -57,6 +57,7 @@ DebugDrawGL::DebugDrawGL():
 	mtl = TemplateUtils::GetUniqueMtlName("DebugDrawMTL");
 
 	obj = SharedData::getSingleton().iSceneMgr->createManualObject(name);
+	obj->setQueryFlags(STATIC_GEOMETRY_QUERY_MASK);
 
 	createDefaultMaterial(mtl);
 	

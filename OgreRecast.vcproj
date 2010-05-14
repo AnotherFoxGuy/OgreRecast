@@ -115,7 +115,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="0"
 				InlineFunctionExpansion="0"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
@@ -130,7 +130,7 @@
 				EnableFunctionLevelLinking="false"
 				UsePrecompiledHeader="0"
 				WarningLevel="0"
-				DebugInformationFormat="0"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -147,7 +147,7 @@
 				OutputFile="bin\$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="$(OGRE_HOME)\lib\$(ConfigurationName);$(CEGUI)\lib"
-				GenerateDebugInformation="false"
+				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"

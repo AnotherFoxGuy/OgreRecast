@@ -388,6 +388,9 @@ void GUIManager::Startup(Ogre::StringVector &meshNames, OgreTemplate* _sample)
 	CEGUI::Window* pbEntity = d_wm->getWindow("Root/NavTestFrame/EntityDemoHold/BTRemoveEntity");
 	pbEntity->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&GUIManager::handleNavMeshTestEntityRemoveBT, this));
 
+	CEGUI::Window* cbEntLabel = d_wm->getWindow("Root/NavTestEntityPanel/EntityAdjustHold/CBShowLabels");
+	cbEntLabel->subscribeEvent(CEGUI::Checkbox::EventCheckStateChanged, CEGUI::Event::Subscriber(&GUIManager::handleNavMeshTestEntityLabelCB, this));
+
 	// setup callbacks for OffMesh Connection tools RadioButtons
 	CEGUI::Window* omRB = d_wm->getWindow("Root/OffMeshTestFrame/OffMeshRBHold/RBOneWay");
 	omRB->subscribeEvent(CEGUI::RadioButton::EventSelectStateChanged, Event::Subscriber(&GUIManager::handleOffMeshConnRB, this));
@@ -1146,6 +1149,25 @@ bool GUIManager::handleNavMeshTestEntityRB(const CEGUI::EventArgs &e)
 	else if(rb->getName() == "Root/NavTestFrame/EntityDemoHold/RBIdle")
 	{
 		static_cast<NavMeshTesterTool*>(m_sample->getCurrentTool())->setEntityMode(ENTITY_IDLE);
+	}
+
+	return true;
+}
+
+//---------------------------------------------------------------------------------------------
+bool GUIManager::handleNavMeshTestEntityLabelCB(const CEGUI::EventArgs &e)
+{
+	using namespace CEGUI;
+
+	CEGUI::Checkbox* cb = static_cast<CEGUI::Checkbox*>(static_cast<const WindowEventArgs&>(e).window); 
+
+	if(cb->isSelected())
+	{
+		static_cast<NavMeshTesterTool*>(m_sample->getCurrentTool())->setEntityLabelsVisibility(true);
+	}
+	else
+	{
+		static_cast<NavMeshTesterTool*>(m_sample->getCurrentTool())->setEntityLabelsVisibility(false);
 	}
 
 	return true;

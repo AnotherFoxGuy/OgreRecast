@@ -53,6 +53,8 @@
 #include "Ogre.h"
 #include "NavMeshTesterTool.h"
 #include "OgreTemplate.h"
+#include "InputGeom.h"
+#include "MeshLoaderObj.h"
 #include "GUtility.h"
 #include "GUIManager.h"
 #include "Recast.h"
@@ -168,8 +170,9 @@ NavMeshTesterTool::NavMeshTesterTool() :
 		dd(0), ddAgent(0), ddPolys(0), m_EntityMode(ENTITY_IDLE), mCurrentEntities(0), mframeTimeCount(0),
 		m_OverlayAttributes(0), m_bPaused(false), m_bShowWalls(true), m_bShowObstacles(false),m_bShowPath(true),
 		m_bShowWanderCircle(false), m_bShowSteeringForce(true), m_bShowFeelers(true), m_bShowDetectionBox(true),
-		m_bShowFPS(true), m_dAvFrameTime(0), m_bRenderNeighbors(false), m_bViewKeys(false), 
-		m_bShowCellSpaceInfo(false), m_vCrosshair(Vector2D(0, 0))
+		m_bShowFPS(true), m_dAvFrameTime(0), m_bRenderNeighbors(false), m_bViewKeys(false),
+		m_bShowCellSpaceInfo(false), m_vCrosshair(Vector2D(0, 0)), mCurrentObjectSelection(0),
+		m_bShowEntityLabels(true)
 {
 	m_filter.includeFlags = SAMPLE_POLYFLAGS_ALL;
 	m_filter.excludeFlags = 0;
@@ -221,6 +224,8 @@ NavMeshTesterTool::~NavMeshTesterTool()
 	m_GameObjectList.resize(0);
 	m_EntityList.resize(0);
 	m_Vehicles.resize(0);
+
+	SharedData::getSingleton().iSceneMgr->destroyQuery(mRaySceneQuery);
 }
 
 void NavMeshTesterTool::removeLatestEntity(void)
@@ -295,6 +300,9 @@ void NavMeshTesterTool::init(OgreTemplate* sample)
 	m_GameObjectList.resize(0);
 	m_EntityList.resize(0);
 	m_Vehicles.resize(0);
+
+	// Create RaySceneQuery
+	mRaySceneQuery = SharedData::getSingleton().iSceneMgr->createRayQuery(Ogre::Ray());
 }
 
 void NavMeshTesterTool::handleMenu()
@@ -324,8 +332,12 @@ void NavMeshTesterTool::handleClick(const float* p, bool shift)
 		// place an entity if we are in Entity Mode and we haven't reached that max entities yet
 		if(m_toolMode == TOOLMODE_ENTITY_DEMO)
 		{
-			if(mCurrentEntities < MAXIMUM_ENTITIES)
+			for(unsigned int i = 0; i < m_EntityList.size(); ++i)
 			{
+				m_EntityList[i]->setIsSelected(false);
+			}
+			if(mCurrentEntities < MAXIMUM_ENTITIES)
+			{	// cycle and set all selected to zero - then at end set newly made ent to selected state true
 				GameObject* SinbadEntity = new GameObject( g_database.GetNewObjectID(), OBJECT_Enemy | OBJECT_Character, const_cast<char*>(TemplateUtils::GetUniqueName("SinbadControl_").c_str()));
 				g_database.Store( *SinbadEntity );
 				m_GameObjectList.push_back( SinbadEntity );
@@ -337,11 +349,13 @@ void NavMeshTesterTool::handleClick(const float* p, bool shift)
 				{
 					chara->GetBodyNode()->setScale(5.0f, 5.0f, 5.0f);
 					chara->setCharHeightVal((5.0f * 5.0f));
+					chara->SetScale(Vector2D(7, 10));
 				}
 				else
 				{
 					chara->GetBodyNode()->setScale(2.5f, 2.5f, 2.5f);
 					chara->setCharHeightVal((5.0f * 2.5f));
+					chara->SetScale(Vector2D(5, 6));
 				}
 				chara->GetBodyNode()->setPosition(m_spos[0], m_spos[1], m_spos[2]);
 				chara->setGroundHeight(m_spos[1]);
@@ -354,12 +368,13 @@ void NavMeshTesterTool::handleClick(const float* p, bool shift)
 				m_EntityList.push_back(chara);
 				chara->setEntityMode(m_EntityMode);
 
-				chara->SetScale(Vector2D(4, 5));
+				
 				chara->Steering()->FollowPathOff();
 				chara->Steering()->FlockingOff();
 				chara->Steering()->SeparationOn();
 				chara->Steering()->ObstacleAvoidanceOn();
 				chara->SmoothingOn();
+
 				m_Vehicles.push_back(chara);
 
 				chara->sendModeChangeMessage();
@@ -372,6 +387,7 @@ void NavMeshTesterTool::handleClick(const float* p, bool shift)
 	{
 		m_eposSet = true;
 		rcVcopy(m_epos, p);
+		handleMouseClick();
 	}
 	recalc();
 }
@@ -553,6 +569,7 @@ void NavMeshTesterTool::reset()
 	}
 	m_GameObjectList.resize(0);
 	m_EntityList.resize(0);
+	m_Vehicles.resize(0);
 
 	m_startRef = 0;
 	m_endRef = 0;
@@ -565,6 +582,7 @@ void NavMeshTesterTool::reset()
 	mframeTimeCount = 0.0f;
 	mCurrentEntities = 0;
 
+	SharedData::getSingleton().iSceneMgr->destroyQuery(mRaySceneQuery);
 }
 
 
@@ -1052,7 +1070,7 @@ void NavMeshTesterTool::handleRender(float _timeSinceLastFrame)
 			dd->depthMask(true);
 		}
 	}
-	// RENDER RAYCAST TEST PATH -----------------------------------------------------------
+	// RENDER RAY CAST TEST PATH -----------------------------------------------------------
 	else if (m_toolMode == TOOLMODE_RAYCAST)
 	{
 		duDebugDrawNavMeshPoly(ddPolys, *m_navMesh, m_startRef, startCol);
@@ -1101,7 +1119,7 @@ void NavMeshTesterTool::handleRender(float _timeSinceLastFrame)
 		dd->end();
 		dd->depthMask(true);
 	}
-	// RENDER POLYGON CONNETIONS -----------------------------------------------------------
+	// RENDER POLYGON CONNECTIONS -----------------------------------------------------------
 	else if (m_toolMode == TOOLMODE_FIND_POLYS_AROUND)
 	{
 		for (int i = 0; i < m_npolys; ++i)
@@ -1262,6 +1280,8 @@ void NavMeshTesterTool::SetCrosshair(POINTS p)
 // -- DEBUG HANDLER FOR KEYSTROKES - displayed in entity's label atm - messy
 void NavMeshTesterTool::handleKeyStrokes(const OIS::KeyEvent &arg)
 {
+  if(m_toolMode == TOOLMODE_ENTITY_DEMO)
+  {
 	switch(arg.key)
 	{
 	case OIS::KC_INSERT:
@@ -1319,5 +1339,141 @@ void NavMeshTesterTool::handleKeyStrokes(const OIS::KeyEvent &arg)
 								"WP Seek  : " + Ogre::StringConverter::toString((float)m_Vehicles[i]->Steering()->WaypointSeekDistance());
 		m_Vehicles[i]->setEntityLabelCaption(capText, 3, 15);
 	}
+  }
+}
 
+void NavMeshTesterTool::handleMouseClick()
+{
+	using namespace Ogre;
+
+	if(m_toolMode == TOOLMODE_ENTITY_DEMO)
+	{
+		// cycle through objects and select one if we have mouse over one
+		Ogre::Ray mouseRay = SharedData::getSingleton().iCamera->getCameraToViewportRay(m_sample->MouseCursorX(), m_sample->MouseCursorY()); 
+		mRaySceneQuery->setRay(mouseRay);
+		mRaySceneQuery->setSortByDistance(true, 1);
+		mRaySceneQuery->setQueryMask(SINBAD_MASK); // only return results that are equal to SINBAD_MASK
+
+		const RaySceneQueryResult& result = mRaySceneQuery->execute();
+		mCurrentObjectSelection = NULL;
+		for(unsigned int u = 0; u < m_Vehicles.size(); ++u)
+		{
+			m_Vehicles[u]->setIsSelected(false);
+		}
+		if (!result.empty())
+		{
+			RaySceneQueryResult::const_iterator i = result.begin();
+			
+			mRaySceneQuery->setSortByDistance (true, 1);//only one hit -- IS THIS NEEDED HERE OR BEFORE EXECUTE ?
+			while((i != result.end()))
+			{
+				mCurrentObjectSelection = i->movable->getParentSceneNode();
+				Ogre::String selName = mCurrentObjectSelection->getName();
+				for(unsigned int u = 0; u < m_Vehicles.size(); ++u)
+				{
+					m_Vehicles[u]->setIsSelected(false);
+					if(m_Vehicles[u]->GetBodyNode()->getName() == selName)
+					{
+						m_Vehicles[u]->setIsSelected(true);
+						break;
+					}
+				}
+				++i;
+			}
+		}
+	}
+}
+
+void NavMeshTesterTool::handleMouseMove( const OIS::MouseEvent &arg )
+{
+	if(m_toolMode == TOOLMODE_ENTITY_DEMO)
+	{
+		if(m_sample->getMouseLeftState())
+		{
+		 if(mCurrentObjectSelection)
+		 {
+			// code to move current selected object
+			if(SharedData::getSingleton().m_AppMode == APPMODE_TERRAINSCENE)
+			{
+					//mCurrentObjectSelection->setPosition(m_sample->getInputGeom()->getMesh()->mTerrainGroup->getHeightAtWorldPosition(m_sample->MouseCursorX(), 5000, m_sample->MouseCursorY()));
+					Ogre::Ray mouseRay = SharedData::getSingleton().iCamera->getCameraToViewportRay(m_sample->MouseCursorX(), m_sample->MouseCursorY()); 
+					TerrainGroup::RayResult rayResult = m_sample->getInputGeom()->getMesh()->mTerrainGroup->rayIntersects(mouseRay);
+					if (rayResult.hit)
+					{	
+						mCurrentObjectSelection->setPosition(rayResult.position.x, rayResult.position.y+25.0f, rayResult.position.z);
+						for(unsigned int v = 0; v < m_Vehicles.size(); ++v)
+						{
+							if( m_Vehicles[v]->getIsSelected() )
+							{
+								m_Vehicles[v]->SetPos(Vector2D(rayResult.position.x, rayResult.position.y+25.0f, rayResult.position.z));
+								m_Vehicles[v]->SetVelocity(Vector2D(0.0, 0.0, 0.0));
+							}
+						}
+					}
+			}
+			else
+			{
+				// use scenequery ? to place object at world position
+					Ogre::Ray mouseRay = SharedData::getSingleton().iCamera->getCameraToViewportRay(m_sample->MouseCursorX(), m_sample->MouseCursorY()); 
+					Ogre::Vector3 posHit = Ogre::Vector3::ZERO;
+					float rayst[3];
+					float rayen[3];
+					float tt = 0;
+					memset(rayst, 0, sizeof(rayst));
+					memset(rayen, 0, sizeof(rayen));
+					rayst[0] = (float)mouseRay.getOrigin().x; rayst[1] = (float)mouseRay.getOrigin().y; rayst[2] = (float)mouseRay.getOrigin().z;
+					rayen[0] = (float)mouseRay.getPoint(10000.0).x; rayen[1] = (float)mouseRay.getPoint(10000.0).y; rayen[2] = (float)mouseRay.getPoint(10000.0).z;
+					m_sample->getInputGeom()->raycastMesh(rayst, rayen, tt);
+					posHit.x = rayst[0] + (rayen[0] - rayst[0])*tt;
+					posHit.y = rayst[1] + (rayen[1] - rayst[1])*tt;
+					posHit.z = rayst[2] + (rayen[2] - rayst[2])*tt;
+
+					mCurrentObjectSelection->setPosition(posHit.x, posHit.y+12.5f, posHit.z);
+					for(unsigned int v = 0; v < m_Vehicles.size(); ++v)
+					{
+						if( m_Vehicles[v]->getIsSelected())
+						{
+							m_Vehicles[v]->SetPos(Vector2D(posHit.x, posHit.y+12.5f, posHit.z));
+							m_Vehicles[v]->SetVelocity(Vector2D(0.0, 0.0, 0.0));
+						}
+					}
+			}
+		 }
+		}
+	}
+}
+
+void NavMeshTesterTool::handleMouseRelease()
+{
+	if(m_toolMode == TOOLMODE_ENTITY_DEMO)
+	{
+		for(unsigned int i = 0; i < m_Vehicles.size(); ++i)
+		{
+			if( (m_Vehicles[i]->getIsSelected()) && (m_Vehicles[i]->getEntityMode() != ENTITY_MODE_IDLE) )
+			{
+				m_Vehicles[i]->sendFindNewPathMessage();
+			}
+			m_Vehicles[i]->setIsSelected(false);
+		}
+	}
+}
+
+void NavMeshTesterTool::setEntityLabelsVisibility(bool _vis)
+{
+	if(m_toolMode == TOOLMODE_ENTITY_DEMO)
+	{
+		m_bShowEntityLabels = _vis;
+		toggleEntityLabels();
+	}
+}
+
+void NavMeshTesterTool::toggleEntityLabels(void)
+{
+	if(m_toolMode == TOOLMODE_ENTITY_DEMO)
+	{
+		for(unsigned int i = 0; i < m_Vehicles.size(); ++i)
+		{
+			m_Vehicles[i]->setEntityLabelVisible(m_bShowEntityLabels);
+		}
+	}
 }

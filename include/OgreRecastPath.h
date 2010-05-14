@@ -126,8 +126,18 @@ public:
 	void AddWayPoint(Vector2D new_point) { m_WayPoints.push_back(new_point); curWaypoint = m_WayPoints.begin(); /*curWaypoint++;*/ }
 
 	//methods for setting the path with either another Path or a list of vectors
-	void Set(std::list<Vector2D> new_path){m_WayPoints = new_path;curWaypoint = m_WayPoints.begin();}
-	void Set(const Path& path){m_WayPoints=path.GetPath(); curWaypoint = m_WayPoints.begin();}
+	void Set(std::list<Vector2D> new_path)
+	{
+		m_WayPoints.resize(0);
+		m_WayPoints = new_path;
+		curWaypoint = m_WayPoints.begin();
+	}
+	void Set(const Path& path)
+	{
+		m_WayPoints.resize(0);
+		m_WayPoints=path.GetPath(); 
+		curWaypoint = m_WayPoints.begin();
+	}
 
 
 	void Clear(){m_WayPoints.clear();}

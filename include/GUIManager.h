@@ -172,6 +172,7 @@ public:
 		resetNavTestRB(d_wm->getWindow("Root/NavTestFrame/EntityDemoHold"), false);
 		d_wm->getWindow("Root/NavTestFrame/EntityDemoHold/EntitiesCreated")->setText(" 0 ");
 		static_cast<CEGUI::RadioButton*>(d_wm->getWindow("Root/NavTestFrame/EntityDemoHold/RBIdle"))->setSelected(true);
+		static_cast<CEGUI::Checkbox*>(d_wm->getWindow("Root/NavTestEntityPanel/EntityAdjustHold/CBShowLabels"))->setSelected(true);
 	}
 
 	void setPresetRecastOriginal(void);
@@ -242,6 +243,7 @@ protected:
 	bool handleNavMeshTestRB(const CEGUI::EventArgs &e);
 	bool handleNavMeshTestCB(const CEGUI::EventArgs &e);
 	bool handleNavMeshTestEntityRB(const CEGUI::EventArgs &e);
+	bool handleNavMeshTestEntityLabelCB(const CEGUI::EventArgs &e);
 	bool handleNavMeshTestEntityRemoveBT(const CEGUI::EventArgs &e);
 
 	bool handleOffMeshConnRB(const CEGUI::EventArgs &e);

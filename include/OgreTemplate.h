@@ -158,6 +158,30 @@ class OgreTemplate : public BaseApplication
 {
 public:
 
+	struct Tile
+	{
+		inline Tile() : chf(0), solid(0), cset(0), pmesh(0), dmesh(0), buildTime(0) {}
+		inline ~Tile() { delete chf; delete cset; delete solid; delete pmesh; delete dmesh; }
+		int x, y;
+		rcCompactHeightfield* chf;
+		rcHeightfield* solid;
+		rcContourSet* cset;
+		rcPolyMesh* pmesh;
+		rcPolyMeshDetail* dmesh;
+		int buildTime;
+	};
+
+	struct TileSet
+	{
+		inline TileSet() : width(0), height(0), tiles(0) {}
+		inline ~TileSet() { if(tiles) delete [] tiles; }
+		int width, height;
+		float bmin[3], bmax[3];
+		float cs, ch;
+		Tile* tiles;
+	};
+	TileSet* m_tileSet;
+
 	OgreTemplate(void);
 	virtual ~OgreTemplate(void);
 
@@ -232,6 +256,9 @@ public:
 
 	virtual void setCurrentSkybox(int _skybox);
 	void DebugPrintCurrentState( void );
+
+	Ogre::Real MouseCursorX()const{return cursorX;}
+	Ogre::Real MouseCursorY()const{return cursorY;}
 
 protected:
 

@@ -75,6 +75,14 @@ typedef Ogre::vector<Ogre::UTFString>::type UTFStringVector;
 /** This is the Query Flag for any other MovableObject */
 const unsigned int QUERYFLAG_MOVABLE = 2;
 
+enum QueryFlags
+{
+	AGENT_MASK						= 1<<0,
+	SINBAD_MASK						= 1<<1,
+	GEOMETRY_QUERY_MASK				= 1<<2,
+	VEHICLE_QUERY_MASK				= 1<<3,
+	STATIC_GEOMETRY_QUERY_MASK		= 1<<4
+};
 
 // These are just sample areas to use consistent values across the samples.
 // The use should specify these base on his needs.

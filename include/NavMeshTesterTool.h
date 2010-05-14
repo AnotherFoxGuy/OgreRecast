@@ -159,9 +159,14 @@ class NavMeshTesterTool : public SampleTool
 	bool  m_bRenderNeighbors;
 	bool  m_bViewKeys;
 	bool  m_bShowCellSpaceInfo;
+	bool  m_bShowEntityLabels;
 
 	void CreateObstacles();
 	void CreateWalls();
+
+	Ogre::RaySceneQuery* mRaySceneQuery;
+	Ogre::SceneNode* mCurrentObjectSelection;
+
 
 public:
 	NavMeshTesterTool();
@@ -175,12 +180,19 @@ public:
 	virtual void handleStep();
 	virtual void handleRender(float _timeSinceLastFrame);
 	virtual void handleKeyStrokes(const OIS::KeyEvent &arg);
+	virtual void handleMouseClick();
+	virtual void handleMouseRelease();
+	virtual void handleMouseMove( const OIS::MouseEvent &arg );
 
 	void recalc();
 	void drawAgent(const float* pos, float r, float h, float c, const unsigned int col);
 
 	void setToolMode(ToolMode _mode);
 	void setEntityMode(int _entityMode);
+
+	void setEntityLabelsVisibility(bool _vis);
+	bool getEntityLabelsVisibility(void)const{return m_bShowEntityLabels;}
+	void toggleEntityLabels(void);
 
 	void removeLatestEntity(void);
 	// TODO : implement member functions for this get/set

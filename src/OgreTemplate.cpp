@@ -207,13 +207,13 @@ OgreTemplate::OgreTemplate(void):
 	mNavMeshBuilt(false), m_pmesh(0), mMatsLoaded(false), ddTiles(0), ddActiveTile(0),
 	geom(0), m_navMesh(0),processHitTest(false), processHitTestShift(false), 
 	movedDuringRotate(false), mposSet(false), m_sampleToolType(TOOL_NONE), ddBoundsDrawer(0), 
-	ddMain(0), m_drawMode(DRAWMODE_NAVMESH), m_triflags(0), m_solid(0),m_chf(0), m_cset(0), 
+	ddMain(0), m_drawMode(DRAWMODE_NAVMESH_INVIS), m_triflags(0), m_solid(0),m_chf(0), m_cset(0), 
 	m_dmesh(0), mDebugEnabled(true), m_keepInterResults(true), DemoGUI(0), cursorX(0), cursorY(0), 
 	m_tool(0), ddOffMesh(0), ddConvex(0), mMeshChanged(false), mSampleToolChanged(false),
 	m_navMeshDrawFlags(DU_DRAWNAVMESH_CLOSEDLIST|DU_DRAWNAVMESH_OFFMESHCONS), mCastRays(true),
 	m_buildAll(true), m_totalBuildTimeMs(0), m_maxTiles(0), m_maxPolysPerTile(0), m_tileSize(32),
 	m_tileCol(duRGBA(0,0,0,32)), m_tileBuildTime(0), m_tileMemUsage(0), m_tileTriCount(0), mNavMeshLog(0),
-	recalcActiveTile(true), mCurrentSkybox(SKYBOX_NONE), m_drawPortals(true)
+	recalcActiveTile(true), mCurrentSkybox(SKYBOX_NONE), m_drawPortals(true), m_tileSet(0)
 {
 	for (unsigned int i = 0; i < MAX_DRAWMODE; ++i)
 		valid[i] = false;
@@ -250,6 +250,9 @@ OgreTemplate::~OgreTemplate(void)
 	m_dmesh = 0;
 	delete m_navMesh;
 	m_navMesh = 0;
+	
+	if(m_tileSet)
+		delete m_tileSet;
 
 	if(geom)
 		delete geom;
@@ -777,6 +780,21 @@ void OgreTemplate::handleRenderTiles()
 	const float s = m_tileSize*cellSize;
 		duDebugDrawGridXZ(ddTiles, bmin[0],bmin[1],bmin[2], tw,th, s, duRGBA(0,0,0,64), 1.0f);
 
+		if (m_navMesh && (m_drawMode == DRAWMODE_NAVMESH || m_drawMode == DRAWMODE_NAVMESH_TRANS ||
+			m_drawMode == DRAWMODE_NAVMESH_BVTREE))
+		{
+			if(SharedData::getSingleton().m_AppMode != APPMODE_TERRAINSCENE)
+			{
+
+				if (m_drawPortals)
+					duDebugDrawNavMeshPortals(ddMain, *m_navMesh);
+				if (m_drawMode != DRAWMODE_NAVMESH_INVIS)
+					duDebugDrawNavMesh(ddMain, *m_navMesh, m_navMeshDrawFlags);
+				if (m_drawMode == DRAWMODE_NAVMESH_BVTREE)
+					duDebugDrawNavMeshBVTree(ddMain, *m_navMesh);
+			}
+		}
+
 	// make sure we put the green tile selector back in the correct place
 	// if we change the mesh
 	if(recalcActiveTile)
@@ -803,15 +821,133 @@ void OgreTemplate::handleRenderTiles()
 	ddOffMesh->depthMask(true);
 	ddBoundsDrawer->depthMask(true);
 
-	// only draw the debug navmesh if we arent in the terrain scene. Otherwise
-	// frame rates drop to stupid level.... 0.2 frames per second is no good.
-	if(m_navMesh)
+	if (m_tileSet)
 	{
-		if(SharedData::getSingleton().m_AppMode != APPMODE_TERRAINSCENE)
+		if (m_drawMode == DRAWMODE_COMPACT)
 		{
-			//duDebugDrawNavMesh(ddMain, *m_navMesh, m_navMeshDrawFlags);
-			if (m_drawPortals){}
-				//duDebugDrawNavMeshPortals(ddMain, *m_navMesh);
+			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
+			{
+				if (m_tileSet->tiles[i].chf /*&& canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y)*/)
+					duDebugDrawCompactHeightfieldSolid(ddMain, *m_tileSet->tiles[i].chf);
+			}
+		}
+
+		if (m_drawMode == DRAWMODE_COMPACT_DISTANCE)
+		{
+			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
+			{
+				if (m_tileSet->tiles[i].chf /*&& canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y)*/)
+					duDebugDrawCompactHeightfieldDistance(ddMain, *m_tileSet->tiles[i].chf);
+			}
+		}
+		if (m_drawMode == DRAWMODE_COMPACT_REGIONS)
+		{
+			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
+			{
+				if (m_tileSet->tiles[i].chf /*&& canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y)*/)
+					duDebugDrawCompactHeightfieldRegions(ddMain, *m_tileSet->tiles[i].chf);
+			}
+		}
+
+		if (m_drawMode == DRAWMODE_VOXELS)
+		{
+			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
+			{
+				if (m_tileSet->tiles[i].solid /*&& canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y)*/)
+					duDebugDrawHeightfieldSolid(ddMain, *m_tileSet->tiles[i].solid);
+			}
+		}
+		if (m_drawMode == DRAWMODE_VOXELS_WALKABLE)
+		{
+			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
+			{
+				if (m_tileSet->tiles[i].solid /*&& canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y)*/)
+					duDebugDrawHeightfieldWalkable(ddMain, *m_tileSet->tiles[i].solid);
+			}
+		}
+		if (m_drawMode == DRAWMODE_RAW_CONTOURS)
+		{
+			ddMain->depthMask(false);
+			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
+			{
+				if (m_tileSet->tiles[i].cset /*&& canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y)*/)
+					duDebugDrawRawContours(ddMain, *m_tileSet->tiles[i].cset);
+			}
+			ddMain->depthMask(true);
+		}
+		if (m_drawMode == DRAWMODE_BOTH_CONTOURS)
+		{
+			ddMain->depthMask(false);
+			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
+			{
+				if (m_tileSet->tiles[i].cset /*&& canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y)*/)
+				{
+					duDebugDrawRawContours(ddMain, *m_tileSet->tiles[i].cset, 0.5f);
+					duDebugDrawContours(ddMain, *m_tileSet->tiles[i].cset);
+				}
+			}
+			ddMain->depthMask(true);
+		}
+		if (m_drawMode == DRAWMODE_CONTOURS)
+		{
+			ddMain->depthMask(false);
+			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
+			{
+				if (m_tileSet->tiles[i].cset /*&& canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y)*/)
+					duDebugDrawContours(ddMain, *m_tileSet->tiles[i].cset);
+			}
+			ddMain->depthMask(true);
+		}
+		if (m_drawMode == DRAWMODE_REGION_CONNECTIONS)
+		{
+			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
+			{
+				if (m_tileSet->tiles[i].chf /*&& canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y)*/)
+					duDebugDrawCompactHeightfieldRegions(ddMain, *m_tileSet->tiles[i].chf);
+			}
+
+			ddMain->depthMask(false);
+			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
+			{
+				if (m_tileSet->tiles[i].cset /*&& canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y)*/)
+					duDebugDrawRegionConnections(ddMain, *m_tileSet->tiles[i].cset);
+			}
+			ddMain->depthMask(true);
+		}
+		if (/*m_pmesh &&*/ m_drawMode == DRAWMODE_POLYMESH)
+		{
+			ddMain->depthMask(false);
+			if (m_pmesh)
+			{
+				duDebugDrawPolyMesh(ddMain, *m_pmesh);
+			}
+			else
+			{
+				for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
+				{
+					if (m_tileSet->tiles[i].pmesh /*&& canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y)*/)
+						duDebugDrawPolyMesh(ddMain, *m_tileSet->tiles[i].pmesh);
+				}
+			}
+
+			ddMain->depthMask(true);
+		}
+		if (/*m_dmesh &&*/ m_drawMode == DRAWMODE_POLYMESH_DETAIL)
+		{
+			ddMain->depthMask(false);
+			if (m_dmesh)
+			{
+				duDebugDrawPolyMeshDetail(ddMain, *m_dmesh);
+			}
+			else
+			{
+				for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
+				{
+					if (m_tileSet->tiles[i].dmesh /*&& canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y)*/)
+						duDebugDrawPolyMeshDetail(ddMain, *m_tileSet->tiles[i].dmesh);
+				}
+			}
+			ddMain->depthMask(true);
 		}
 	}
 
@@ -1292,6 +1428,13 @@ bool OgreTemplate::mouseMoved( const OIS::MouseEvent &arg )
 	cursorX = Ogre::Real((Ogre::Real(arg.state.X.abs)) / mWindow->getWidth());
 	cursorY = Ogre::Real((Ogre::Real(arg.state.Y.abs)) / mWindow->getHeight());
 
+	if(m_sampleToolType == TOOL_NAVMESH_TESTER)
+	{
+		if(m_tool)
+		{
+			static_cast<NavMeshTesterTool*>(m_tool)->handleMouseMove(arg);
+		}
+	}
 	if(DemoGUI != 0)
 	{
 		DemoGUI->mouseMoved(arg);
@@ -1343,6 +1486,13 @@ bool OgreTemplate::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID
 		break;
 	}
 
+	if(m_sampleToolType == TOOL_NAVMESH_TESTER)
+	{
+		if(m_tool)
+		{
+			static_cast<NavMeshTesterTool*>(m_tool)->handleMouseRelease();
+		}
+	}
 	if(DemoGUI != 0)
 	{
 		DemoGUI->mouseReleased(arg, id);
@@ -1363,25 +1513,87 @@ bool OgreTemplate::handleValidDrawModes(void)
 
 	// these will NEVER be valid anymore, TILEMESH debug drawing is not possible at
 	// this stage, i will implement it later
-	if (geom)
+	bool chfOK = false;
+	bool solidOK = false;
+	bool csetOK = false;
+	bool pmeshOK = false;
+	bool dmeshOK = false;
+
+	if(geom && m_tileSet)
 	{
-		valid[DRAWMODE_MESH] = true;
-		valid[DRAWMODE_NAVMESH] = true; //m_navMesh != 0; // ALTERED TO TURN OFF INPUT GEOM DRAWER
-		valid[DRAWMODE_NAVMESH_INVIS] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_TRANS] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_BVTREE] = m_navMesh != 0;
-		valid[DRAWMODE_VOXELS] = m_solid != 0;
-		valid[DRAWMODE_VOXELS_WALKABLE] = m_solid != 0;
-		valid[DRAWMODE_COMPACT] = m_chf != 0;
-		valid[DRAWMODE_COMPACT_DISTANCE] = m_chf != 0;
-		valid[DRAWMODE_COMPACT_REGIONS] = m_chf != 0;
-		valid[DRAWMODE_REGION_CONNECTIONS] = m_cset != 0;
-		valid[DRAWMODE_RAW_CONTOURS] = m_cset != 0;
-		valid[DRAWMODE_BOTH_CONTOURS] = m_cset != 0;
-		valid[DRAWMODE_CONTOURS] = m_cset != 0;
-		valid[DRAWMODE_POLYMESH_DETAIL] = m_dmesh != 0;
-		valid[DRAWMODE_POLYMESH] = m_pmesh != 0;
-	}
+		for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
+		{
+			if(m_tileSet->tiles[i].chf)
+			{
+				valid[DRAWMODE_COMPACT_DISTANCE] = true;
+				valid[DRAWMODE_COMPACT_DISTANCE] = true;
+				valid[DRAWMODE_COMPACT_REGIONS] = true;
+				chfOK = true;
+			}
+			else if(!m_tileSet->tiles[i].chf)
+			{
+				valid[DRAWMODE_COMPACT_DISTANCE] = false;
+				valid[DRAWMODE_COMPACT_DISTANCE] = false;
+				valid[DRAWMODE_COMPACT_REGIONS] = false;
+				chfOK = false;
+			}
+			if(m_tileSet->tiles[i].solid)
+			{
+				valid[DRAWMODE_VOXELS] = true;
+				valid[DRAWMODE_VOXELS_WALKABLE] = true;
+				solidOK = true;
+			}
+			else if(!m_tileSet->tiles[i].solid)
+			{
+				valid[DRAWMODE_VOXELS] = false;
+				valid[DRAWMODE_VOXELS_WALKABLE] = false;
+				solidOK = true;
+			}
+			if(m_tileSet->tiles[i].cset)
+			{
+				valid[DRAWMODE_REGION_CONNECTIONS] = true;
+				valid[DRAWMODE_RAW_CONTOURS] = true;
+				valid[DRAWMODE_BOTH_CONTOURS] = true;
+				valid[DRAWMODE_CONTOURS] = true;
+				csetOK = true;
+			}
+			else if(!m_tileSet->tiles[i].cset)
+			{
+				valid[DRAWMODE_REGION_CONNECTIONS] = false;
+				valid[DRAWMODE_RAW_CONTOURS] = false;
+				valid[DRAWMODE_BOTH_CONTOURS] = false;
+				valid[DRAWMODE_CONTOURS] = false;
+				csetOK = false;
+			}
+			if(m_tileSet->tiles[i].pmesh)
+			{
+				valid[DRAWMODE_POLYMESH] = true;
+				pmeshOK = true;
+			}
+			else if(!m_tileSet->tiles[i].pmesh)
+			{
+				valid[DRAWMODE_POLYMESH] = false;
+				pmeshOK = false;
+			}
+			if(m_tileSet->tiles[i].dmesh)
+			{
+				valid[DRAWMODE_POLYMESH_DETAIL] = true;
+				dmeshOK = true;
+			}
+			else if(!m_tileSet->tiles[i].dmesh)
+			{
+				valid[DRAWMODE_POLYMESH_DETAIL] = false;
+				dmeshOK = false;
+			}
+
+			valid[DRAWMODE_MESH] = true;
+			valid[DRAWMODE_NAVMESH] = m_navMesh != 0; // enable drawing the navmesh if its been built
+			valid[DRAWMODE_NAVMESH_INVIS] = true; // ALTERED TO TURN OFF INPUT GEOM/NAVMESH DRAWER
+			valid[DRAWMODE_NAVMESH_TRANS] = m_navMesh != 0;
+			valid[DRAWMODE_NAVMESH_BVTREE] = m_navMesh != 0;
+
+		}
+	} 
 	
 	int unavail = 0;
 	for (int i = 0; i < MAX_DRAWMODE; ++i)
@@ -1516,6 +1728,11 @@ void OgreTemplate::handleLoadNavMesh(Ogre::String& loadName)
 //-------------------------------------------------------------------------------------
 void OgreTemplate::clearNavMesh(void)
 {
+	if(m_tileSet)
+	{
+		delete m_tileSet;
+		m_tileSet = 0;
+	}
 	if(m_triflags)
 	{
 		delete [] m_triflags;
@@ -1551,6 +1768,7 @@ void OgreTemplate::clearNavMesh(void)
 		delete m_navMesh;
 		m_navMesh = 0;
 	}
+
 
 	m_sampleToolType = TOOL_NONE;
 	if(m_tool)
@@ -1801,8 +2019,14 @@ bool OgreTemplate::handleBuild()
 		return false;
 	}
 
+	
+
 	if (m_buildAll)
 		buildAllTiles();
+
+	handleValidDrawModes();
+
+	DemoGUI->updateDebugRB();
 
 	return true;
 }
@@ -1876,6 +2100,7 @@ void OgreTemplate::buildAllTiles()
 	if (!geom) return;
 	if (!m_navMesh) return;
 
+
 	const float* bmin = geom->getMeshBoundsMin();
 	const float* bmax = geom->getMeshBoundsMax();
 	int gw = 0, gh = 0;
@@ -1886,6 +2111,32 @@ void OgreTemplate::buildAllTiles()
 	const float tcs = m_tileSize*cellSize;
 
 
+	// Calculate the number of tiles in the output and initialize tiles.
+	if(m_tileSet)
+		delete m_tileSet;
+	m_tileSet = new TileSet();
+	if (!m_tileSet)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'tileSet'.");
+		return;
+	}
+	rcVcopy(m_tileSet->bmin, bmin);
+	rcVcopy(m_tileSet->bmax, bmax);
+	m_tileSet->cs = cellSize;
+	m_tileSet->ch = cellHeight;
+	m_tileSet->width = tw;
+	m_tileSet->height = th;
+	m_tileSet->tiles = new Tile[m_tileSet->height * m_tileSet->width];
+	if (!m_tileSet->tiles)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'tileSet->tiles' (%d).", m_tileSet->height * m_tileSet->width);
+		return;
+	}
+
+
+
 	// Start the build process.	
 	rcTimeVal totStartTime = rcGetPerformanceTimer();
 
@@ -1893,6 +2144,10 @@ void OgreTemplate::buildAllTiles()
 	{
 		for (int x = 0; x < tw; ++x)
 		{
+			Tile& tile = m_tileSet->tiles[x + y*m_tileSet->width];
+			tile.x = x;
+			tile.y = y;
+
 			m_tileBmin[0] = bmin[0] + x*tcs;
 			m_tileBmin[1] = bmin[1];
 			m_tileBmin[2] = bmin[2] + y*tcs;
@@ -1902,7 +2157,34 @@ void OgreTemplate::buildAllTiles()
 			m_tileBmax[2] = bmin[2] + (y+1)*tcs;
 
 			int dataSize = 0;
-			unsigned char* data = buildTileMesh(x, y, m_tileBmin, m_tileBmax, dataSize);
+			unsigned char* data = buildTileMesh(x, y, m_tileBmin, m_tileBmax, dataSize); 
+			if(m_chf)
+			{
+				tile.chf = m_chf;
+				m_chf = 0;
+			}
+			if(m_solid)
+			{
+				tile.solid = m_solid;
+				m_solid = 0;
+			}
+			if(m_cset)
+			{
+				tile.cset = m_cset;
+				m_cset = 0;
+			}
+			if(m_pmesh)
+			{
+				tile.pmesh = m_pmesh;
+				m_pmesh = 0;
+			}
+			if(m_dmesh)
+			{
+				tile.dmesh = m_dmesh;
+				m_dmesh = 0;
+			}
+			tile.buildTime = m_tileBuildTime;
+
 			if (data)
 			{
 				// Remove any previous data (navmesh owns and deletes the data).

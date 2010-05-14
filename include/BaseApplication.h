@@ -87,6 +87,10 @@ public:
 
 	virtual void go(void);
 
+	bool getMouseLeftState()const{return mMouseLeftClicked;}
+	bool getMouseRightState()const{return mMouseRightClicked;}
+	bool getMouseMiddleState()const{return mMouseMiddleClicked;}
+
 protected:
 	virtual bool setup();
 	virtual bool configure(void);

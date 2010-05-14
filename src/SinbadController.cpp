@@ -219,7 +219,9 @@ m_vSmoothedHeading(Vector2D(0,0)), m_bSmoothingOn(true), m_dTimeElapsed(0.0)
 	mIsTurning = false;
 	mNeedToTurn = false;
 	mIsWalking = false;
+	mEntityLabelVisible = true;
 	mFindingPath = true;
+	m_bIsSelected = false;
 	mStuckCounter = 0.0f;
 	mChangeRunAnimCount = 0.0f;
 	mDistLeft = 100.0f;
@@ -243,7 +245,8 @@ m_vSmoothedHeading(Vector2D(0,0)), m_bSmoothingOn(true), m_dTimeElapsed(0.0)
 	m_pPath = NULL;
 	m_filter.includeFlags = SAMPLE_POLYFLAGS_ALL;
 	m_filter.excludeFlags = 0;
-	dd = 0;
+	ddPoints = 0;
+	ddBounds = 0;
 
 	InitializeBuffer();
 
@@ -281,10 +284,15 @@ SinbadCharacterController::~SinbadCharacterController(void)
 		if(m_EntityLabel)
 			delete m_EntityLabel;
 
-		if(dd)
+		if(ddPoints)
 		{
-			delete dd;
-			dd = NULL;
+			delete ddPoints;
+			ddPoints = NULL;
+		}
+		if(ddBounds)
+		{
+			delete ddBounds;
+			ddBounds = NULL;
 		}
 		m_EntityLabelAttributes = 0;
 	}
@@ -302,14 +310,17 @@ void SinbadCharacterController::Initialize()
 	// setup the movable text label for this entity
 	mEntityLabelName = TemplateUtils::GetUniqueEntityLabelName("EntityLabel_");
 	m_EntityLabel = new MovableTextOverlay(mEntityLabelName, mBodyEntity, mBodyEnt, m_EntityLabelAttributes);
-	m_EntityLabel->enable(false); // make it invisible for now
+	m_EntityLabel->enable(true); // make it invisible for now
 	m_EntityLabel->setUpdateFrequency(0.0025);// set update frequency to 0.01 seconds
+	m_EntityLabel->update(0.0026);
 	mIsInitialized = true;
 	mGoalDirection = Vector3::ZERO;
 
-	dd = new DebugDrawGL();
-	dd->setMaterialScript(Ogre::String("EntityPoints"));
-	dd->setOffset(0.30f);
+	ddPoints = new DebugDrawGL();
+	ddPoints->setMaterialScript(Ogre::String("EntityPoints"));
+	
+	ddBounds = new DebugDrawGL();
+	ddBounds->setMaterialScript(Ogre::String("EntityMisc"));
 
 	Ogre::String capText = "MaxForce : " + Ogre::StringConverter::toString((float)MaxForce()) + "\n" +
 		"MaxSpeed : " + Ogre::StringConverter::toString((float)MaxSpeed()) + "\n" + 
@@ -328,7 +339,11 @@ void SinbadCharacterController::addTime(Real deltaTime, int _applicationMode)
 	updateBody(time_elapsed, _applicationMode);
 	updateAnimations(time_elapsed);
 	handleLabelUpdate(time_elapsed);
-	handleRenderDebug();		
+	handleRenderDebug();
+	if(m_bIsSelected)
+		mBodyNode->showBoundingBox(true);
+	else if(!m_bIsSelected)
+		mBodyNode->showBoundingBox(false);
 }
 
 //------------------------------ Update ----------------------------------
@@ -338,7 +353,9 @@ void SinbadCharacterController::addTime(Real deltaTime, int _applicationMode)
 void SinbadCharacterController::Update(double time_elapsed)
 {   
 	Ogre::Vector3 OldBodyPos = mBodyNode->getPosition();
-	if(!m_pSteering->PathDone() && !mFindingPath)
+
+	
+	if(!m_pSteering->PathDone() && !mFindingPath && !m_bIsSelected)
 	{
 		//update the time elapsed
 		m_dTimeElapsed = time_elapsed;
@@ -371,7 +388,8 @@ void SinbadCharacterController::Update(double time_elapsed)
 			m_vHeading = Vec2DNormalize(m_vVelocity);
 			m_vSide = m_vHeading.Perp();
 		}
-		//EnforceNonPenetrationConstraint(this, World()->Agents());
+
+		EnforceNonPenetrationConstraint(this, World()->Agents());
 
 		//treat the screen as a toroid
 		WrapAround(m_vPos, m_tool->cxClientMin(), m_tool->cyClientMin(), m_tool->cxClient(), m_tool->cyClient());
@@ -399,13 +417,13 @@ void SinbadCharacterController::Update(double time_elapsed)
 	else if(m_pSteering->PathDone() && !mFindingPath)
 	{
 		m_pSteering->FollowPathOff();
-		m_vVelocity.Zero();
+		SetVelocity(Vector2D(0.0, 0.0));
 		mFindingPath = true;
 		sendFindNewPathMessage();
 	}
 	else
 	{
-		m_vVelocity.Zero();
+		SetVelocity(Vector2D(0.0, 0.0));
 	}
 
 	// -- RUN ANIMS LOGIC
@@ -452,8 +470,9 @@ void SinbadCharacterController::setupBody(SceneManager* sceneMgr)
 	mRightSword = TemplateUtils::GetUniqueRightSwordName("SinbadSwordR_");
 
 	mBodyNode = sceneMgr->getRootSceneNode()->createChildSceneNode(mBodyName, Vector3::UNIT_Y * CHAR_HEIGHT);
-	mBodyNode->showBoundingBox(true);
+	//mBodyNode->showBoundingBox(true);
 	mBodyEnt = sceneMgr->createEntity(mBodyEntity, "Sinbad.mesh");
+	mBodyEnt->setQueryFlags(SINBAD_MASK);
 	mBodyNode->attachObject(mBodyEnt);
 
 	// create swords and attach to sheath
@@ -775,9 +794,11 @@ bool SinbadCharacterController::States( State_Machine_Event event, MSG_Object * 
 				}
 
 		OnMsg( MSG_ModeChange )
+			SetVelocity(Vector2D(0.0, 0.0));
 			ChangeState( STATE_ModeChange );
 
 		OnMsg( MSG_FindPath )
+			SetVelocity(Vector2D(0.0, 0.0));
 			ChangeState( STATE_FindPath );
 
 		OnMsg( MSG_Think )
@@ -872,16 +893,16 @@ bool SinbadCharacterController::States( State_Machine_Event event, MSG_Object * 
 			setIdlingAnim();
 			mFindingPath = true;
 			m_pSteering->FollowPathOff();
-			m_vVelocity.Zero();
+			SetVelocity(Vector2D(0.0, 0.0));
 			findStartEndPositions();
 
 		OnUpdate
 			mFindingPath = true;
-			m_vVelocity.Zero();
+			SetVelocity(Vector2D(0.0, 0.0));
 			findStartEndPositions();
 
 		OnExit
-			m_vVelocity.Zero();
+			SetVelocity(Vector2D(0.0, 0.0));
 
 	///////////////////////////////////////////////////////////////
 	DeclareState( STATE_WalkPath )
@@ -891,6 +912,7 @@ bool SinbadCharacterController::States( State_Machine_Event event, MSG_Object * 
 		OnUpdate
 
 		OnMsg( MSG_FindPath )
+			SetVelocity(Vector2D(0.0, 0.0));
 			ChangeState( STATE_FindPath );
 
 		OnExit
@@ -901,11 +923,12 @@ bool SinbadCharacterController::States( State_Machine_Event event, MSG_Object * 
 		OnEnter
 			setIdlingAnim();
 			m_pSteering->FollowPathOff();
-			m_vVelocity.Zero();
+			SetVelocity(Vector2D(0.0, 0.0));
 			mIdleTimerToChange = RandDelay(5.0f, 20.0f);
 			SendMsgDelayedToMe( mIdleTimerToChange, MSG_IdleChange, SCOPE_TO_STATE);
 
 		OnUpdate
+			SetVelocity(Vector2D(0.0, 0.0));
 			if((RandDelay(0.0f, 100.0f) <= 1.0f) && (mBaseAnimID != ANIM_JUMP_LOOP))
 				setJumpingAnim();
 
@@ -913,7 +936,7 @@ bool SinbadCharacterController::States( State_Machine_Event event, MSG_Object * 
 			ChangeStateDelayed(0.25f, selectIdleAnimset());
 
 		OnExit
-			m_vVelocity.Zero();
+			SetVelocity(Vector2D(0.0, 0.0));
 
 	///////////////////////////////////////////////////////////////
 	DeclareState( STATE_Dance )
@@ -921,17 +944,18 @@ bool SinbadCharacterController::States( State_Machine_Event event, MSG_Object * 
 		OnEnter
 			setDanceAnim();
 			m_pSteering->FollowPathOff();
-			m_vVelocity.Zero();
+			SetVelocity(Vector2D(0.0, 0.0));
 			mIdleTimerToChange = RandDelay(7.0f, 15.0f)	;
 			SendMsgDelayedToMe( mIdleTimerToChange, MSG_IdleChange, SCOPE_TO_STATE);
 
 		OnUpdate
+			SetVelocity(Vector2D(0.0, 0.0));
 
 		OnMsg( MSG_IdleChange )
 			ChangeStateDelayed(0.25f, selectIdleAnimset());
 
 		OnExit
-			m_vVelocity.Zero();
+			SetVelocity(Vector2D(0.0, 0.0));
 
 	///////////////////////////////////////////////////////////////
 	DeclareState( STATE_Think )
@@ -988,6 +1012,7 @@ void SinbadCharacterController::sendModeChangeMessage(void)
 //------------------------------------------------------------------------------------
 void SinbadCharacterController::sendFindNewPathMessage(void)
 {
+	mFindingPath = true;
 	SendMsgToMe( MSG_FindPath );
 }
 
@@ -1179,6 +1204,110 @@ void SinbadCharacterController::findStartEndPositions()
 	// if path invalid wait for update and try again till we get a valid one
 }
 
+
+//------------------------------------------------------------------------------------
+Ogre::Vector3 SinbadCharacterController::findValidSpawnPosition(float _rayHeight)
+{
+
+	int negpos = RandDelay(0.0f, 10.0f);
+	if(negpos > 5)
+		negpos = 1;
+	else
+		negpos = -1;
+
+	float borderZone = 10.0f;
+	float XVal = 0.0f;
+	float ZVal = 0.0f;
+	float YVal = 0.0f;
+	Ogre::Vector3 checkPos = Ogre::Vector3::ZERO;
+
+	if(SharedData::getSingleton().m_AppMode == APPMODE_TERRAINSCENE)
+	{
+		if(negpos == -1)
+		{
+			XVal = (RandDelay(m_tool->cxClientMin() + borderZone, m_tool->cxClient() - borderZone));
+			ZVal = (RandDelay(m_tool->cyClientMin() + borderZone, m_tool->cyClient() - borderZone));
+		}
+		else
+		{
+			XVal = (RandDelay(m_tool->cxClientMin() + borderZone, m_tool->cxClient() - borderZone));
+			ZVal = (RandDelay(m_tool->cyClientMin() + borderZone, m_tool->cyClient() - borderZone));
+		}
+
+		YVal = m_sample->getInputGeom()->getMesh()->mTerrainGroup->getHeightAtWorldPosition(Ogre::Vector3(XVal, _rayHeight, ZVal));
+		checkPos = Ogre::Vector3(XVal, YVal, ZVal);
+	}
+	else if( (SharedData::getSingleton().m_AppMode != APPMODE_TERRAINSCENE) )
+	{
+		if(negpos == -1)
+		{
+			XVal = (RandDelay(m_tool->cxClientMin() + borderZone, m_tool->cxClient() - borderZone));
+			ZVal = (RandDelay(m_tool->cyClientMin() + borderZone, m_tool->cyClient() - borderZone));
+		}
+		else
+		{
+			XVal = (RandDelay(m_tool->cxClientMin() + borderZone, m_tool->cxClient() - borderZone));
+			ZVal = (RandDelay(m_tool->cyClientMin() + borderZone, m_tool->cyClient() - borderZone));
+		}
+
+		Ogre::Ray ray;
+		ray.setOrigin(Vector3(XVal, _rayHeight, ZVal));
+		ray.setDirection(Vector3::NEGATIVE_UNIT_Y);
+
+		float tt = 0;
+		float rays[3];
+		float raye[3];
+		float pos[3];
+		memset(pos,  0, sizeof(pos));
+		memset(rays, 0, sizeof(rays));
+		memset(raye, 0, sizeof(raye));
+		rays[0] = (float)ray.getOrigin().x; rays[1] = (float)ray.getOrigin().y; rays[2] = (float)ray.getOrigin().z;
+		raye[0] = (float)ray.getPoint((_rayHeight * 2)).x; raye[1] = (float)ray.getPoint((_rayHeight * 2)).y; raye[2] = (float)ray.getPoint((_rayHeight * 2)).z;
+
+		if (m_sample->getInputGeom()->raycastMesh(rays, raye, tt))
+		{
+			pos[0] = rays[0] + (raye[0] - rays[0])*tt;
+			pos[1] = rays[1] + (raye[1] - rays[1])*tt;
+			pos[2] = rays[2] + (raye[2] - rays[2])*tt;
+		}
+		YVal = pos[1];
+		checkPos = Ogre::Vector3(XVal, YVal, ZVal);
+	}
+
+	float spos[3];
+	float vpos[3];
+	float polyPickExtent[3];
+	dtPolyRef startRef = 0;
+	memset(spos,  0, sizeof(spos));
+	memset(vpos,  0, sizeof(vpos));
+	memset(polyPickExtent, 0, sizeof(polyPickExtent));
+	spos[0] = checkPos.x;
+	spos[1] = checkPos.y;
+	spos[2] = checkPos.z;
+	// increase the size of the bounding box for our spawn point search to maximize the chances
+	// of actually finding a valid place.
+	polyPickExtent[0] = 75;
+	polyPickExtent[1] = 25; // shorter Y height value for extents box as we want to be able to pick different levels of 3d geom
+	polyPickExtent[2] = 75;
+	startRef = m_sample->getNavMesh()->findNearestPoly(spos, polyPickExtent, &m_filter, vpos);
+
+	if(startRef == 0)
+	{
+		// didn't find a valid position
+		return Ogre::Vector3::ZERO;
+	}
+	else if(startRef != 0 && vpos)
+	{
+		// found a valid position on the navmesh
+		return Ogre::Vector3(vpos[0], vpos[1], vpos[2]);
+	}
+
+	// if we get here return a zero value, shouldnt get here, but to be safe, if we do get here
+	// we return a zero value as for whatever reason we didnt find a valid spawn point
+	return Ogre::Vector3::ZERO;
+}
+
+
 //------------------------------------------------------------------------------------
 GameObject* SinbadCharacterController::GetClosestPlayer( void )
 {
@@ -1249,7 +1378,6 @@ void SinbadCharacterController::recalc(void)
 				m_pSteering->SetPath(m_pPath->GetPath());
 				m_pSteering->SetPathLoopOff();
 				m_pSteering->SetPathDone(false);
-				m_pSteering->ArriveOff();
 				m_pSteering->FollowPathOn();
 			}	
 		}
@@ -1260,6 +1388,7 @@ void SinbadCharacterController::recalc(void)
 	{
 		m_npolys = 0;
 		m_nstraightPath = 0;
+		SetVelocity(Vector2D(0.0, 0.0));
 	}
 }
 
@@ -1273,7 +1402,8 @@ void SinbadCharacterController::setEntityLabelCaption(Ogre::String _caption, int
 //------------------------------------------------------------------------------------
 void SinbadCharacterController::handleRenderDebug(void)
 {
-	dd->clear();
+	ddPoints->clear();
+	ddBounds->clear();
 	//a vector to hold the transformed vertices
 	static std::vector<Vector2D>  m_vecVehicleVBTrans;
 
@@ -1285,7 +1415,6 @@ void SinbadCharacterController::handleRenderDebug(void)
 			SmoothedHeading().Perp(),
 			Scale());
 	}
-
 	else
 	{
 		m_vecVehicleVBTrans = WorldTransform(m_vecVehicleVB,
@@ -1295,18 +1424,22 @@ void SinbadCharacterController::handleRenderDebug(void)
 			Scale());
 	}
 
-	dd->begin(DU_DRAW_POINTS, 20.0);
+	ddPoints->depthMask(false);
+	ddPoints->begin(DU_DRAW_POINTS, 5.0);
 	for(unsigned int i = 0; i < m_vecVehicleVBTrans.size(); ++i)
 	{
-		dd->vertex(m_vecVehicleVBTrans[i].x, mBodyNode->getPosition().y, m_vecVehicleVBTrans[i].y, (unsigned int)0);
+		ddPoints->vertex(m_vecVehicleVBTrans[i].x, mBodyNode->getPosition().y, m_vecVehicleVBTrans[i].y, (unsigned int)0);
 	}
-	dd->end();
-	dd->begin(DU_DRAW_LINES, 20.0);
+	ddPoints->end();
+	ddPoints->depthMask(true);
+	ddBounds->depthMask(false);
+	ddBounds->begin(DU_DRAW_LINES_STRIP, 5.0);
 	for(unsigned int i = 0; i < m_vecVehicleVBTrans.size(); ++i)
 	{
-		dd->vertex(m_vecVehicleVBTrans[i].x, mBodyNode->getPosition().y, m_vecVehicleVBTrans[i].y, (unsigned int)0);
+		ddBounds->vertex(m_vecVehicleVBTrans[i].x, mBodyNode->getPosition().y, m_vecVehicleVBTrans[i].y, (unsigned int)0);
 	}
-	dd->end();
+	ddBounds->end();
+	ddBounds->depthMask(true);
 
 	Steering()->RenderAids();
 }
@@ -1314,7 +1447,7 @@ void SinbadCharacterController::handleRenderDebug(void)
 //------------------------------------------------------------------------------------
 void SinbadCharacterController::handleLabelUpdate(float _deltaTime)
 {
-	if(m_EntityLabel)
+	if(m_EntityLabel && mEntityLabelVisible)
 	{
 		RectLayoutManager m(0, 0, SharedData::getSingleton().iCamera->getViewport()->getActualWidth(),
 			SharedData::getSingleton().iCamera->getViewport()->getActualHeight());
@@ -1340,4 +1473,12 @@ void SinbadCharacterController::handleLabelUpdate(float _deltaTime)
 			m_EntityLabel->enable(false);
 		}
 	}
+}
+
+//------------------------------------------------------------------------------------
+void SinbadCharacterController::setEntityLabelVisible(bool _vis) 
+{ 
+	mEntityLabelVisible = _vis;
+	if(m_EntityLabel)
+		m_EntityLabel->enable(mEntityLabelVisible);
 }
