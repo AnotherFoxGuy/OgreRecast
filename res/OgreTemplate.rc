@@ -28,7 +28,7 @@ LANGUAGE LANG_DANISH, SUBLANG_DEFAULT
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_APPICON             ICON                    "C:\\Documents and Settings\\Paul\\My Documents\\Visual Studio 2008\\Projects\\OGRE_PROJECTS\\OgreTemplate\\OgreRecast\\res\\OgreTemplate.ico"
+IDI_APPICON             ICON                    ".\\res\\OgreTemplate.ico"
 #endif    // Danish resources
 /////////////////////////////////////////////////////////////////////////////
 

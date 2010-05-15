@@ -1028,7 +1028,9 @@ void NavMeshTesterTool::handleRender(float _timeSinceLastFrame)
 			if(mframeTimeCount >= 5.0f)
 				m_EntityList[i]->sendThinkMessage();
 
-			//render cell partitioning stuff
+			//render cell partitioning stuff on every 3rd ai entity
+			// indicates neighbours for entity that are being calculated for things like
+			// collision and penetration
 			if (m_pCellSpace && m_bShowCellSpaceInfo && i%3 == 0)
 			{
 				//gdi->HollowBrush();
