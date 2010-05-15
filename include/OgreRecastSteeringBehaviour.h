@@ -48,6 +48,8 @@
 #include <list>
 
 #include "Vector2D.h"
+#include "OgreTemplate.h"
+#include "DebugDraw.h"
 #include "OgreRecastPath.h"
 #include "OgreRecastSettingLoader.h"
 
@@ -193,6 +195,13 @@ private:
   //what type of method is used to sum any active behavior
   summing_method  m_SummingMethod;
 
+  // Debug renderers for Ogre3D debug rendering
+  DebugDrawGL* ddForce;
+  DebugDrawGL* ddWanderCircle;
+  DebugDrawGL* ddWanderTarget;
+  DebugDrawGL* ddDetBox;
+  DebugDrawGL* ddDetBoxHit;
+  DebugDrawGL* ddFeelers;
 
   //this function tests if a specific bit of m_iFlags is set
   bool      On(behavior_type bt){return (m_iFlags & bt) == bt;}

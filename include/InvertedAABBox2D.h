@@ -43,27 +43,21 @@ private:
 	Vector2D  m_vBottomRight;
 
 	Vector2D  m_vCenter;
-	DebugDrawGL* dd;
-
+	bool	  m_bCreated;
+	
 public:
 
 	InvertedAABBox2D(Vector2D tl, Vector2D br):
+	    m_bCreated(false),
 		m_vTopLeft(tl),
 		m_vBottomRight(br),
 		m_vCenter((tl+br)/2.0)
 	{
-		dd = new DebugDrawGL();
-		dd->setMaterialScript(Ogre::String("EntityLines"));
+		m_bCreated = true;
 	}
 
 	~InvertedAABBox2D()
-	{
-		if(dd)
-		{
-			delete dd;
-			dd = NULL;
-		}
-	}
+	{}
 
 	//returns true if the bbox described by other intersects with this one
 	bool isOverlappedWith(const InvertedAABBox2D& other)const
@@ -84,12 +78,12 @@ public:
 	double    Right()const{return m_vBottomRight.x;}
 	Vector2D Center()const{return m_vCenter;}
 
-	void     Render(bool RenderCenter = false)const
+	void     Render(DebugDrawGL* dd, bool RenderCenter = false)const
 	{
-		dd->clear();
+		//dd->clear();
 
 		dd->begin(DU_DRAW_LINES_STRIP, 10.0f);
-		duAppendBoxWire(dd, (float)Top(), (float)m_vTopLeft.yUP, (float)Left(), (float)Bottom(), (float)m_vBottomRight.yUP, (float)Right(), (unsigned int)0);
+		duAppendBoxWire(dd, (float)Left(), (float)m_vTopLeft.yUP, (float)Top(), (float)Right(), (float)m_vBottomRight.yUP, (float)Bottom(), (unsigned int)0);
 
 		if (RenderCenter)
 		{
@@ -97,6 +91,7 @@ public:
 		}
 		dd->end();
 	}
+	
 
 };
 

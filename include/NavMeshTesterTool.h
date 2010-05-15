@@ -127,6 +127,10 @@ class NavMeshTesterTool : public SampleTool
 	DebugDrawGL* ddAgent;
 	DebugDrawGL* ddPolys;
 
+	DebugDrawGL* ddCrosshair;
+	DebugDrawGL* ddCellAgentView;
+	DebugDrawGL* ddCellAgentNeigh;
+
 	EntityToolMode m_EntityMode;
 
 	CharacterList m_EntityList;
@@ -166,6 +170,7 @@ class NavMeshTesterTool : public SampleTool
 
 	Ogre::RaySceneQuery* mRaySceneQuery;
 	Ogre::SceneNode* mCurrentObjectSelection;
+	Ogre::SceneNode* mLastObjectSelection;
 
 
 public:

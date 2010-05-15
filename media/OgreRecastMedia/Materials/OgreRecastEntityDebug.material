@@ -16,6 +16,96 @@ material EntityLines
   }
 }
 
+material EntityLinesRED
+{
+  technique
+  {
+    pass
+    {
+      scene_blend alpha_blend
+      depth_write off
+     
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 0.9 0 0
+        alpha_op_ex source1 src_manual src_current 0.9
+      }
+    }
+  }
+}
+
+material EntityLinesBLUE
+{
+  technique
+  {
+    pass
+    {
+      scene_blend alpha_blend
+      depth_write off
+     
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 0 0 0.9
+        alpha_op_ex source1 src_manual src_current 0.9
+      }
+    }
+  }
+}
+
+material EntityLinesGREEN
+{
+  technique
+  {
+    pass
+    {
+      scene_blend alpha_blend
+      depth_write off
+     
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 0 0.9 0
+        alpha_op_ex source1 src_manual src_current 0.9
+      }
+    }
+  }
+}
+
+material EntityLinesGREY
+{
+  technique
+  {
+    pass
+    {
+      scene_blend alpha_blend
+      depth_write off
+     
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 0.5 0.5 0.5
+        alpha_op_ex source1 src_manual src_current 0.95
+      }
+    }
+  }
+}
+
+material EntityLinesORANGE
+{
+  technique
+  {
+    pass
+    {
+      scene_blend alpha_blend
+      depth_write off
+     
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 1 0.4 0.1
+        alpha_op_ex source1 src_manual src_current 0.95
+      }
+    }
+  }
+}
+
 material EntityPoints
 {
   technique
@@ -34,6 +124,42 @@ material EntityPoints
   }
 }
 
+material EntityPointsB
+{
+  technique
+  {
+    pass
+    {
+      scene_blend alpha_blend
+      depth_write off
+		  
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 0.1 0.1 0.8
+        alpha_op_ex source1 src_manual src_current 0.9
+      }
+    }
+  }
+}
+
+material EntityPointsG
+{
+  technique
+  {
+    pass
+    {
+      scene_blend alpha_blend
+      depth_write off
+		  
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 0.1 0.8 0.1
+        alpha_op_ex source1 src_manual src_current 0.9
+      }
+    }
+  }
+}
+
 material EntityMisc
 {
   technique
@@ -46,7 +172,7 @@ material EntityMisc
       texture_unit
       {
         colour_op_ex source1 src_manual src_current 0.1 0.1 0.8
-        alpha_op_ex source1 src_manual src_current 0.5
+        alpha_op_ex source1 src_manual src_current 0.8
       }
     }
 	pass
@@ -58,6 +184,96 @@ material EntityMisc
       texture_unit
       {
         colour_op_ex source1 src_manual src_current 0.8 0.2 0.2
+        alpha_op_ex source1 src_manual src_current 0.9
+      }
+	}
+  }
+}
+
+material EntityRedWhiteWire
+{
+  technique
+  {
+    pass
+    {
+      scene_blend alpha_blend
+      depth_write off
+      
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 0.8 0.1 0.1
+        alpha_op_ex source1 src_manual src_current 0.8
+      }
+    }
+	pass
+    {
+	  polygon_mode wireframe
+      scene_blend alpha_blend
+      depth_write off
+	       
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 0.8 0.8 0.8
+        alpha_op_ex source1 src_manual src_current 0.9
+      }
+	}
+  }
+}
+
+material EntityGreenWhiteWire
+{
+  technique
+  {
+    pass
+    {
+      scene_blend alpha_blend
+      depth_write off
+      
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 0.1 0.8 0.1
+        alpha_op_ex source1 src_manual src_current 0.8
+      }
+    }
+	pass
+    {
+	  polygon_mode wireframe
+      scene_blend alpha_blend
+      depth_write off
+	       
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 0.8 0.8 0.8
+        alpha_op_ex source1 src_manual src_current 0.9
+      }
+	}
+  }
+}
+
+material EntityBlueWhiteWire
+{
+  technique
+  {
+    pass
+    {
+      scene_blend alpha_blend
+      depth_write off
+      
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 0.1 0.1 0.8
+        alpha_op_ex source1 src_manual src_current 0.8
+      }
+    }
+	pass
+    {
+	  polygon_mode wireframe
+      scene_blend alpha_blend
+      depth_write off
+	       
+      texture_unit
+      {
+        colour_op_ex source1 src_manual src_current 0.8 0.8 0.8
         alpha_op_ex source1 src_manual src_current 0.9
       }
 	}

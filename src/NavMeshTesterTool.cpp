@@ -168,11 +168,11 @@ NavMeshTesterTool::NavMeshTesterTool() :
 		m_endRef(0), m_npolys(0), m_nstraightPath(0), m_nsmoothPath(0), m_hitResult(false),
 		m_distanceToWall(0), m_sposSet(false), m_eposSet(false), m_pathIterNum(0), m_steerPointCount(0),
 		dd(0), ddAgent(0), ddPolys(0), m_EntityMode(ENTITY_IDLE), mCurrentEntities(0), mframeTimeCount(0),
-		m_OverlayAttributes(0), m_bPaused(false), m_bShowWalls(true), m_bShowObstacles(false),m_bShowPath(true),
-		m_bShowWanderCircle(false), m_bShowSteeringForce(true), m_bShowFeelers(true), m_bShowDetectionBox(true),
-		m_bShowFPS(true), m_dAvFrameTime(0), m_bRenderNeighbors(false), m_bViewKeys(false),
-		m_bShowCellSpaceInfo(false), m_vCrosshair(Vector2D(0, 0)), mCurrentObjectSelection(0),
-		m_bShowEntityLabels(true)
+		m_OverlayAttributes(0), m_bPaused(false), m_bShowWalls(true), m_bShowObstacles(true),m_bShowPath(true),
+		m_bShowWanderCircle(true), m_bShowSteeringForce(true), m_bShowFeelers(true), m_bShowDetectionBox(true),
+		m_bShowFPS(true), m_dAvFrameTime(0), m_bRenderNeighbors(true), m_bViewKeys(true), mLastObjectSelection(0),
+		m_bShowCellSpaceInfo(true), m_vCrosshair(Vector2D(0, 0)), mCurrentObjectSelection(0),
+		m_bShowEntityLabels(true), ddCrosshair(0), ddCellAgentView(0), ddCellAgentNeigh(0)
 {
 	m_filter.includeFlags = SAMPLE_POLYFLAGS_ALL;
 	m_filter.excludeFlags = 0;
@@ -209,6 +209,26 @@ NavMeshTesterTool::~NavMeshTesterTool()
 	{
 		delete ddPolys;
 		ddPolys = NULL;
+	}
+	if(ddCrosshair)
+	{
+		delete ddCrosshair;
+		ddCrosshair = NULL;
+	}
+	if(ddCellAgentView)
+	{
+		delete ddCellAgentView;
+		ddCellAgentView = NULL;
+	}
+	if(ddCellAgentNeigh)
+	{
+		delete ddCellAgentNeigh;
+		ddCellAgentNeigh = NULL;
+	}
+	if(m_pCellSpace)
+	{
+		delete m_pCellSpace;
+		m_pCellSpace = NULL;
 	}
 
 	if(m_OverlayAttributes)
@@ -258,6 +278,11 @@ void NavMeshTesterTool::init(OgreTemplate* sample)
 	m_cyClient = maxBound[2];
 	m_cxClientMin = minBound[0];
 	m_cyClientMin = minBound[2];
+	
+	float cx = ((m_cxClientMin - m_cxClient) / -1);
+	float cy = ((m_cyClientMin - m_cyClient) / -1);
+	//setup the spatial subdivision class
+	m_pCellSpace = new CellSpacePartition<SinbadCharacterController*>((double)cx, (double)cy, Prm.NumCellsX, Prm.NumCellsY, Prm.NumAgents, (m_cxClientMin / -1), (m_cyClientMin / -1));
 
 
 	if (m_navMesh)
@@ -294,6 +319,13 @@ void NavMeshTesterTool::init(OgreTemplate* sample)
 	ddPolys = new DebugDrawGL();
 	ddPolys->setMaterialScript(Ogre::String("NavMeshTestPolys"));
 	ddPolys->setOffset(0.30f);
+
+	ddCrosshair = new DebugDrawGL();
+	ddCrosshair->setMaterialScript(Ogre::String("EntityLinesORANGE"));
+	ddCellAgentView = new DebugDrawGL();
+	ddCellAgentView->setMaterialScript(Ogre::String("EntityLinesGREEN"));
+	ddCellAgentNeigh = new DebugDrawGL();
+	ddCellAgentNeigh->setMaterialScript(Ogre::String("EntityLines"));
 
 	m_OverlayAttributes = new MovableTextOverlayAttributes("Attrs1", SharedData::getSingleton().iCamera, "EntityLabel", 14, ColourValue::White, "RedTransparent");
 
@@ -368,11 +400,12 @@ void NavMeshTesterTool::handleClick(const float* p, bool shift)
 				m_EntityList.push_back(chara);
 				chara->setEntityMode(m_EntityMode);
 
-				
+				m_pCellSpace->AddEntity(chara);
 				chara->Steering()->FollowPathOff();
 				chara->Steering()->FlockingOff();
 				chara->Steering()->SeparationOn();
 				chara->Steering()->ObstacleAvoidanceOn();
+				chara->Steering()->ToggleSpacePartitioningOnOff();
 				chara->SmoothingOn();
 
 				m_Vehicles.push_back(chara);
@@ -387,6 +420,9 @@ void NavMeshTesterTool::handleClick(const float* p, bool shift)
 	{
 		m_eposSet = true;
 		rcVcopy(m_epos, p);
+		m_vCrosshair.x = m_epos[0];
+		m_vCrosshair.yUP = m_epos[1];
+		m_vCrosshair.y = m_epos[2];
 		handleMouseClick();
 	}
 	recalc();
@@ -555,6 +591,26 @@ void NavMeshTesterTool::reset()
 	{
 		delete ddPolys;
 		ddPolys = NULL;
+	}
+	if(ddCrosshair)
+	{
+		delete ddCrosshair;
+		ddCrosshair = NULL;
+	}
+	if(ddCellAgentView)
+	{
+		delete ddCellAgentView;
+		ddCellAgentView = NULL;
+	}
+	if(ddCellAgentNeigh)
+	{
+		delete ddCellAgentNeigh;
+		ddCellAgentNeigh = NULL;
+	}
+	if(m_pCellSpace)
+	{
+		delete m_pCellSpace;
+		m_pCellSpace = NULL;
 	}
 
 	if(m_OverlayAttributes)
@@ -904,12 +960,15 @@ void NavMeshTesterTool::setEntityMode(int _entityMode)
 void NavMeshTesterTool::handleRender(float _timeSinceLastFrame)
 {
 
-	if(!dd || !ddAgent || !ddPolys)
+	if(!dd || !ddAgent || !ddPolys || !ddCrosshair || !ddCellAgentView || !ddCellAgentNeigh)
 		return;
 	
 	dd->clear();
 	ddAgent->clear();
 	ddPolys->clear();
+	ddCrosshair->clear();
+	ddCellAgentView->clear();
+	ddCellAgentNeigh->clear();
 
 	mframeTimeCount += _timeSinceLastFrame;
 
@@ -956,15 +1015,62 @@ void NavMeshTesterTool::handleRender(float _timeSinceLastFrame)
 	// HANDLE ENTITY UPDATING -----------------------------------------------------------
 	if(m_toolMode == TOOLMODE_ENTITY_DEMO)
 	{
+		// TODO : enable GUI options to turn this drawing on and off
+		// code already exists for turning on and off, just have to add
+		// it to gui
 		for(unsigned int i = 0; i < m_EntityList.size(); ++i)
 		{
 			m_EntityList[i]->addTime(_timeSinceLastFrame, SharedData::getSingleton().m_AppMode);
-			if(mframeTimeCount >= 10.0f)
-			{
+
+			if(mframeTimeCount >= 5.0f)
 				m_EntityList[i]->sendThinkMessage();
+
+			//render cell partitioning stuff
+			if (m_pCellSpace && m_bShowCellSpaceInfo && i==0)
+			{
+				//gdi->HollowBrush();
+				InvertedAABBox2D box(m_Vehicles[i]->Pos() - Vector2D(Prm.ViewDistance, Prm.ViewDistance),
+									 m_Vehicles[i]->Pos() + Vector2D(Prm.ViewDistance, Prm.ViewDistance));
+				box.Render(ddCellAgentView);
+
+				//gdi->RedPen();
+				ddCellAgentNeigh->begin(DU_DRAW_LINES, 5.0f);
+				CellSpace()->CalculateNeighbors(m_Vehicles[i]->Pos(), Prm.ViewDistance);
+				for (BaseGameEntity* pV = CellSpace()->begin();!CellSpace()->end();pV = CellSpace()->next())
+				{
+					duAppendCircle(ddCellAgentNeigh, pV->Pos().x, pV->Pos().yUP, pV->Pos().y, pV->BRadius(), (unsigned int)0);
+				}
+				ddCellAgentNeigh->end();
+
+				ddCellAgentView->begin(DU_DRAW_LINES, 5.0f);
+				duAppendCircle(ddCellAgentView, m_Vehicles[i]->Pos().x, m_Vehicles[i]->GetBodyNode()->getPosition().y, m_Vehicles[i]->Pos().y, Prm.ViewDistance, (unsigned int)0);
+				ddCellAgentView->end();
 			}
 		}
+		// render any steering walls
+		for (unsigned int w=0; w<m_Walls.size(); ++w)
+		{
+			m_Walls[w].Render(true);  //true flag shows normals
+		}
+		//render any steering obstacles
+		for (unsigned int ob=0; ob<m_Obstacles.size(); ++ob)
+		{
+			m_Obstacles[ob]->Render();
+		}
 
+
+
+		ddCrosshair->begin(DU_DRAW_LINES, 5.0f);
+		duAppendCircle(ddCrosshair, m_vCrosshair.x, m_vCrosshair.yUP+5.0f, m_vCrosshair.y, 4, (unsigned int)0);
+		duAppendCross(ddCrosshair, m_vCrosshair.x, m_vCrosshair.yUP+5.0f, m_vCrosshair.y, 8, (unsigned int)0);
+		ddCrosshair->end();
+
+		// render cellspace stuff
+		if (m_bShowCellSpaceInfo)
+		{
+			if(m_pCellSpace)
+				m_pCellSpace->RenderCells(dd);
+		}
 	}
 	// RENDER ITERATIVE PATH -----------------------------------------------------------
 	else if (m_toolMode == TOOLMODE_PATHFIND_ITER)
@@ -1149,7 +1255,7 @@ void NavMeshTesterTool::handleRender(float _timeSinceLastFrame)
 		}
 	}
 
-	if(mframeTimeCount >= 10.0f)
+	if(mframeTimeCount >= 5.0f)
 		mframeTimeCount = 0.0f;
 }
 
@@ -1356,6 +1462,7 @@ void NavMeshTesterTool::handleMouseClick()
 
 		const RaySceneQueryResult& result = mRaySceneQuery->execute();
 		mCurrentObjectSelection = NULL;
+		mLastObjectSelection = NULL;
 		for(unsigned int u = 0; u < m_Vehicles.size(); ++u)
 		{
 			m_Vehicles[u]->setIsSelected(false);
@@ -1368,6 +1475,7 @@ void NavMeshTesterTool::handleMouseClick()
 			while((i != result.end()))
 			{
 				mCurrentObjectSelection = i->movable->getParentSceneNode();
+				mLastObjectSelection = i->movable->getParentSceneNode();
 				Ogre::String selName = mCurrentObjectSelection->getName();
 				for(unsigned int u = 0; u < m_Vehicles.size(); ++u)
 				{

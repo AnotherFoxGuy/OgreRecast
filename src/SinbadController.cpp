@@ -400,7 +400,7 @@ void SinbadCharacterController::Update(double time_elapsed)
 			World()->CellSpace()->UpdateEntity(this, OldPos);
 		}
 
-		mBodyNode->setPosition(m_vPos.x, mBodyNode->getPosition().y, m_vPos.y);
+		mBodyNode->setPosition(m_vPos.x, (m_vPos.yUP = mBodyNode->getPosition().y), m_vPos.y);
 
 		if (isSmoothingOn())
 		{
@@ -1402,10 +1402,44 @@ void SinbadCharacterController::setEntityLabelCaption(Ogre::String _caption, int
 //------------------------------------------------------------------------------------
 void SinbadCharacterController::handleRenderDebug(void)
 {
-	ddPoints->clear();
-	ddBounds->clear();
 	//a vector to hold the transformed vertices
 	static std::vector<Vector2D>  m_vecVehicleVBTrans;
+
+	//render neighboring vehicles in different colors if requested
+	if (m_tool->RenderNeighbors())
+	{
+		if (ID() == 0) 
+		{
+			ddBounds->setMaterialScript(Ogre::String("EntityLinesRED"));
+		}
+		else if(IsTagged()) 
+		{
+			ddBounds->setMaterialScript(Ogre::String("EntityLinesGREEN"));
+		}
+		else 
+		{
+			ddBounds->setMaterialScript(Ogre::String("EntityLinesBLUE"));
+		}
+	}
+	else
+	{
+		ddBounds->setMaterialScript(Ogre::String("EntityMisc"));
+	}
+	ddPoints->clear();
+	ddBounds->clear();
+	/*
+	if (Steering()->isInterposeOn())
+		{
+			gdi->RedPen();
+		}
+	
+		if (Steering()->isHideOn())
+		{
+			gdi->GreenPen();
+		}*/
+	
+
+
 
 	if (isSmoothingOn())
 	{ 
@@ -1441,7 +1475,11 @@ void SinbadCharacterController::handleRenderDebug(void)
 	ddBounds->end();
 	ddBounds->depthMask(true);
 
-	Steering()->RenderAids();
+	//render any visual aids / and or user options
+	//if (m_tool->ViewKeys())
+	//{
+		Steering()->RenderAids();
+	//}
 }
 
 //------------------------------------------------------------------------------------

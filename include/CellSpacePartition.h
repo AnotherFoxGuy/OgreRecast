@@ -52,19 +52,23 @@
 #include <list>
 #include <cassert>
 
+#include "OgreTemplate.h"
+#include "DebugDraw.h"
+
 #include "Vector2D.h"
 #include "InvertedAABBox2D.h"
 #include "MiscUtils.h"
 
 
-
+class SinbadCharacterController;
 //------------------------------------------------------------------------
 //
 //  defines a cell containing a list of pointers to entities
 //------------------------------------------------------------------------
 template <class entity>
-struct Cell
+class Cell
 {
+public:
 	//all the entities inhabiting this cell
 	std::list<entity>    Members;
 
@@ -107,7 +111,8 @@ private:
 
 	double  m_dCellSizeX;
 	double  m_dCellSizeY;
-
+	double  m_OffsetX;
+	double  m_OffsetY;
 
 	//given a position in the game space this method determines the           
 	//relevant cell's index
@@ -115,11 +120,23 @@ private:
 
 public:
 
-	CellSpacePartition(double width,        //width of the environment
-		double height,       //height ...
-		int   cellsX,       //number of cells horizontally
-		int   cellsY,       //number of cells vertically
-		int   MaxEntitys);  //maximum number of entities to add
+	/*
+	* CTOR
+	* width		- width of the environment
+	* height	- height of the environment
+	* cellsX	- number of cells horizontally
+	* cellsY	- number of cells vertically
+	* MaxEntitys- maximum number of entities to add
+	* offsetX	- the offset that our agent has from 0 along X axis
+	* offsetY	- the offset that our agent has from 0 along Y axis
+	*/
+	CellSpacePartition( double width,
+						double height,		
+						int cellsX,			
+						int cellsY,			
+						int MaxEntitys,		
+						double offsetX = 0.0,		
+						double offsetY = 0.0);	
 
 	//adds entities to the class by allocating them to the appropriate cell
 	inline void AddEntity(const entity& ent);
@@ -145,7 +162,7 @@ public:
 	void        EmptyCells();
 
 	//call this to use the gdi to render the cell edges
-	inline void RenderCells()const;
+	inline void RenderCells(DebugDrawGL* dd)const;
 };
 
 
@@ -153,21 +170,20 @@ public:
 //----------------------------- ctor ---------------------------------------
 //--------------------------------------------------------------------------
 template<class entity>
-CellSpacePartition<entity>::CellSpacePartition(double  width,        //width of 2D space
-											   double  height,       //height...
-											   int    cellsX,       //number of divisions horizontally
-											   int    cellsY,       //and vertically
-											   int    MaxEntitys):  //maximum number of entities to partition
+CellSpacePartition<entity>::CellSpacePartition(double width, double height, int cellsX,	int cellsY, 
+											   int MaxEntitys, double offsetX, double offsetY):
 m_dSpaceWidth(width),
 m_dSpaceHeight(height),
 m_iNumCellsX(cellsX),
 m_iNumCellsY(cellsY),
-m_Neighbors(MaxEntitys, entity())
+m_Neighbors(MaxEntitys, entity()),
+m_OffsetX(offsetX),
+m_OffsetY(offsetY)
 {
 	//calculate bounds of each cell
 	m_dCellSizeX = width  / cellsX;
 	m_dCellSizeY = height / cellsY;
-
+	
 
 	//create the cells
 	for (int y=0; y<m_iNumCellsY; ++y)
@@ -196,13 +212,17 @@ template<class entity>
 void CellSpacePartition<entity>::CalculateNeighbors(Vector2D TargetPos,
 													double   QueryRadius)
 {
+	const Vector2D offSet(m_OffsetX, m_OffsetY);
+	const Vector2D newPos = (TargetPos + offSet);
 	//create an iterator and set it to the beginning of the neighbor vector
 	std::vector<entity>::iterator curNbor = m_Neighbors.begin();
 
 	//create the query box that is the bounding box of the target's query
 	//area
-	InvertedAABBox2D QueryBox(TargetPos - Vector2D(QueryRadius, QueryRadius),
-		TargetPos + Vector2D(QueryRadius, QueryRadius));
+	//InvertedAABBox2D QueryBox(TargetPos - Vector2D(QueryRadius, QueryRadius),
+	//	TargetPos + Vector2D(QueryRadius, QueryRadius));
+	InvertedAABBox2D QueryBox(newPos - Vector2D(QueryRadius, QueryRadius),
+		newPos + Vector2D(QueryRadius, QueryRadius));
 
 	//iterate through each cell and test to see if its bounding box overlaps
 	//with the query box. If it does and it also contains entities then
@@ -219,7 +239,7 @@ void CellSpacePartition<entity>::CalculateNeighbors(Vector2D TargetPos,
 			std::list<entity>::iterator it = curCell->Members.begin();
 			for (it; it!=curCell->Members.end(); ++it)
 			{     
-				if (Vec2DDistanceSq((*it)->Pos(), TargetPos) <
+				if (Vec2DDistanceSq((*it)->Pos()+offSet, TargetPos+offSet) <
 					QueryRadius*QueryRadius)
 				{
 					*curNbor++ = *it;
@@ -256,8 +276,10 @@ void CellSpacePartition<entity>::EmptyCells()
 template<class entity>
 inline int CellSpacePartition<entity>::PositionToIndex(const Vector2D& pos)const
 {
-	int idx = (int)(m_iNumCellsX * pos.x / m_dSpaceWidth) + 
-		((int)((m_iNumCellsY) * pos.y / m_dSpaceHeight) * m_iNumCellsX);
+	const Vector2D offSet(m_OffsetX, m_OffsetY);
+	const Vector2D newPos = (pos + offSet);
+	int idx = (int)(m_iNumCellsX * newPos.x / m_dSpaceWidth) + 
+		((int)((m_iNumCellsY) * newPos.y / m_dSpaceHeight) * m_iNumCellsX);
 
 	//if the entity's position is equal to vector2d(m_dSpaceWidth, m_dSpaceHeight)
 	//then the index will overshoot. We need to check for this and adjust
@@ -306,12 +328,12 @@ inline void CellSpacePartition<entity>::UpdateEntity(const entity&  ent,
 //-------------------------- RenderCells -----------------------------------
 //--------------------------------------------------------------------------
 template<class entity>
-inline void CellSpacePartition<entity>::RenderCells()const
+inline void CellSpacePartition<entity>::RenderCells(DebugDrawGL* dd)const
 {
 	std::vector<Cell<entity> >::const_iterator curCell;
 	for (curCell=m_Cells.begin(); curCell!=m_Cells.end(); ++curCell)
 	{
-		curCell->BBox.Render(false);
+		curCell->BBox.Render(dd, false);
 	}
 }
 

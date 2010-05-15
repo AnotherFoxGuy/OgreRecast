@@ -161,7 +161,19 @@ public:
 	struct Tile
 	{
 		inline Tile() : chf(0), solid(0), cset(0), pmesh(0), dmesh(0), buildTime(0) {}
-		inline ~Tile() { delete chf; delete cset; delete solid; delete pmesh; delete dmesh; }
+		inline ~Tile() 
+		{ 
+			if(chf)
+				delete chf; 
+			if(cset)
+				delete cset; 
+			if(solid)
+				delete solid; 
+			if(pmesh)
+				delete pmesh; 
+			if(dmesh)
+				delete dmesh; 
+		}
 		int x, y;
 		rcCompactHeightfield* chf;
 		rcHeightfield* solid;
@@ -174,7 +186,11 @@ public:
 	struct TileSet
 	{
 		inline TileSet() : width(0), height(0), tiles(0) {}
-		inline ~TileSet() { if(tiles) delete [] tiles; }
+		inline ~TileSet() 
+		{ 
+			if(tiles) 
+				delete [] tiles; 
+		}
 		int width, height;
 		float bmin[3], bmax[3];
 		float cs, ch;

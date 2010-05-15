@@ -51,20 +51,20 @@ public:
 		double r):BaseGameEntity(0, Vector2D(x,y), r)
 	{
 		dd = new DebugDrawGL();
-		dd->setMaterialScript(Ogre::String("EntityLines"));
+		dd->setMaterialScript(Ogre::String("EntityLinesGREY"));
 	}
 
 	Obstacle(Vector2D pos, double radius):BaseGameEntity(0, pos, radius)
 	{
 		dd = new DebugDrawGL();
-		dd->setMaterialScript(Ogre::String("EntityLines"));
+		dd->setMaterialScript(Ogre::String("EntityLinesGREY"));
 	}
 
 	Obstacle(std::ifstream& in)
 	{
 		Read(in);
 		dd = new DebugDrawGL();
-		dd->setMaterialScript(Ogre::String("EntityLines"));
+		dd->setMaterialScript(Ogre::String("EntityLinesGREY"));
 	}
 
 	virtual ~Obstacle()

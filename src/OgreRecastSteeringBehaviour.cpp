@@ -93,12 +93,41 @@ SteeringBehavior::SteeringBehavior(SinbadCharacterController* agent):
 
   //create a Path
   m_pPath = new Path();
-  m_pPath->LoopOn();
+  m_pPath->LoopOn(); // is this default behaviour desirable still ? should we default path to being one-way ?
+
+  ddForce = new DebugDrawGL();
+  ddForce->setMaterialScript(Ogre::String("EntityLinesRED"));
+  ddWanderCircle = new DebugDrawGL();
+  ddWanderCircle->setMaterialScript(Ogre::String("EntityLinesGREEN"));
+  ddWanderTarget = new DebugDrawGL();
+  ddWanderTarget->setMaterialScript(Ogre::String("EntityLinesRED"));
+  ddDetBox = new DebugDrawGL();
+  ddDetBox->setMaterialScript(Ogre::String("EntityLinesGREY"));
+  ddDetBoxHit = new DebugDrawGL();
+  ddDetBoxHit->setMaterialScript(Ogre::String("EntityLinesRED"));
+  ddFeelers = new DebugDrawGL();
+  ddFeelers->setMaterialScript(Ogre::String("EntityLinesORANGE"));
 
 }
 
 //---------------------------------dtor ----------------------------------
-SteeringBehavior::~SteeringBehavior(){delete m_pPath;}
+SteeringBehavior::~SteeringBehavior()
+{
+	if(m_pPath)
+		delete m_pPath;
+	if(ddForce)
+		delete ddForce;
+	if(ddWanderCircle)
+		delete ddWanderCircle;
+	if(ddWanderTarget)
+		delete ddWanderTarget;
+	if(ddDetBox)
+		delete ddDetBox;
+	if(ddDetBoxHit)
+		delete ddDetBoxHit;
+	if(ddFeelers)
+		delete ddFeelers;
+}
 
 
 /////////////////////////////////////////////////////////////////////////////// CALCULATE METHODS 
@@ -1471,208 +1500,173 @@ Vector2D SteeringBehavior::OffsetPursuit(const SinbadCharacterController*  leade
 //------------------------------------------------------------------------
 void SteeringBehavior::RenderAids( )
 { 
+	ddForce->clear();
+	ddWanderCircle->clear();
+	ddWanderTarget->clear();
+	ddDetBox->clear();
+	ddDetBoxHit->clear();
+	ddFeelers->clear();
+
+
+	//render the steering force
+	if (m_pVehicle->World()->RenderSteeringForce())
+	{  
+		ddForce->begin(DU_DRAW_LINES, 5.0f);
+		Vector2D F = (m_vSteeringForce / Prm.SteeringForceTweaker) * Prm.VehicleScale ;
+		Vector2D pf = m_pVehicle->Pos() + F;
+		ddForce->vertex(m_pVehicle->Pos().x, m_pVehicle->GetBodyNode()->getPosition().y, m_pVehicle->Pos().y, (unsigned int)0);
+		ddForce->vertex(pf.x, m_pVehicle->GetBodyNode()->getPosition().y, pf.y, (unsigned int)0);
+		//gdi->Line(m_pVehicle->Pos(), m_pVehicle->Pos() + F);
+		ddForce->end();
+	}
+
+	//render wander stuff if relevant
+	if (On(wander) && m_pVehicle->World()->RenderWanderCircle())
+	{    
+
+		//calculate the center of the wander circle
+		Vector2D m_vTCC = PointToWorldSpace(Vector2D(m_dWanderDistance*m_pVehicle->BRadius(), 0),
+			m_pVehicle->Heading(),
+			m_pVehicle->Side(),
+			m_pVehicle->Pos());
+		//draw the wander circle
+		//gdi->GreenPen();
+		//gdi->HollowBrush();
+		ddWanderCircle->begin(DU_DRAW_LINES_STRIP, 5.0f);
+		duAppendCircle(ddWanderCircle, m_vTCC.x, m_pVehicle->GetBodyNode()->getPosition().y, m_vTCC.y, m_dWanderRadius*m_pVehicle->BRadius(), (unsigned int)0);
+		//gdi->Circle(m_vTCC, m_dWanderRadius*m_pVehicle->BRadius()); 
+		ddWanderCircle->end();
+
+		//draw the wander target
+		Vector2D m_vTCD = PointToWorldSpace((m_vWanderTarget + Vector2D(m_dWanderDistance,0))*m_pVehicle->BRadius(),
+			m_pVehicle->Heading(),
+			m_pVehicle->Side(),
+			m_pVehicle->Pos());
+		//gdi->RedPen();
+		//gdi->Circle(, 3);                                  
+		ddWanderTarget->begin(DU_DRAW_LINES_STRIP, 5.0f);
+		duAppendCircle(ddWanderTarget, m_vTCD.x, m_pVehicle->GetBodyNode()->getPosition().y, m_vTCD.y, 3.0f, (unsigned int)0);
+		ddWanderTarget->end();
+	}
+
+
+
+	//render the detection box if relevant
+	if (m_pVehicle->World()->RenderDetectionBox())
+	{
+		//gdi->GreyPen();
+
+		//a vertex buffer rqd for drawing the detection box
+		static std::vector<Vector2D> box(4);
+
+		double length = Prm.MinDetectionBoxLength + 
+			(m_pVehicle->Speed()/m_pVehicle->MaxSpeed()) *
+			Prm.MinDetectionBoxLength;
+
+		//verts for the detection box buffer
+		box[0] = Vector2D(0,m_pVehicle->BRadius());
+		box[1] = Vector2D(length, m_pVehicle->BRadius());
+		box[2] = Vector2D(length, -m_pVehicle->BRadius());
+		box[3] = Vector2D(0, -m_pVehicle->BRadius());
+
+		ddDetBox->begin(DU_DRAW_LINES_STRIP, 5.0f);
+		if (!m_pVehicle->isSmoothingOn())
+		{
+			box = WorldTransform(box,m_pVehicle->Pos(),m_pVehicle->Heading(),m_pVehicle->Side());
+			for(unsigned int i = 0; i < box.size(); ++i)
+			{
+				ddDetBox->vertex(box[i].x, m_pVehicle->GetBodyNode()->getPosition().y, box[i].y, (unsigned int)0);
+			}
+			//gdi->ClosedShape(box);
+		}
+		else
+		{
+			box = WorldTransform(box,m_pVehicle->Pos(),m_pVehicle->SmoothedHeading(),m_pVehicle->SmoothedHeading().Perp());
+			for(unsigned int i = 0; i < box.size(); ++i)
+			{
+				ddDetBox->vertex(box[i].x, m_pVehicle->GetBodyNode()->getPosition().y, box[i].y, (unsigned int)0);
+			}
+			//gdi->ClosedShape(box);
+		} 
+		ddDetBox->end();
+
+		//////////////////////////////////////////////////////////////////////////
+		//the detection box length is proportional to the agent's velocity
+		m_dDBoxLength = Prm.MinDetectionBoxLength + (m_pVehicle->Speed()/m_pVehicle->MaxSpeed()) * Prm.MinDetectionBoxLength;
+
+		//tag all obstacles within range of the box for processing
+		m_pVehicle->World()->TagObstaclesWithinViewRange(m_pVehicle, m_dDBoxLength);
+
+		//this will keep track of the closest intersecting obstacle (CIB)
+		BaseGameEntity* ClosestIntersectingObstacle = NULL;
+
+		//this will be used to track the distance to the CIB
+		double DistToClosestIP = MaxDouble;
+
+		//this will record the transformed local coordinates of the CIB
+		Vector2D LocalPosOfClosestObstacle;
+
+		std::vector<BaseGameEntity*>::const_iterator curOb = m_pVehicle->World()->Obstacles().begin();
+
+		while(curOb != m_pVehicle->World()->Obstacles().end())
+		{
+			//if the obstacle has been tagged within range proceed
+			if ((*curOb)->IsTagged())
+			{
+				//calculate this obstacle's position in local space
+				Vector2D LocalPos = PointToLocalSpace((*curOb)->Pos(),
+					m_pVehicle->Heading(),
+					m_pVehicle->Side(),
+					m_pVehicle->Pos());
+
+				//if the local position has a negative x value then it must lay
+				//behind the agent. (in which case it can be ignored)
+				if (LocalPos.x >= 0)
+				{
+					//if the distance from the x axis to the object's position is less
+					//than its radius + half the width of the detection box then there
+					//is a potential intersection.
+					if (fabs(LocalPos.y) < ((*curOb)->BRadius() + m_pVehicle->BRadius()))
+					{
+						//gdi->ThickRedPen();
+						//gdi->ClosedShape(box);        
+						ddDetBoxHit->begin(DU_DRAW_LINES_STRIP, 10.0f);
+						for(unsigned int i = 0; i < box.size(); ++i)
+						{
+							ddDetBox->vertex(box[i].x, m_pVehicle->GetBodyNode()->getPosition().y, box[i].y, (unsigned int)0);
+						}
+						ddDetBoxHit->end();
+					}
+				}
+			}
+
+			++curOb;
+		}
+	}
+
+
+	//render the wall avoidnace feelers
+    if (On(wall_avoidance) && m_pVehicle->World()->RenderFeelers())
+    {
+      //gdi->OrangePen();
+	  ddFeelers->begin(DU_DRAW_LINES_STRIP, 5.0f);
+  
+      for (unsigned int flr=0; flr<m_Feelers.size(); ++flr)
+      {
+		  ddFeelers->vertex(m_pVehicle->Pos().x, m_pVehicle->GetBodyNode()->getPosition().y, m_pVehicle->Pos().y, (unsigned int)0);
+		  ddFeelers->vertex(m_Feelers[flr].x, m_pVehicle->GetBodyNode()->getPosition().y, m_Feelers[flr].y, (unsigned int)0);
+       // gdi->Line(m_pVehicle->Pos(), m_Feelers[flr]);
+      }  
+	  ddFeelers->end();
+    }
+
 	//render path info
 	if (On(follow_path) && m_pVehicle->World()->RenderPath())
 	{
 		m_pPath->Render();
 	}
-  // COMMENTED OUT AS ITS USING WIN32 GDI ATM, NEED TO CONVERT TO OGRE
-  // ALSO FIND A MORE EFFIFIENT WAY OF DRWAING WITHOUT MANUAL OBJECTS AND
-  // WITHOUT ACCESSING THE DEVICE MANUALLY
- /*
-   gdi->TransparentText();
-    gdi->TextColor(Cgdi::grey);
-  
-    int NextSlot = 0; int SlotSize = 20;
-  
-    if (KEYDOWN(VK_INSERT)){m_pVehicle->SetMaxForce(m_pVehicle->MaxForce() + 1000.0f*m_pVehicle->TimeElapsed());} 
-    if (KEYDOWN(VK_DELETE)){if (m_pVehicle->MaxForce() > 0.2f) m_pVehicle->SetMaxForce(m_pVehicle->MaxForce() - 1000.0f*m_pVehicle->TimeElapsed());}
-    if (KEYDOWN(VK_HOME)){m_pVehicle->SetMaxSpeed(m_pVehicle->MaxSpeed() + 50.0f*m_pVehicle->TimeElapsed());}
-    if (KEYDOWN(VK_END)){if (m_pVehicle->MaxSpeed() > 0.2f) m_pVehicle->SetMaxSpeed(m_pVehicle->MaxSpeed() - 50.0f*m_pVehicle->TimeElapsed());}
-  
-    if (m_pVehicle->MaxForce() < 0) m_pVehicle->SetMaxForce(0.0f);
-    if (m_pVehicle->MaxSpeed() < 0) m_pVehicle->SetMaxSpeed(0.0f);
-    
-    if (m_pVehicle->ID() == 0){ gdi->TextAtPos(5,NextSlot,"MaxForce(Ins/Del):"); gdi->TextAtPos(160,NextSlot,ttos(m_pVehicle->MaxForce()/Prm.SteeringForceTweaker)); NextSlot+=SlotSize;}
-    if (m_pVehicle->ID() == 0){ gdi->TextAtPos(5,NextSlot,"MaxSpeed(Home/End):"); gdi->TextAtPos(160,NextSlot,ttos(m_pVehicle->MaxSpeed()));NextSlot+=SlotSize;}
-  
-    //render the steering force
-    if (m_pVehicle->World()->RenderSteeringForce())
-    {  
-      gdi->RedPen();
-      Vector2D F = (m_vSteeringForce / Prm.SteeringForceTweaker) * Prm.VehicleScale ;
-      gdi->Line(m_pVehicle->Pos(), m_pVehicle->Pos() + F);
-    }
-  
-    //render wander stuff if relevant
-    if (On(wander) && m_pVehicle->World()->RenderWanderCircle())
-    {    
-      if (KEYDOWN('F')){m_dWanderJitter+=1.0f*m_pVehicle->TimeElapsed(); Clamp(m_dWanderJitter, 0.0f, 100.0f);}
-      if (KEYDOWN('V')){m_dWanderJitter-=1.0f*m_pVehicle->TimeElapsed(); Clamp(m_dWanderJitter, 0.0f, 100.0f );}
-      if (KEYDOWN('G')){m_dWanderDistance+=2.0f*m_pVehicle->TimeElapsed(); Clamp(m_dWanderDistance, 0.0f, 50.0f);}
-      if (KEYDOWN('B')){m_dWanderDistance-=2.0f*m_pVehicle->TimeElapsed(); Clamp(m_dWanderDistance, 0.0f, 50.0f);}
-      if (KEYDOWN('H')){m_dWanderRadius+=2.0f*m_pVehicle->TimeElapsed(); Clamp(m_dWanderRadius, 0.0f, 100.0f);}
-      if (KEYDOWN('N')){m_dWanderRadius-=2.0f*m_pVehicle->TimeElapsed(); Clamp(m_dWanderRadius, 0.0f, 100.0f);}
-  
-   
-      if (m_pVehicle->ID() == 0){ gdi->TextAtPos(5,NextSlot, "Jitter(F/V): "); gdi->TextAtPos(160, NextSlot, ttos(m_dWanderJitter));NextSlot+=SlotSize;}
-      if (m_pVehicle->ID() == 0) {gdi->TextAtPos(5,NextSlot,"Distance(G/B): "); gdi->TextAtPos(160, NextSlot, ttos(m_dWanderDistance));NextSlot+=SlotSize;}
-      if (m_pVehicle->ID() == 0) {gdi->TextAtPos(5,NextSlot,"Radius(H/N): ");gdi->TextAtPos(160, NextSlot,  ttos(m_dWanderRadius));NextSlot+=SlotSize;}
-  
-      
-      //calculate the center of the wander circle
-      Vector2D m_vTCC = PointToWorldSpace(Vector2D(m_dWanderDistance*m_pVehicle->BRadius(), 0),
-                                           m_pVehicle->Heading(),
-                                           m_pVehicle->Side(),
-                                           m_pVehicle->Pos());
-      //draw the wander circle
-      gdi->GreenPen();
-      gdi->HollowBrush();
-      gdi->Circle(m_vTCC, m_dWanderRadius*m_pVehicle->BRadius()); 
-  
-      //draw the wander target
-      gdi->RedPen();
-      gdi->Circle(PointToWorldSpace((m_vWanderTarget + Vector2D(m_dWanderDistance,0))*m_pVehicle->BRadius(),
-                                    m_pVehicle->Heading(),
-                                    m_pVehicle->Side(),
-                                    m_pVehicle->Pos()), 3);                                  
-    }
-  
-    //render the detection box if relevant
-    if (m_pVehicle->World()->RenderDetectionBox())
-    {
-      gdi->GreyPen();
-  
-      //a vertex buffer rqd for drawing the detection box
-      static std::vector<Vector2D> box(4);
-  
-      double length = Prm.MinDetectionBoxLength + 
-                    (m_pVehicle->Speed()/m_pVehicle->MaxSpeed()) *
-                    Prm.MinDetectionBoxLength;
-  
-      //verts for the detection box buffer
-      box[0] = Vector2D(0,m_pVehicle->BRadius());
-      box[1] = Vector2D(length, m_pVehicle->BRadius());
-      box[2] = Vector2D(length, -m_pVehicle->BRadius());
-      box[3] = Vector2D(0, -m_pVehicle->BRadius());
-   
-    
-      if (!m_pVehicle->isSmoothingOn())
-      {
-        box = WorldTransform(box,m_pVehicle->Pos(),m_pVehicle->Heading(),m_pVehicle->Side());
-        gdi->ClosedShape(box);
-      }
-      else
-      {
-        box = WorldTransform(box,m_pVehicle->Pos(),m_pVehicle->SmoothedHeading(),m_pVehicle->SmoothedHeading().Perp());
-        gdi->ClosedShape(box);
-      } 
-  
-  
-      //////////////////////////////////////////////////////////////////////////
-      //the detection box length is proportional to the agent's velocity
-    m_dDBoxLength = Prm.MinDetectionBoxLength + 
-                    (m_pVehicle->Speed()/m_pVehicle->MaxSpeed()) *
-                    Prm.MinDetectionBoxLength;
-  
-    //tag all obstacles within range of the box for processing
-    m_pVehicle->World()->TagObstaclesWithinViewRange(m_pVehicle, m_dDBoxLength);
-  
-    //this will keep track of the closest intersecting obstacle (CIB)
-    BaseGameEntity* ClosestIntersectingObstacle = NULL;
-   
-    //this will be used to track the distance to the CIB
-    double DistToClosestIP = MaxDouble;
-  
-    //this will record the transformed local coordinates of the CIB
-    Vector2D LocalPosOfClosestObstacle;
-  
-    std::vector<BaseGameEntity*>::const_iterator curOb = m_pVehicle->World()->Obstacles().begin();
-  
-    while(curOb != m_pVehicle->World()->Obstacles().end())
-    {
-      //if the obstacle has been tagged within range proceed
-      if ((*curOb)->IsTagged())
-      {
-        //calculate this obstacle's position in local space
-        Vector2D LocalPos = PointToLocalSpace((*curOb)->Pos(),
-                                               m_pVehicle->Heading(),
-                                               m_pVehicle->Side(),
-                                               m_pVehicle->Pos());
-  
-        //if the local position has a negative x value then it must lay
-        //behind the agent. (in which case it can be ignored)
-        if (LocalPos.x >= 0)
-        {
-          //if the distance from the x axis to the object's position is less
-          //than its radius + half the width of the detection box then there
-          //is a potential intersection.
-          if (fabs(LocalPos.y) < ((*curOb)->BRadius() + m_pVehicle->BRadius()))
-          {
-            gdi->ThickRedPen();
-            gdi->ClosedShape(box);        
-          }
-        }
-      }
-  
-      ++curOb;
-    }
-  
-  
-  /////////////////////////////////////////////////////
-    }
-  
-    //render the wall avoidnace feelers
-    if (On(wall_avoidance) && m_pVehicle->World()->RenderFeelers())
-    {
-      gdi->OrangePen();
-  
-      for (unsigned int flr=0; flr<m_Feelers.size(); ++flr)
-      {
-  
-        gdi->Line(m_pVehicle->Pos(), m_Feelers[flr]);
-      }            
-    }  
-  
-    //render path info
-    if (On(follow_path) && m_pVehicle->World()->RenderPath())
-    {
-      m_pPath->Render();
-    }
-  
-    
-    if (On(separation))
-    {
-      if (m_pVehicle->ID() == 0){ gdi->TextAtPos(5, NextSlot, "Separation(S/X):");gdi->TextAtPos(160,NextSlot, ttos(m_dWeightSeparation/Prm.SteeringForceTweaker));NextSlot+=SlotSize;}
-  
-      if (KEYDOWN('S')){m_dWeightSeparation += 200*m_pVehicle->TimeElapsed(); Clamp(m_dWeightSeparation, 0.0f, 50.0f * Prm.SteeringForceTweaker);}
-      if (KEYDOWN('X')){m_dWeightSeparation -= 200*m_pVehicle->TimeElapsed();Clamp(m_dWeightSeparation, 0.0f, 50.0f * Prm.SteeringForceTweaker);}
-    }
-  
-    if (On(allignment))
-    {
-      if (m_pVehicle->ID() == 0) {gdi->TextAtPos(5, NextSlot, "Alignment(A/Z):"); gdi->TextAtPos(160, NextSlot, ttos(m_dWeightAlignment/Prm.SteeringForceTweaker));NextSlot+=SlotSize;}
-  
-      if (KEYDOWN('A')){m_dWeightAlignment += 200*m_pVehicle->TimeElapsed();Clamp(m_dWeightAlignment, 0.0f, 50.0f * Prm.SteeringForceTweaker);}
-      if (KEYDOWN('Z')){m_dWeightAlignment -= 200*m_pVehicle->TimeElapsed();Clamp(m_dWeightAlignment, 0.0f, 50.0f * Prm.SteeringForceTweaker);}
-    }
-  
-    if (On(cohesion))
-    {
-      if (m_pVehicle->ID() == 0) {gdi->TextAtPos(5, NextSlot, "Cohesion(D/C):"); gdi->TextAtPos(160, NextSlot, ttos(m_dWeightCohesion/Prm.SteeringForceTweaker));NextSlot+=SlotSize;}
-      if (KEYDOWN('D')){m_dWeightCohesion += 200*m_pVehicle->TimeElapsed();Clamp(m_dWeightCohesion, 0.0f, 50.0f * Prm.SteeringForceTweaker);}
-      if (KEYDOWN('C')){m_dWeightCohesion -= 200*m_pVehicle->TimeElapsed();Clamp(m_dWeightCohesion, 0.0f, 50.0f * Prm.SteeringForceTweaker);}
-    }
-  
-    if (On(follow_path))
-    { 
-      double sd = sqrt(m_dWaypointSeekDistSq);
-      if (m_pVehicle->ID() == 0){ gdi->TextAtPos(5, NextSlot, "SeekDistance(D/C):");gdi->TextAtPos(160, NextSlot,ttos(sd));NextSlot+=SlotSize;}
-      
-      if (KEYDOWN('D')){m_dWaypointSeekDistSq += 1.0;}
-      if (KEYDOWN('C')){m_dWaypointSeekDistSq -= 1.0; Clamp(m_dWaypointSeekDistSq, 0.0f, 400.0f);}
-    }  */
-  
+	
+
 
 }
 
