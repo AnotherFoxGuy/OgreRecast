@@ -144,6 +144,7 @@ class NavMeshTesterTool : public SampleTool
 	std::vector<BaseGameEntity*>  m_Obstacles;
 	std::vector<Wall2D>           m_Walls;
 	CellSpacePartition<SinbadCharacterController*>* m_pCellSpace;
+	Vector2D	m_offSetVec;
 
 	bool                          m_bPaused;
 	int                           m_cxClient, m_cyClient;

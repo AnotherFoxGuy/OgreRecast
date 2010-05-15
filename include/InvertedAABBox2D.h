@@ -78,16 +78,16 @@ public:
 	double    Right()const{return m_vBottomRight.x;}
 	Vector2D Center()const{return m_vCenter;}
 
-	void     Render(DebugDrawGL* dd, bool RenderCenter = false)const
+	void     Render(DebugDrawGL* dd, bool RenderCenter = false, double offSetX = 0.0, double offSetY = 0.0)const
 	{
 		//dd->clear();
-
+		const Vector2D offSets(offSetX, offSetY);
 		dd->begin(DU_DRAW_LINES_STRIP, 10.0f);
-		duAppendBoxWire(dd, (float)Left(), (float)m_vTopLeft.yUP, (float)Top(), (float)Right(), (float)m_vBottomRight.yUP, (float)Bottom(), (unsigned int)0);
+		duAppendBoxWire(dd, (float)Left()+offSets.x, (float)m_vTopLeft.yUP, (float)Top()+offSets.y, (float)Right()+offSets.x, (float)m_vBottomRight.yUP, (float)Bottom()+offSets.y, (unsigned int)0);
 
 		if (RenderCenter)
 		{
-			duAppendCircle(dd, m_vCenter.x, m_vCenter.yUP, m_vCenter.y , 5, (unsigned int)0);
+			duAppendCircle(dd, m_vCenter.x+offSets.x, m_vCenter.yUP, m_vCenter.y+offSets.y, 5, (unsigned int)0);
 		}
 		dd->end();
 	}

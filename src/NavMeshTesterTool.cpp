@@ -172,7 +172,8 @@ NavMeshTesterTool::NavMeshTesterTool() :
 		m_bShowWanderCircle(true), m_bShowSteeringForce(true), m_bShowFeelers(true), m_bShowDetectionBox(true),
 		m_bShowFPS(true), m_dAvFrameTime(0), m_bRenderNeighbors(true), m_bViewKeys(true), mLastObjectSelection(0),
 		m_bShowCellSpaceInfo(true), m_vCrosshair(Vector2D(0, 0)), mCurrentObjectSelection(0),
-		m_bShowEntityLabels(true), ddCrosshair(0), ddCellAgentView(0), ddCellAgentNeigh(0)
+		m_bShowEntityLabels(true), ddCrosshair(0), ddCellAgentView(0), ddCellAgentNeigh(0),
+		m_offSetVec(Vector2D(0, 0))
 {
 	m_filter.includeFlags = SAMPLE_POLYFLAGS_ALL;
 	m_filter.excludeFlags = 0;
@@ -281,6 +282,8 @@ void NavMeshTesterTool::init(OgreTemplate* sample)
 	
 	float cx = ((m_cxClientMin - m_cxClient) / -1);
 	float cy = ((m_cyClientMin - m_cyClient) / -1);
+	m_offSetVec.x = m_cxClientMin;
+	m_offSetVec.y = m_cyClientMin;
 	//setup the spatial subdivision class
 	m_pCellSpace = new CellSpacePartition<SinbadCharacterController*>((double)cx, (double)cy, Prm.NumCellsX, Prm.NumCellsY, Prm.NumAgents, (m_cxClientMin / -1), (m_cyClientMin / -1));
 
@@ -1026,7 +1029,7 @@ void NavMeshTesterTool::handleRender(float _timeSinceLastFrame)
 				m_EntityList[i]->sendThinkMessage();
 
 			//render cell partitioning stuff
-			if (m_pCellSpace && m_bShowCellSpaceInfo && i==0)
+			if (m_pCellSpace && m_bShowCellSpaceInfo && i%3 == 0)
 			{
 				//gdi->HollowBrush();
 				InvertedAABBox2D box(m_Vehicles[i]->Pos() - Vector2D(Prm.ViewDistance, Prm.ViewDistance),
@@ -1058,8 +1061,6 @@ void NavMeshTesterTool::handleRender(float _timeSinceLastFrame)
 			m_Obstacles[ob]->Render();
 		}
 
-
-
 		ddCrosshair->begin(DU_DRAW_LINES, 5.0f);
 		duAppendCircle(ddCrosshair, m_vCrosshair.x, m_vCrosshair.yUP+5.0f, m_vCrosshair.y, 4, (unsigned int)0);
 		duAppendCross(ddCrosshair, m_vCrosshair.x, m_vCrosshair.yUP+5.0f, m_vCrosshair.y, 8, (unsigned int)0);
@@ -1069,7 +1070,7 @@ void NavMeshTesterTool::handleRender(float _timeSinceLastFrame)
 		if (m_bShowCellSpaceInfo)
 		{
 			if(m_pCellSpace)
-				m_pCellSpace->RenderCells(dd);
+				m_pCellSpace->RenderCells(dd, m_offSetVec.x, m_offSetVec.y);
 		}
 	}
 	// RENDER ITERATIVE PATH -----------------------------------------------------------
